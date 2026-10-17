@@ -150,3 +150,23 @@ func socialSVG() []byte {
 	b.WriteString("</svg>\n")
 	return []byte(b.String())
 }
+
+// checkButtonSVG is the README's call to action. It is self-contained vector art:
+// GitHub loads README SVGs as images, so external images and web fonts never load.
+func checkButtonSVG() []byte {
+	const sans = `font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"`
+	var b strings.Builder
+	b.WriteString(`<svg xmlns="http://www.w3.org/2000/svg" width="520" height="84" viewBox="0 0 520 84" role="img" aria-labelledby="t">` + "\n")
+	b.WriteString(`<title id="t">Check your GitHub achievements: no install, sign in to include private work</title>` + "\n")
+	b.WriteString(`<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2ea043"/><stop offset="1" stop-color="#1a7f37"/></linearGradient></defs>` + "\n")
+	b.WriteString(`<rect x="1" y="1" width="518" height="82" rx="14" fill="url(#g)" stroke="#116329" stroke-width="2"/>` + "\n")
+	// A trophy: cup, two handles, stem and base.
+	b.WriteString(`<g transform="translate(26 18)" fill="#fae57e" stroke="#fae57e" stroke-width="3" stroke-linejoin="round">` +
+		`<path d="M10 4h28v14a14 14 0 0 1-28 0z"/>` +
+		`<path d="M10 9H4v4a8 8 0 0 0 7 8" fill="none"/><path d="M38 9h6v4a8 8 0 0 1-7 8" fill="none"/>` +
+		`<path d="M21 32h6v7h-6z"/><path d="M14 41h20v5H14z"/></g>` + "\n")
+	fmt.Fprintf(&b, `<text x="90" y="40" %s font-size="25" font-weight="700" fill="#ffffff">Check your GitHub achievements →</text>`+"\n", sans)
+	fmt.Fprintf(&b, `<text x="90" y="64" %s font-size="15" fill="#dafbe1">No install · sign in with GitHub to include private work</text>`+"\n", sans)
+	b.WriteString("</svg>\n")
+	return []byte(b.String())
+}

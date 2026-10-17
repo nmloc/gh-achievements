@@ -24,6 +24,7 @@ type Link struct{ Label, URL string }
 // Card is one badge on the results page.
 type Card struct {
 	Slug, Name, HowToEarn, Image, ImageAlt, Initials, TierLabel, Line string
+	Icon                                                              string // our own icon when GitHub has no artwork
 	Source, SourceMeaning, BadgeURL, Unlocked, TierText               string
 	Tier                                                              int
 	Earned, Locked                                                    bool
@@ -92,7 +93,7 @@ func newCard(row report.Row) Card {
 		Earned: row.Status == report.Earned, Locked: row.Status != report.Earned,
 		Source: string(row.Source), SourceMeaning: sourceMeaning[row.Source],
 		Unlocked: row.Unlocked, Notes: webNotes(row.Notes), TierText: tierText(row.Tiers),
-		Image: catalog.Image(row.Slug, row.Tier), Initials: webui.Initials(row.Name),
+		Image: catalog.Image(row.Slug, row.Tier), Initials: webui.Initials(row.Name), Icon: webui.OwnIcon(row.Slug),
 	}
 	if _, known := catalog.BySlug(row.Slug); known {
 		c.BadgeURL = webui.Rel(webui.SiteURL + "achievements/" + row.Slug + "/")

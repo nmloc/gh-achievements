@@ -98,7 +98,15 @@ func generate() (map[string][]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("README: %w", err)
 	}
+	updated, err = replaceBetween(updated, "<!-- badges:start -->", "<!-- badges:end -->", readmeBadges())
+	if err != nil {
+		return nil, fmt.Errorf("README: %w", err)
+	}
 	files[readmeIn] = []byte(updated)
+	files["docs/check-button.svg"] = checkButtonSVG()
+	for path, body := range iconFiles() {
+		files[path] = body
+	}
 
 	pages, err := sitePages()
 	if err != nil {
@@ -191,13 +199,48 @@ var tierNames = []string{"x1 · base", "x2 · bronze", "x3 · silver", "x4 · go
 
 // ---------- README ----------
 
+// iconFiles are our own icons for badges without GitHub artwork: served by the site
+// and referenced by the README table.
+func iconFiles() map[string][]byte {
+	out := map[string][]byte{}
+	for _, a := range catalog.Achievements {
+		if svg := webui.OwnIconSVG(a.Slug); svg != nil {
+			out["site/icons/"+a.Slug+".svg"] = svg
+			out["docs/icons/"+a.Slug+".svg"] = svg
+		}
+	}
+	return out
+}
+
+// readmeBadges is the hero row: GitHub's own top-tier art for every earnable badge,
+// each linking to its page. GitHub serves README images through its camo proxy.
+func readmeBadges() string {
+	var b strings.Builder
+	b.WriteString("<p align=\"center\">\n")
+	for _, a := range catalog.Achievements {
+		if a.Kind != catalog.Earnable {
+			continue
+		}
+		fmt.Fprintf(&b, "  <a href=\"%sachievements/%s/\"><img src=\"%s\" width=\"72\" height=\"72\" alt=\"%s\" title=\"%s\"></a>\n",
+			webui.SiteURL, a.Slug, catalog.Image(a.Slug, len(a.Tiers)), a.Name, a.Name)
+	}
+	b.WriteString("</p>\n")
+	return b.String()
+}
+
 func readmeTable() string {
 	var b strings.Builder
-	b.WriteString("| Achievement | How to earn it | Tiers | Status | What `gh achievements` shows |\n")
-	b.WriteString("|---|---|---|---|---|\n")
+	b.WriteString("| Badge | Achievement | How to earn it | Tiers | Status | What `gh achievements` shows |\n")
+	b.WriteString("|:-:|---|---|---|---|---|\n")
 	for _, a := range catalog.Achievements {
-		fmt.Fprintf(&b, "| [%s](%sachievements/%s/) | %s | %s | %s | %s |\n",
-			a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind), progressText(a))
+		art := ""
+		if img := catalog.Image(a.Slug, len(a.Tiers)); img != "" {
+			art = fmt.Sprintf(`<img src="%s" width="40" height="40" alt="%s badge">`, img, a.Name)
+		} else if webui.OwnIcon(a.Slug) != "" {
+			art = fmt.Sprintf(`<img src="docs/icons/%s.svg" width="40" height="40" alt="%s (GitHub never released its artwork)">`, a.Slug, a.Name)
+		}
+		fmt.Fprintf(&b, "| %s | [%s](%sachievements/%s/) | %s | %s | %s | %s |\n",
+			art, a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind), progressText(a))
 	}
 	b.WriteString("\nProfile highlights it also reports: ")
 	names := make([]string, len(catalog.Highlights))

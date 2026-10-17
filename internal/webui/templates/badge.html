@@ -1,5 +1,5 @@
 {{define "content"}}{{with .B}}
-{{if .Image}}<img class="badge-hero" src="{{.Image}}" width="160" height="160" alt="{{.Name}} GitHub achievement badge">{{else}}<span class="badge-hero placeholder" aria-hidden="true">{{.Initials}}</span>{{end}}
+{{if .Image}}<img class="badge-hero" src="{{.Image}}" width="160" height="160" alt="{{.Name}} GitHub achievement badge">{{else if .Icon}}<img class="badge-hero own" src="{{.Icon}}" width="160" height="160" alt="{{.Name}}: GitHub never released this badge's artwork">{{else}}<span class="badge-hero placeholder" aria-hidden="true">{{.Initials}}</span>{{end}}
 <p class="lede">{{.Details}}</p>
 <dl class="facts">
   <dt>How to earn it</dt><dd>{{.HowToEarn}}</dd>

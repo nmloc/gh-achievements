@@ -6,27 +6,29 @@ import (
 	"testing"
 )
 
-// Badges with no GitHub artwork (disabled ones) get a neutral placeholder, not nothing,
-// so the badge page has a hero and the table rows stay aligned.
-func TestSitePlaceholders_badgesWithoutArtGetAPlaceholder(t *testing.T) {
+// GitHub deleted the artwork of the two disabled badges (its CDN answers 404), so they
+// get our own icon from /icons/ — never an empty grey circle that reads as broken.
+func TestSiteIcons_badgesWithoutGitHubArtGetOurOwnIcon(t *testing.T) {
 	pages, err := sitePages()
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	heart := string(pages["site/achievements/heart-on-your-sleeve/index.html"])
-	if !strings.Contains(heart, `class="badge-hero placeholder"`) || !strings.Contains(heart, ">HO</span>") {
-		t.Errorf("heart-on-your-sleeve page has no HO placeholder hero")
+	for _, slug := range []string{"heart-on-your-sleeve", "open-sourcerer"} {
+		page := string(pages["site/achievements/"+slug+"/index.html"])
+		if !strings.Contains(page, `<img class="badge-hero own" src="/icons/`+slug+`.svg"`) {
+			t.Errorf("%s page has no own-icon hero", slug)
+		}
+		if len(iconFiles()["site/icons/"+slug+".svg"]) == 0 {
+			t.Errorf("site/icons/%s.svg not generated", slug)
+		}
 	}
-	open := string(pages["site/achievements/open-sourcerer/index.html"])
-	if !strings.Contains(open, `class="badge-hero placeholder"`) || !strings.Contains(open, ">OS</span>") {
-		t.Errorf("open-sourcerer page has no OS placeholder hero")
-	}
-
 	for _, path := range []string{"site/achievements/index.html", "site/index.html"} {
 		page := string(pages[path])
-		if n := strings.Count(page, `class="badge-icon placeholder"`); n != 2 {
-			t.Errorf("%s has %d placeholder icons, want 2 (heart-on-your-sleeve, open-sourcerer)", path, n)
+		if strings.Contains(page, "placeholder") {
+			t.Errorf("%s still renders an empty placeholder", path)
+		}
+		if n := strings.Count(page, `class="badge-icon own"`); n != 2 {
+			t.Errorf("%s has %d own icons, want 2", path, n)
 		}
 	}
 }

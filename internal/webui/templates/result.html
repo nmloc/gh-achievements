@@ -50,7 +50,7 @@
 {{define "card"}}
 <details class="badge-card{{if .Locked}} locked{{end}}" data-badge="{{.Slug}}">
   <summary>
-    {{if .Image}}<img class="badge-img" src="{{.Image}}" width="96" height="96" alt="{{.ImageAlt}}" loading="lazy">{{else}}<span class="badge-img placeholder" aria-hidden="true">{{.Initials}}</span>{{end}}
+    {{if .Image}}<img class="badge-img" src="{{.Image}}" width="96" height="96" alt="{{.ImageAlt}}" loading="lazy">{{else if .Icon}}<img class="badge-img own" src="{{.Icon}}" width="96" height="96" alt="{{.Name}}: GitHub never released this badge's artwork" loading="lazy">{{else}}<span class="badge-img placeholder" aria-hidden="true">{{.Initials}}</span>{{end}}
     <span class="badge-name">{{.Name}}{{if .TierLabel}} <span class="tier t{{.Tier}}">{{.TierLabel}}</span>{{end}}</span>
     {{with .Progress}}<progress value="{{.Value}}" max="{{.Max}}" aria-label="{{.Label}}">{{.Value}} of {{.Max}}</progress>{{end}}
     <span class="badge-line">{{.Line}}</span>

@@ -1,8 +1,27 @@
 # gh-achievements: check your GitHub achievements progress
 
-**Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed.**
+<!-- badges:start -->
+<p align="center">
+  <a href="https://gh-achievements.vercel.app/achievements/pull-shark/"><img src="https://github.githubassets.com/assets/pull-shark-gold-90985540b385.png" width="72" height="72" alt="Pull Shark" title="Pull Shark"></a>
+  <a href="https://gh-achievements.vercel.app/achievements/starstruck/"><img src="https://github.githubassets.com/assets/starstruck-gold-a35e077693cc.png" width="72" height="72" alt="Starstruck" title="Starstruck"></a>
+  <a href="https://gh-achievements.vercel.app/achievements/pair-extraordinaire/"><img src="https://github.githubassets.com/assets/pair-extraordinaire-gold-5335a3b8ae7d.png" width="72" height="72" alt="Pair Extraordinaire" title="Pair Extraordinaire"></a>
+  <a href="https://gh-achievements.vercel.app/achievements/galaxy-brain/"><img src="https://github.githubassets.com/assets/galaxy-brain-gold-9c2c03fd1acf.png" width="72" height="72" alt="Galaxy Brain" title="Galaxy Brain"></a>
+  <a href="https://gh-achievements.vercel.app/achievements/quickdraw/"><img src="https://github.githubassets.com/assets/quickdraw-default-39c6aec8ff89.png" width="72" height="72" alt="Quickdraw" title="Quickdraw"></a>
+  <a href="https://gh-achievements.vercel.app/achievements/yolo/"><img src="https://github.githubassets.com/assets/yolo-default-be0bbff04951.png" width="72" height="72" alt="YOLO" title="YOLO"></a>
+  <a href="https://gh-achievements.vercel.app/achievements/public-sponsor/"><img src="https://github.githubassets.com/assets/public-sponsor-default-9fa68986b057.png" width="72" height="72" alt="Public Sponsor" title="Public Sponsor"></a>
+  <a href="https://gh-achievements.vercel.app/achievements/finishing-touch/"><img src="https://github.githubassets.com/assets/finishing-touch-gold-e19e1fcbfee2.png" width="72" height="72" alt="Finishing Touch" title="Finishing Touch"></a>
+</p>
+<!-- badges:end -->
 
-**[🏆 Check your GitHub achievements →](https://gh-achievements.vercel.app/check/)** (no install; sign in to include private work)
+<p align="center"><strong>Every GitHub achievement, your tier and how far to the next one, verified against GitHub's own data.</strong></p>
+
+<p align="center">
+  <a href="https://gh-achievements.vercel.app/check/"><img src="docs/check-button.svg" width="520" alt="🏆 Check your GitHub achievements → no install; sign in with GitHub to include private work"></a>
+</p>
+
+<p align="center">
+  <a href="https://gh-achievements.vercel.app/check/"><strong>gh-achievements.vercel.app/check</strong></a> · no install · or use the CLI below
+</p>
 
 [![Release](https://img.shields.io/github/v/release/nmloc/gh-achievements)](https://github.com/nmloc/gh-achievements/releases)
 [![Tests](https://github.com/nmloc/gh-achievements/actions/workflows/test.yml/badge.svg)](https://github.com/nmloc/gh-achievements/actions/workflows/test.yml)
@@ -50,23 +69,23 @@ Not signed in to gh? It still works with public data and tells you what a login 
 ## All GitHub achievements
 
 <!-- catalog:start -->
-| Achievement | How to earn it | Tiers | Status | What `gh achievements` shows |
-|---|---|---|---|---|
-| [Pull Shark](https://gh-achievements.vercel.app/achievements/pull-shark/) | Open pull requests that get merged | 2 · 16 · 128 · 1024 | Earnable | Count, checked against GitHub's milestones |
-| [Starstruck](https://gh-achievements.vercel.app/achievements/starstruck/) | Create a repository that gets stars | 16 · 128 · 512 · 4096 | Earnable | Stars of the repository GitHub names |
-| [Pair Extraordinaire](https://gh-achievements.vercel.app/achievements/pair-extraordinaire/) | Coauthor commits on merged pull requests | 1 · 10 · 24 · 48 | Earnable | Official tier (no public counting rule) |
-| [Galaxy Brain](https://gh-achievements.vercel.app/achievements/galaxy-brain/) | Have discussion answers accepted | 2 · 8 · 16 · 32 | Earnable | Count of accepted answers |
-| [Quickdraw](https://gh-achievements.vercel.app/achievements/quickdraw/) | Close an issue or pull request within 5 minutes of opening it | one tier | Earnable | Earned or not (official) |
-| [YOLO](https://gh-achievements.vercel.app/achievements/yolo/) | Merge a pull request without a review | one tier | Earnable | Earned or not (official) |
-| [Public Sponsor](https://gh-achievements.vercel.app/achievements/public-sponsor/) | Sponsor someone publicly through GitHub Sponsors | one tier | Earnable | Earned or not (official) |
-| [Finishing Touch](https://gh-achievements.vercel.app/achievements/finishing-touch/) | Get pull requests that improve GitHub's UI quality merged | 1 · 4 · 16 · 32 | Earnable | Official tier (no public counting rule) |
-| [Heart On Your Sleeve](https://gh-achievements.vercel.app/achievements/heart-on-your-sleeve/) | React to something on GitHub with a ❤️ emoji | ? · 16 · 128 · ? | Disabled (tested, not earnable now) | Earned or not |
-| [Open Sourcerer](https://gh-achievements.vercel.app/achievements/open-sourcerer/) | Have pull requests merged in several public repositories | ? · 8 · 16 · 64 | Disabled (tested, not earnable now) | Earned or not |
-| [Arctic Code Vault Contributor](https://gh-achievements.vercel.app/achievements/arctic-code-vault-contributor/) | Code in a repository of the 2020 GitHub Archive Program | one tier | Retired (no longer earnable) | Earned or not |
-| [Mars 2020 Contributor](https://gh-achievements.vercel.app/achievements/mars-2020-contributor/) | Code in a repository used by the Mars 2020 Helicopter Mission | one tier | Retired (no longer earnable) | Earned or not |
-| [Proxima Pioneer](https://gh-achievements.vercel.app/achievements/proxima-pioneer/) | GitHub staff: contributed to the Proxima proof of concept | one tier | Internal (GitHub staff only) | Earned or not |
-| [Proxima Staffshipper](https://gh-achievements.vercel.app/achievements/proxima-staffshipper/) | GitHub staff: shipped the Proxima staffship instance | one tier | Internal (GitHub staff only) | Earned or not |
-| [Proxima Staffuser](https://gh-achievements.vercel.app/achievements/proxima-staffuser/) | GitHub staff: your team was onboarded to Proxima | one tier | Internal (GitHub staff only) | Earned or not |
+| Badge | Achievement | How to earn it | Tiers | Status | What `gh achievements` shows |
+|:-:|---|---|---|---|---|
+| <img src="https://github.githubassets.com/assets/pull-shark-gold-90985540b385.png" width="40" height="40" alt="Pull Shark badge"> | [Pull Shark](https://gh-achievements.vercel.app/achievements/pull-shark/) | Open pull requests that get merged | 2 · 16 · 128 · 1024 | Earnable | Count, checked against GitHub's milestones |
+| <img src="https://github.githubassets.com/assets/starstruck-gold-a35e077693cc.png" width="40" height="40" alt="Starstruck badge"> | [Starstruck](https://gh-achievements.vercel.app/achievements/starstruck/) | Create a repository that gets stars | 16 · 128 · 512 · 4096 | Earnable | Stars of the repository GitHub names |
+| <img src="https://github.githubassets.com/assets/pair-extraordinaire-gold-5335a3b8ae7d.png" width="40" height="40" alt="Pair Extraordinaire badge"> | [Pair Extraordinaire](https://gh-achievements.vercel.app/achievements/pair-extraordinaire/) | Coauthor commits on merged pull requests | 1 · 10 · 24 · 48 | Earnable | Official tier (no public counting rule) |
+| <img src="https://github.githubassets.com/assets/galaxy-brain-gold-9c2c03fd1acf.png" width="40" height="40" alt="Galaxy Brain badge"> | [Galaxy Brain](https://gh-achievements.vercel.app/achievements/galaxy-brain/) | Have discussion answers accepted | 2 · 8 · 16 · 32 | Earnable | Count of accepted answers |
+| <img src="https://github.githubassets.com/assets/quickdraw-default-39c6aec8ff89.png" width="40" height="40" alt="Quickdraw badge"> | [Quickdraw](https://gh-achievements.vercel.app/achievements/quickdraw/) | Close an issue or pull request within 5 minutes of opening it | one tier | Earnable | Earned or not (official) |
+| <img src="https://github.githubassets.com/assets/yolo-default-be0bbff04951.png" width="40" height="40" alt="YOLO badge"> | [YOLO](https://gh-achievements.vercel.app/achievements/yolo/) | Merge a pull request without a review | one tier | Earnable | Earned or not (official) |
+| <img src="https://github.githubassets.com/assets/public-sponsor-default-9fa68986b057.png" width="40" height="40" alt="Public Sponsor badge"> | [Public Sponsor](https://gh-achievements.vercel.app/achievements/public-sponsor/) | Sponsor someone publicly through GitHub Sponsors | one tier | Earnable | Earned or not (official) |
+| <img src="https://github.githubassets.com/assets/finishing-touch-gold-e19e1fcbfee2.png" width="40" height="40" alt="Finishing Touch badge"> | [Finishing Touch](https://gh-achievements.vercel.app/achievements/finishing-touch/) | Get pull requests that improve GitHub's UI quality merged | 1 · 4 · 16 · 32 | Earnable | Official tier (no public counting rule) |
+| <img src="docs/icons/heart-on-your-sleeve.svg" width="40" height="40" alt="Heart On Your Sleeve (GitHub never released its artwork)"> | [Heart On Your Sleeve](https://gh-achievements.vercel.app/achievements/heart-on-your-sleeve/) | React to something on GitHub with a ❤️ emoji | ? · 16 · 128 · ? | Disabled (tested, not earnable now) | Earned or not |
+| <img src="docs/icons/open-sourcerer.svg" width="40" height="40" alt="Open Sourcerer (GitHub never released its artwork)"> | [Open Sourcerer](https://gh-achievements.vercel.app/achievements/open-sourcerer/) | Have pull requests merged in several public repositories | ? · 8 · 16 · 64 | Disabled (tested, not earnable now) | Earned or not |
+| <img src="https://github.githubassets.com/assets/arctic-code-vault-contributor-default-df8d74122a06.png" width="40" height="40" alt="Arctic Code Vault Contributor badge"> | [Arctic Code Vault Contributor](https://gh-achievements.vercel.app/achievements/arctic-code-vault-contributor/) | Code in a repository of the 2020 GitHub Archive Program | one tier | Retired (no longer earnable) | Earned or not |
+| <img src="https://github.githubassets.com/assets/mars-2020-contributor-default-c9cad8495acf.png" width="40" height="40" alt="Mars 2020 Contributor badge"> | [Mars 2020 Contributor](https://gh-achievements.vercel.app/achievements/mars-2020-contributor/) | Code in a repository used by the Mars 2020 Helicopter Mission | one tier | Retired (no longer earnable) | Earned or not |
+| <img src="https://github.githubassets.com/assets/proxima-pioneer-default-51cd4e4969d5.png" width="40" height="40" alt="Proxima Pioneer badge"> | [Proxima Pioneer](https://gh-achievements.vercel.app/achievements/proxima-pioneer/) | GitHub staff: contributed to the Proxima proof of concept | one tier | Internal (GitHub staff only) | Earned or not |
+| <img src="https://github.githubassets.com/assets/proxima-staffshipper-default-84f658288021.png" width="40" height="40" alt="Proxima Staffshipper badge"> | [Proxima Staffshipper](https://gh-achievements.vercel.app/achievements/proxima-staffshipper/) | GitHub staff: shipped the Proxima staffship instance | one tier | Internal (GitHub staff only) | Earned or not |
+| <img src="https://github.githubassets.com/assets/proxima-staffuser-default-02bf6163ea31.png" width="40" height="40" alt="Proxima Staffuser badge"> | [Proxima Staffuser](https://gh-achievements.vercel.app/achievements/proxima-staffuser/) | GitHub staff: your team was onboarded to Proxima | one tier | Internal (GitHub staff only) | Earned or not |
 
 Profile highlights it also reports: Developer Program Member, Security Bug Bounty Hunter, GitHub Campus Expert, GitHub Star, Pro, Security advisory credit.
 
