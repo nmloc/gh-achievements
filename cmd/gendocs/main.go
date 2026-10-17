@@ -118,6 +118,15 @@ func generate() (map[string][]byte, error) {
 	files["site/robots.txt"] = []byte("User-agent: *\nAllow: /\n\nSitemap: " + webui.SiteURL + "sitemap.xml\n")
 	files["site/sitemap.xml"] = []byte(sitemap())
 	files["site/.nojekyll"] = []byte{}
+
+	vj, err := vercelJSON()
+	if err != nil {
+		return nil, err
+	}
+	files["vercel.json"] = vj
+	for path, body := range redirectPages() {
+		files[path] = body
+	}
 	return files, nil
 }
 
@@ -272,15 +281,19 @@ func llmsFull() string {
 	return b.String()
 }
 
-func sitemap() string {
+func sitemapURLs() []string {
 	urls := []string{webui.SiteURL, webui.SiteURL + "achievements/", webui.SiteURL + "methodology/", webui.SiteURL + "check/"}
 	for _, a := range catalog.Achievements {
 		urls = append(urls, webui.SiteURL+"achievements/"+a.Slug+"/")
 	}
+	return urls
+}
+
+func sitemap() string {
 	var b strings.Builder
 	b.WriteString(`<?xml version="1.0" encoding="UTF-8"?>` + "\n")
 	b.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` + "\n")
-	for _, u := range urls {
+	for _, u := range sitemapURLs() {
 		fmt.Fprintf(&b, "  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n", u, catalog.LastVerified)
 	}
 	b.WriteString("</urlset>\n")
