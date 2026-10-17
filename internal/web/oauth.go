@@ -107,7 +107,11 @@ func DefaultGitHub() GitHub {
 		AuthorizeURL: "https://github.com/login/oauth/authorize",
 		TokenURL:     "https://github.com/login/oauth/access_token",
 		APIURL:       "https://api.github.com",
-		HTTP:         &http.Client{Timeout: 20 * time.Second},
+		// A redirect must never carry the client secret or a token to another host.
+		HTTP: &http.Client{
+			Timeout:       20 * time.Second,
+			CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
+		},
 	}
 }
 

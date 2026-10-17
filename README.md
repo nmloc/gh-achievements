@@ -20,7 +20,7 @@ gh achievements
 - **Every achievement**, not only the ones you have, plus profile highlights such as Pro and Developer Program Member.
 - **Your tier and the next one**: unlock date, a progress bar, and how many more you need.
 - **Checked against GitHub**: tiers and milestones come from GitHub's own badge history; Pull Shark's count is calibrated against the pull requests GitHub names.
-- **No token**: it reuses `gh auth login`. Nothing goes through a third-party server.
+- **No stored token**: the CLI reuses `gh auth login` and talks only to GitHub. The web checker signs in with GitHub, uses the token for one check and revokes it.
 
 ## Install
 
@@ -112,7 +112,7 @@ GitHub counts them, and its badge history lists them as "inaccessible". The tool
 | Shows *your* tier and progress | ✅ | ❌ | ✅ |
 | Checks counts against GitHub's own history | ✅ | ❌ | ❌ |
 | No personal access token to create | ✅ | n/a | usually ❌ |
-| Runs on your machine, no third-party server | ✅ | n/a | ❌ |
+| CLI runs on your machine, no server of ours | ✅ | n/a | ❌ |
 
 ## JSON output
 

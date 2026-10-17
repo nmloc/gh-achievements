@@ -145,3 +145,22 @@ func TestExchange_badCodeIsErrExchange_andHidesTheSecret(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+func TestExchange_neverFollowsRedirects(t *testing.T) {
+	var leaked int
+	other := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		leaked++
+		_, _ = io.WriteString(w, `{"access_token":"gho_LEAK"}`)
+	}))
+	defer other.Close()
+	token := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, other.URL, http.StatusTemporaryRedirect)
+	}))
+	defer token.Close()
+	g := DefaultGitHub()
+	g.TokenURL = token.URL
+	_, err := g.Exchange(context.Background(), "cid", "csecret", "code", "r", "v")
+	if !errors.Is(err, ErrExchange) || leaked != 0 {
+		t.Fatalf("err = %v, second server hit %d times", err, leaked)
+	}
+}

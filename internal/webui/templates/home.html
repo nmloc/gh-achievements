@@ -16,7 +16,7 @@ gh achievements</code></pre>
   <li><strong>Every achievement.</strong> All {{.Count}} known badges ({{.Summary}}) and 6 profile highlights, not just the ones you have.</li>
   <li><strong>Your tier and the next one.</strong> A progress bar to the next threshold, e.g. 72 of 128 merged pull requests for Pull Shark x3.</li>
   <li><strong>Checked against GitHub.</strong> Tiers, unlock dates and milestones come from GitHub's own badge history. Pull Shark's count is calibrated against the pull requests GitHub names. <a href="methodology/">How accurate is it?</a></li>
-  <li><strong>No token.</strong> It reuses your <code>gh auth login</code>. Nothing goes through a third-party server.</li>
+  <li><strong>No stored token.</strong> The CLI reuses your <code>gh auth login</code> and talks only to GitHub. The web checker signs in with GitHub, uses the token for one check and revokes it.</li>
 </ul>
 
 <h2>Every GitHub achievement</h2>

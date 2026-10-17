@@ -93,15 +93,23 @@
       var d = e.target;
       if (d.matches && d.matches("details[data-badge]") && d.open) track("badge_open", { badge: d.dataset.badge });
     }, true);
+    var SIZES = ["badge-img", "badge-icon", "badge-hero"];
+    // Swap a broken badge image for a placeholder tile that keeps its size class.
+    function fallback(img) {
+      var size = SIZES.filter(function (c) { return img.classList.contains(c); })[0];
+      if (!size) return;
+      var tile = document.createElement("span");
+      tile.className = size + " placeholder";
+      tile.textContent = (img.alt || "?").slice(0, 2).toUpperCase();
+      img.replaceWith(tile);
+    }
     document.addEventListener("error", function (e) {
-      var img = e.target;
-      if (img.tagName === "IMG" && img.classList.contains("badge-img")) {
-        var tile = document.createElement("span");
-        tile.className = "badge-img placeholder";
-        tile.textContent = (img.alt || "?").slice(0, 2).toUpperCase();
-        img.replaceWith(tile);
-      }
+      if (e.target.tagName === "IMG") fallback(e.target);
     }, true);
+    // Images that failed before this script ran never dispatched an event we saw.
+    Array.prototype.slice.call(document.images).forEach(function (img) {
+      if (img.complete && img.naturalWidth === 0) fallback(img);
+    });
     var form = document.getElementById("check-form");
     if (form) {
       var input = form.querySelector('input[name="u"]');

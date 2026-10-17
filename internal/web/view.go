@@ -91,7 +91,7 @@ func newCard(row report.Row) Card {
 		Slug: row.Slug, Name: row.Name, HowToEarn: row.HowToEarn, Tier: row.Tier,
 		Earned: row.Status == report.Earned, Locked: row.Status != report.Earned,
 		Source: string(row.Source), SourceMeaning: sourceMeaning[row.Source],
-		Unlocked: row.Unlocked, Notes: row.Notes, TierText: tierText(row.Tiers),
+		Unlocked: row.Unlocked, Notes: webNotes(row.Notes), TierText: tierText(row.Tiers),
 		Image: catalog.Image(row.Slug, row.Tier), Initials: webui.Initials(row.Name),
 	}
 	if _, known := catalog.BySlug(row.Slug); known {
@@ -142,6 +142,20 @@ func newCard(row report.Row) Card {
 		}
 	}
 	return c
+}
+
+// webNotes words the CLI's notes for the web: counts there come from the site's bot token
+// (public) or the visitor's sign-in (private), and "gh auth login" cannot apply. It returns
+// a new slice and leaves the report's notes alone.
+func webNotes(notes []string) []string {
+	var out []string
+	for _, n := range notes {
+		if strings.Contains(n, "`gh auth login`") {
+			continue
+		}
+		out = append(out, strings.ReplaceAll(n, "what your gh login can see", "what this check can see"))
+	}
+	return out
 }
 
 // fixedLine is the status of a badge that can no longer be earned: no progress, no threshold.

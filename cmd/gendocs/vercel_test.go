@@ -98,6 +98,9 @@ func TestRedirectPages_pointEveryOldURLAtVercel(t *testing.T) {
 	if !strings.Contains(page, `<link rel="canonical" href="`+want+`">`) || !strings.Contains(page, `content="0; url=`+want+`"`) {
 		t.Fatalf("redirect page = %s", page)
 	}
+	if strings.Contains(page, "noindex") {
+		t.Fatal("a canonical redirect page must not also say noindex")
+	}
 	if _, ok := pages["pages/index.html"]; !ok {
 		t.Fatal("no root redirect")
 	}

@@ -33,12 +33,13 @@ var methodology = []para{
 		"and GitHub's first unlock (2024-12-17) came before the first such pull request (2026-05-28). " +
 		"Commit search's co-author: qualifier returned commits co-authored by other people. So the tool shows GitHub's tier and no number."},
 	{"Known limits", "GitHub search lists at most 1000 pull requests, so above that Pull Shark keeps the exact total but skips calibration. " +
-		"Counts only include what your gh login can see. Galaxy Brain is counted, not calibrated. " +
+		"In the CLI, counts only include what your gh login can see; on the web, what the bot token (public) or your sign-in (private) can see. Galaxy Brain is counted, not calibrated. " +
 		"Starstruck takes the most-starred repository among the ones GitHub names and the ones you own; the star count itself is live API data. " +
 		"Galaxy Brain's count includes answers in GitHub Community discussions, which stopped counting in 2024, so it can run high. " +
 		"The official pages are HTML, so a weekly canary job checks them against real profiles and opens an issue when GitHub changes them."},
-	{"No token, no server", "gh-achievements uses the credentials gh already stores (or GH_TOKEN). Without them it falls back to public data. " +
-		"It talks only to github.com and api.github.com; there is no gh-achievements server."},
+	{"No stored token", "The CLI uses the credentials gh already stores (or GH_TOKEN). Without them it falls back to public data. " +
+		"It talks only to github.com and api.github.com. " +
+		"The web checker runs on a gh-achievements server on Vercel: public checks use a read-only bot token, and signing in with GitHub gives a token that is used for one check and revoked at once. Nothing is stored."},
 }
 
 func siteFAQ() []catalog.QA {

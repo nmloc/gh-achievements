@@ -2,7 +2,7 @@
 
 > Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed.
 
-gh-achievements is an open source GitHub CLI extension (MIT). Install with `gh extension install nmloc/gh-achievements`, run `gh achievements [username]`. It reads tiers, unlock dates and milestone history from GitHub's own profile pages and counts progress with the user's existing gh login, so no personal access token is created. A web checker at https://gh-achievements.vercel.app/check/ shows the same report without installing anything. It knows 15 achievements (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights. Catalog last verified 2026-10-17. It is not affiliated with GitHub.
+gh-achievements is an open source GitHub CLI extension (MIT). Install with `gh extension install nmloc/gh-achievements`, run `gh achievements [username]`. It reads tiers, unlock dates and milestone history from GitHub's own profile pages and counts progress with the user's existing gh login, so no personal access token is created. The web checker signs in with GitHub on a gh-achievements server on Vercel, uses the token for one check and revokes it. A web checker at https://gh-achievements.vercel.app/check/ shows the same report without installing anything. It knows 15 achievements (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights. Catalog last verified 2026-10-17. It is not affiliated with GitHub.
 
 ## Achievements
 

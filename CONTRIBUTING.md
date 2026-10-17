@@ -56,3 +56,18 @@ writes `vercel.json` and the static pages. Run it all locally:
    (fine-grained, public repositories, no permissions) and `STATE_SECRET`
    (`openssl rand -base64 32`).
 2. `go run ./cmd/gendocs && go run ./cmd/devserver`, then open http://localhost:8787/check/.
+
+### Production setup
+
+Set these Vercel environment variables for **Production and Preview** (the public `/result`
+needs them on previews too):
+
+| Variable | Value |
+|---|---|
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | the production OAuth App |
+| `GH_BOT_TOKEN` | fine-grained token, public repositories, no permissions |
+| `STATE_SECRET` | at least 32 bytes (`openssl rand -base64 32`) |
+| `BASE_URL` | optional; defaults to `https://$VERCEL_PROJECT_PRODUCTION_URL` |
+
+The production OAuth App's redirect URI is `https://gh-achievements.vercel.app/auth/callback`.
+Sign-in works only on the production domain; previews serve public checks only.

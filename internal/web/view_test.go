@@ -1,6 +1,7 @@
 package web
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -179,5 +180,22 @@ func TestCard_meterMaxIsNeverZero(t *testing.T) {
 		Standing: &progress.Standing{Tier: 1, Count: 5, Floor: 5, Target: 5, Remaining: 1}}
 	if c := newCard(row); c.Progress == nil || c.Progress.Max < 1 {
 		t.Fatalf("progress = %+v", c.Progress)
+	}
+}
+
+func TestCard_notesSpeakForTheWeb(t *testing.T) {
+	row := report.Row{Slug: "pull-shark", Name: "Pull Shark", Kind: catalog.Earnable, Tiers: []int{2, 16, 128, 1024},
+		Status: report.Earned, Tier: 2, Notes: []string{
+			"checked at GitHub's #16 org/repo: GitHub counts +3 vs what your gh login can see",
+			"run `gh auth login` to check this against GitHub's milestones",
+			"run `gh auth login` to count accepted answers",
+		}}
+	c := newCard(row)
+	want := []string{"checked at GitHub's #16 org/repo: GitHub counts +3 vs what this check can see"}
+	if !slices.Equal(c.Notes, want) {
+		t.Fatalf("notes = %q, want %q", c.Notes, want)
+	}
+	if len(row.Notes) != 3 || !strings.Contains(row.Notes[0], "gh login") {
+		t.Fatalf("the report row was modified: %q", row.Notes)
 	}
 }

@@ -14,7 +14,7 @@ func vercelJSON() ([]byte, error) {
 	for _, h := range web.SecurityHeaders() {
 		headers = append(headers, map[string]string{"key": h.Key, "value": h.Value})
 	}
-	// The sign-in callback carries a one-time code in the URL fragment. GitHub redirects
+	// The sign-in callback carries a one-time code in the query string. GitHub redirects
 	// without a trailing slash, so both spellings need the rule. They come after the
 	// global rule so their Referrer-Policy wins.
 	callback := []map[string]string{
@@ -53,7 +53,6 @@ func redirectPages() map[string][]byte {
 <title>Moved to gh-achievements.vercel.app</title>
 <link rel="canonical" href="%[1]s">
 <meta http-equiv="refresh" content="0; url=%[1]s">
-<meta name="robots" content="noindex">
 </head><body><p>gh-achievements moved to <a href="%[1]s">%[1]s</a>.</p></body></html>
 `, to))
 	}

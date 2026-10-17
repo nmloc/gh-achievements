@@ -4,7 +4,7 @@
 (function () {
   "use strict";
   var p = new URLSearchParams(location.search);
-  var code = p.get("code"), state = p.get("state"), denied = p.get("error") === "access_denied";
+  var code = p.get("code"), state = p.get("state"), err = p.get("error"), denied = err === "access_denied";
   history.replaceState(null, "", location.pathname);
   function show(id) {
     document.getElementById("status").hidden = true;
@@ -14,6 +14,7 @@
   }
   function run() {
     if (denied) return show("denied");
+    if (err) return show("internal"); // any other OAuth error: redirect_uri_mismatch, application_suspended, ...
     if (!code || !state) return show("state");
     fetch("/api/private", {
       method: "POST",

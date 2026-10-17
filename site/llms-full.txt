@@ -2,7 +2,7 @@
 
 > Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed.
 
-gh-achievements is an open source GitHub CLI extension (MIT). Install with `gh extension install nmloc/gh-achievements`, run `gh achievements [username]`. It reads tiers, unlock dates and milestone history from GitHub's own profile pages and counts progress with the user's existing gh login, so no personal access token is created. A web checker at https://gh-achievements.vercel.app/check/ shows the same report without installing anything. It knows 15 achievements (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights. Catalog last verified 2026-10-17. It is not affiliated with GitHub.
+gh-achievements is an open source GitHub CLI extension (MIT). Install with `gh extension install nmloc/gh-achievements`, run `gh achievements [username]`. It reads tiers, unlock dates and milestone history from GitHub's own profile pages and counts progress with the user's existing gh login, so no personal access token is created. The web checker signs in with GitHub on a gh-achievements server on Vercel, uses the token for one check and revokes it. A web checker at https://gh-achievements.vercel.app/check/ shows the same report without installing anything. It knows 15 achievements (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights. Catalog last verified 2026-10-17. It is not affiliated with GitHub.
 
 ## Achievements
 
@@ -251,11 +251,11 @@ GitHub's rule for which coauthored commits count is not public, and the obvious 
 
 ## Known limits
 
-GitHub search lists at most 1000 pull requests, so above that Pull Shark keeps the exact total but skips calibration. Counts only include what your gh login can see. Galaxy Brain is counted, not calibrated. Starstruck takes the most-starred repository among the ones GitHub names and the ones you own; the star count itself is live API data. Galaxy Brain's count includes answers in GitHub Community discussions, which stopped counting in 2024, so it can run high. The official pages are HTML, so a weekly canary job checks them against real profiles and opens an issue when GitHub changes them.
+GitHub search lists at most 1000 pull requests, so above that Pull Shark keeps the exact total but skips calibration. In the CLI, counts only include what your gh login can see; on the web, what the bot token (public) or your sign-in (private) can see. Galaxy Brain is counted, not calibrated. Starstruck takes the most-starred repository among the ones GitHub names and the ones you own; the star count itself is live API data. Galaxy Brain's count includes answers in GitHub Community discussions, which stopped counting in 2024, so it can run high. The official pages are HTML, so a weekly canary job checks them against real profiles and opens an issue when GitHub changes them.
 
-## No token, no server
+## No stored token
 
-gh-achievements uses the credentials gh already stores (or GH_TOKEN). Without them it falls back to public data. It talks only to github.com and api.github.com; there is no gh-achievements server.
+The CLI uses the credentials gh already stores (or GH_TOKEN). Without them it falls back to public data. It talks only to github.com and api.github.com. The web checker runs on a gh-achievements server on Vercel: public checks use a read-only bot token, and signing in with GitHub gives a token that is used for one check and revoked at once. Nothing is stored.
 
 # FAQ
 
