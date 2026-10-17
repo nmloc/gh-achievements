@@ -21,6 +21,38 @@
     btn.textContent = next === "dark" ? "Dark" : "Light";
     btn.setAttribute("aria-label", "Switch to " + next + " theme");
   }
+  // Star count for the repository, fetched once per visit. Anonymous and without a referrer:
+  // /result URLs name a user. On any failure the buttons keep their plain label.
+  var STARS = "gha:stars", REPO_API = "https://api.github.com/repos/nmloc/gh-achievements";
+  var stars = null;
+  function fillStars() {
+    if (stars === null) return;
+    var text = stars.toLocaleString("en-US");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-stars]"), function (el) {
+      el.textContent = text;
+      el.hidden = false;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".star-long"), function (el) { el.hidden = true; });
+  }
+  function loadStars() {
+    var cached = null;
+    try { cached = sessionStorage.getItem(STARS); } catch (e) { /* storage blocked: fetch instead */ }
+    if (cached !== null && /^\d+$/.test(cached)) {
+      stars = Number(cached);
+      fillStars();
+      return;
+    }
+    if (!window.fetch || !document.querySelector("[data-stars]")) return;
+    fetch(REPO_API, { credentials: "omit", referrerPolicy: "no-referrer" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || typeof d.stargazers_count !== "number") return;
+        stars = d.stargazers_count;
+        try { sessionStorage.setItem(STARS, String(stars)); } catch (e) { /* not cached: fetched again on the next page */ }
+        fillStars();
+      })
+      .catch(function () { /* offline or rate-limited: the label stays "Star on GitHub" */ });
+  }
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: nothing to remember */ } }
   function drop(k) { try { localStorage.removeItem(k); } catch (e) { /* nothing stored to drop */ } }
@@ -63,7 +95,7 @@
     track("report_view", { scope: el.dataset.scope, badges_earned: Number(el.dataset.earned) });
     if (el.dataset.scope === "private" && LOGIN.test(el.dataset.user || "")) set(USER, el.dataset.user);
   }
-  window.gha = { track: track, reportView: reportView };
+  window.gha = { track: track, reportView: reportView, fillStars: fillStars };
 
   // copy writes to the clipboard and calls done only after the write succeeded.
   // No clipboard (insecure context, old browser) or a refusal leaves the page as it was.
@@ -86,7 +118,7 @@
     if (consent === "granted") loadGA();
     else if (consent === null && banner) banner.hidden = false;
     document.addEventListener("click", function (e) {
-      var t = e.target.closest("[data-consent],[data-consent-reset],[data-signin],[data-share],[data-copy],[data-theme-toggle]");
+      var t = e.target.closest("[data-consent],[data-consent-reset],[data-signin],[data-share],[data-copy],[data-theme-toggle],[data-menu],[data-star]");
       if (!t) return;
       if (t.dataset.consent) {
         consent = t.dataset.consent;
@@ -110,6 +142,14 @@
         document.documentElement.setAttribute("data-theme", next);
         set(THEME, next);
         labelTheme(t);
+      } else if (t.hasAttribute("data-menu")) {
+        var nav = document.getElementById("site-nav");
+        var open = t.getAttribute("aria-expanded") !== "true";
+        t.setAttribute("aria-expanded", String(open));
+        if (nav && open) nav.setAttribute("data-open", "");
+        else if (nav) nav.removeAttribute("data-open");
+      } else if (t.dataset.star) {
+        track("star_click", { place: t.dataset.star });
       } else if (t.dataset.copy) {
         copy(t.dataset.copy, function () { t.textContent = "Copied"; track("cli_copy"); });
       }
@@ -153,6 +193,7 @@
       });
     }
     reportView(document.querySelector("[data-report]"));
+    loadStars();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready);
   else ready();

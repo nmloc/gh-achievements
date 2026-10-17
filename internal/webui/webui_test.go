@@ -19,6 +19,11 @@ func TestRender_usesTheVercelDomainAndRootPaths(t *testing.T) {
 		`<script src="/app.js" defer data-ga="G-3EEKKGL110"></script>`,
 		`<meta name="robots" content="noindex">`,
 		`id="consent" hidden`,
+		`<a class="star" href="https://github.com/nmloc/gh-achievements" rel="noopener" data-star="header">`,
+		`<span class="star-long"> on GitHub</span>`,
+		`<span class="star-count" data-stars hidden></span>`,
+		`<button type="button" class="menu-btn" data-menu aria-expanded="false" aria-controls="site-nav">Menu</button>`,
+		`<a href="/methodology/">How it works</a>`,
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("missing %s", want)
@@ -119,6 +124,36 @@ func TestThemeJS_appliesOnlyAStoredLightOrDark(t *testing.T) {
 		`setAttribute("data-theme", t)`, `classList.add("js")`} {
 		if !strings.Contains(string(js), want) {
 			t.Errorf("theme.js lacks %s", want)
+		}
+	}
+}
+
+func TestStarBanner_namesItsPlaceAndTheRepo(t *testing.T) {
+	b, err := RenderFragment("star-banner", "home")
+	if err != nil {
+		t.Fatal(err)
+	}
+	html := string(b)
+	for _, want := range []string{`<a class="star-banner" href="https://github.com/nmloc/gh-achievements" rel="noopener" data-star="home">`,
+		"Found this useful? Star gh-achievements on GitHub", `data-stars hidden`} {
+		if !strings.Contains(html, want) {
+			t.Errorf("star banner lacks %s", want)
+		}
+	}
+}
+
+// The star count is fetched anonymously, without a referrer (the result URL names a user),
+// cached for the visit, and only the place of a click reaches GA.
+func TestAppJS_starCountAndClick(t *testing.T) {
+	js, err := Static("app.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`"https://api.github.com/repos/nmloc/gh-achievements"`, `credentials: "omit"`,
+		`referrerPolicy: "no-referrer"`, `sessionStorage`, `track("star_click", { place: t.dataset.star })`,
+		`fillStars: fillStars`, `[data-menu]`, `aria-expanded`} {
+		if !strings.Contains(string(js), want) {
+			t.Errorf("app.js lacks %s", want)
 		}
 	}
 }
