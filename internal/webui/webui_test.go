@@ -151,6 +151,17 @@ func TestThemeJS_appliesOnlyAStoredLightOrDark(t *testing.T) {
 	}
 }
 
+// The theme key lives in two scripts (theme.js applies it, app.js writes it): they must agree.
+func TestAppJS_themeKeyMatchesThemeJS(t *testing.T) {
+	js, err := Static("app.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(js), `var THEME = "gha:theme";`) {
+		t.Error(`app.js lacks var THEME = "gha:theme";`)
+	}
+}
+
 func TestStarBanner_namesItsPlaceAndTheRepo(t *testing.T) {
 	b, err := RenderFragment("star-banner", "home")
 	if err != nil {
