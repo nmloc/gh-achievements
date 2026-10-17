@@ -122,13 +122,19 @@ func sitePages() (map[string][]byte, error) {
 	for _, a := range catalog.Achievements {
 		views = append(views, view(a))
 	}
+	var earnable []badgeView
+	for _, v := range views {
+		if v.Kind == catalog.Earnable {
+			earnable = append(earnable, v)
+		}
+	}
 
 	pages := []webui.Page{
 		{
 			Path: "index.html", URL: webui.SiteURL,
 			Title:       "GitHub Achievements Checker: tiers & progress · gh-achievements",
 			Description: "See every GitHub achievement, your tier and how far you are from the next one. A free GitHub CLI extension, verified against GitHub, no token needed.",
-			Heading:     "GitHub Achievements Checker",
+			Heading:     "", // the hero holds the <h1>
 			Content:     "home.html",
 			JSONLD: []template.JS{
 				ld(map[string]interface{}{
@@ -142,8 +148,8 @@ func sitePages() (map[string][]byte, error) {
 				}),
 				faqLD(siteFAQ()),
 			},
-			Data: map[string]interface{}{"Badges": views, "FAQ": siteFAQ(), "Install": webui.Install, "Tagline": tagline,
-				"Summary": kindSummary(), "Verified": catalog.LastVerified, "Count": len(catalog.Achievements)},
+			Data: map[string]interface{}{"Earnable": earnable, "FAQ": siteFAQ(), "Install": webui.Install,
+				"Summary": kindSummary(), "Count": len(catalog.Achievements), "HighlightCount": len(catalog.Highlights)},
 		},
 		{
 			Path: "achievements/index.html", URL: all.URL,

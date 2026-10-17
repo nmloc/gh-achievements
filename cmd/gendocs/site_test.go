@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/nmloc/gh-achievements/internal/catalog"
 )
 
 // Every badge shows real art: the two GitHub deleted come from the pinned community copy,
@@ -20,7 +22,7 @@ func TestSitePages_everyBadgeHasArt(t *testing.T) {
 		}
 	}
 	for _, path := range []string{"site/achievements/index.html", "site/index.html"} {
-		if strings.Contains(string(pages[path]), "placeholder") {
+		if strings.Contains(string(pages[path]), ` placeholder"`) {
 			t.Errorf("%s still renders an empty placeholder", path)
 		}
 	}
@@ -129,5 +131,47 @@ func TestSitePages_themeLoadsFirstAndNoInlineScript(t *testing.T) {
 	if len(pages["site/fonts/bricolage-grotesque.woff2"]) < 10000 || len(pages["site/theme.js"]) == 0 ||
 		!strings.Contains(string(pages["site/fonts/OFL.txt"]), "SIL OPEN FONT LICENSE") {
 		t.Error("theme.js, the font or its licence is not copied into site/")
+	}
+}
+
+func TestSitePages_homeIsATrophyCase(t *testing.T) {
+	pages, err := sitePages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	home := string(pages["site/index.html"])
+	for _, want := range []string{`<h1>Your GitHub trophy case</h1>`, `<form action="/result" method="get" id="check-form">`,
+		`<a href="/auth/login" data-signin>Sign in with GitHub</a> to include private work.`,
+		`<ul class="vitrine shelf home-shelf"`, `data-star="home"`, `data-copy="gh extension install nmloc/gh-achievements"`,
+		`"@type":"FAQPage"`, `"@type":"SoftwareApplication"`} {
+		if !strings.Contains(home, want) {
+			t.Errorf("home lacks %s", want)
+		}
+	}
+	for _, a := range catalog.Achievements {
+		link := `<a class="medal" href="achievements/` + a.Slug + `/">`
+		if got := strings.Contains(home, link); got != (a.Kind == catalog.Earnable) {
+			t.Errorf("%s on the home shelf = %v, want %v", a.Slug, got, a.Kind == catalog.Earnable)
+		}
+	}
+	if strings.Index(home, `data-star="home"`) < strings.Index(home, `<dl class="faq">`) {
+		t.Error("the home star banner belongs under the FAQ")
+	}
+	if strings.Contains(home, "demo.svg") {
+		t.Error("the home page no longer shows the terminal demo")
+	}
+}
+
+func TestSitePages_everyPageHasOneH1(t *testing.T) {
+	pages, err := sitePages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for path, body := range pages {
+		if strings.HasSuffix(path, ".html") {
+			if n := strings.Count(string(body), "<h1"); n != 1 {
+				t.Errorf("%s has %d <h1>", path, n)
+			}
+		}
 	}
 }

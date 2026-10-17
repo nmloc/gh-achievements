@@ -88,7 +88,6 @@ func generate() (map[string][]byte, error) {
 	// social.png is rendered from this by scripts/social-png.sh; PNG bytes depend on
 	// the renderer version, so only the SVG is checked.
 	files["docs/social.svg"] = socialSVG()
-	files["site/demo.svg"] = svg
 
 	readme, err := os.ReadFile(readmeIn)
 	if err != nil {
