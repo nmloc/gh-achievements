@@ -37,7 +37,7 @@
 
   {{with .Archive}}
   <details class="archive">
-    <summary>The archive: {{len .}} badges you can no longer earn (switched off by GitHub, retired or staff only)</summary>
+    <summary>The archive: {{len .}} {{if eq (len .) 1}}badge{{else}}badges{{end}} you can no longer earn (switched off by GitHub, retired or staff only)</summary>
     <div class="vitrine shelf">{{range .}}{{template "card" .}}{{end}}</div>
   </details>
   {{end}}

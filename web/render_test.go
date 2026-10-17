@@ -74,6 +74,18 @@ func TestRenderResult_contract(t *testing.T) {
 	}
 }
 
+func TestRenderResult_archiveSummaryAgreesInNumber(t *testing.T) {
+	v := demoView(t, false)
+	v.Archive = v.Archive[:1]
+	out, err := RenderResultPage(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(out), "The archive: 1 badge you can no longer earn") {
+		t.Error("one archived badge must read \"1 badge\"")
+	}
+}
+
 func TestRenderErrorPage_prefillsAndEscapes(t *testing.T) {
 	out, err := RenderErrorPage(404, "not_found", `No user <b>"x"</b> & more`, "torvalds")
 	if err != nil {
