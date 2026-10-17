@@ -4,8 +4,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/nmloc/gh-achievements/internal/catalog"
 	"github.com/nmloc/gh-achievements/internal/counters"
 	"github.com/nmloc/gh-achievements/internal/fixtures"
+	"github.com/nmloc/gh-achievements/internal/official"
+	"github.com/nmloc/gh-achievements/internal/progress"
 	"github.com/nmloc/gh-achievements/internal/report"
 )
 
@@ -93,5 +96,88 @@ func TestResultView_hiddenProfileHasNoQuickWins(t *testing.T) {
 	v := NewResultView(r, false)
 	if !v.Hidden || len(v.QuickWins) != 0 {
 		t.Fatalf("hidden %v quick wins %v", v.Hidden, v.QuickWins)
+	}
+}
+
+func TestCard_nonEarnableKindsNeverShowProgress(t *testing.T) {
+	v := demoView(t, false)
+	heart := card(t, v.Other, "heart-on-your-sleeve")
+	if heart.Line != "switched off by GitHub" || heart.Progress != nil || strings.Contains(heart.Line, "0") {
+		t.Fatalf("heart = %q %+v", heart.Line, heart.Progress)
+	}
+	// Every fixture profile has the Arctic badge, so build the unearned rows directly.
+	for kind, want := range map[catalog.Kind]string{
+		catalog.Disabled: "switched off by GitHub",
+		catalog.Retired:  "no longer earnable",
+		catalog.Internal: "GitHub staff only",
+	} {
+		row := report.Row{Slug: "x", Name: "X Badge", Kind: kind, Tiers: []int{0, 16, 128, 0}, Status: report.NotEarned}
+		if c := newCard(row); c.Line != want || c.Progress != nil {
+			t.Errorf("%s: line %q progress %+v, want %q", kind, c.Line, c.Progress, want)
+		}
+	}
+	earned := report.Row{Kind: catalog.Retired, Name: "X", Tiers: []int{1}, Status: report.Earned, Unlocked: "Jan 2021"}
+	if c := newCard(earned); c.Line != "since Jan 2021" {
+		t.Errorf("earned retired line = %q", c.Line)
+	}
+	earned.Unlocked = ""
+	if c := newCard(earned); c.Line != "earned" {
+		t.Errorf("earned retired line = %q", c.Line)
+	}
+}
+
+func TestResultView_hiddenProfileKeepsCountedClosest(t *testing.T) {
+	r, err := report.Build("sindresorhus", fixtures.Official{}, &fixtures.Counts{Authed: true,
+		PRs: counters.MergedPRs{Total: 2241}, FactsValue: &counters.Facts{}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := NewResultView(r, false)
+	if v.Closest == nil || v.Closest.Line == "hidden on this profile" || !strings.Contains(v.Closest.Line, " to x") {
+		t.Fatalf("closest = %+v", v.Closest)
+	}
+	if v.Closest.Progress == nil || !strings.Contains(v.Closest.ImageAlt, "status hidden") {
+		t.Fatalf("closest = %+v", v.Closest)
+	}
+	// A hidden row with no count still says so.
+	c := newCard(report.Row{Name: "Quickdraw", Kind: catalog.Earnable, Tiers: []int{1}, Status: report.Unknown})
+	if c.Line != "hidden on this profile" || c.ImageAlt != "Quickdraw badge, status hidden" {
+		t.Fatalf("unknown without count = %q %q", c.Line, c.ImageAlt)
+	}
+}
+
+func TestCard_aheadOfGitHubExplainsItself(t *testing.T) {
+	row := report.Row{Slug: "pull-shark", Name: "Pull Shark", Kind: catalog.Earnable, Tiers: []int{2, 16, 128, 1024},
+		Status: report.Earned, Tier: 2,
+		Standing: &progress.Standing{Tier: 3, Count: 130, Floor: 128, Target: 1024, Remaining: 894, IsAhead: true}}
+	c := newCard(row)
+	want := "GitHub shows x2; the count says x3"
+	if len(c.Notes) == 0 || c.Notes[len(c.Notes)-1] != want {
+		t.Fatalf("notes = %v", c.Notes)
+	}
+}
+
+func TestMilestoneLink_onlyWellFormedReferencesBecomeLinks(t *testing.T) {
+	for _, pr := range []string{"me/repo#12a", "norepo#3", "a/b/c#3", "me/repo#", "/repo#3", "me/#3"} {
+		if l := milestoneLink(official.Milestone{PR: pr, Label: "L"}); l.URL != "" || l.Label != "L" {
+			t.Errorf("%q -> %+v", pr, l)
+		}
+	}
+	if l := milestoneLink(official.Milestone{PR: "me/repo#12"}); l.URL != "https://github.com/me/repo/pull/12" {
+		t.Errorf("good PR -> %+v", l)
+	}
+	if l := milestoneLink(official.Milestone{Repo: "a/b/c"}); l.URL != "" {
+		t.Errorf("bad repo -> %+v", l)
+	}
+	if l := milestoneLink(official.Milestone{Repo: "a/b"}); l.URL != "https://github.com/a/b" {
+		t.Errorf("good repo -> %+v", l)
+	}
+}
+
+func TestCard_meterMaxIsNeverZero(t *testing.T) {
+	row := report.Row{Name: "X", Kind: catalog.Earnable, Tiers: []int{5, 10}, Status: report.Earned, Tier: 1,
+		Standing: &progress.Standing{Tier: 1, Count: 5, Floor: 5, Target: 5, Remaining: 1}}
+	if c := newCard(row); c.Progress == nil || c.Progress.Max < 1 {
+		t.Fatalf("progress = %+v", c.Progress)
 	}
 }

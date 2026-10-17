@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/nmloc/gh-achievements/internal/catalog"
@@ -57,6 +58,7 @@ func NewResultView(r *report.Report, private bool) ResultView {
 		Private: private, Hidden: r.AchievementsHidden, Authenticated: r.Authenticated,
 		Highlights: r.Highlights, Verified: r.CatalogVerified,
 	}
+	bestRemaining := 0
 	for _, row := range r.Achievements {
 		c := newCard(row)
 		if row.Status == report.Earned {
@@ -71,25 +73,17 @@ func NewResultView(r *report.Report, private bool) ResultView {
 			v.Earned++
 		}
 		v.Earnable = append(v.Earnable, c)
-		if row.Standing != nil && !row.Standing.IsMax && row.Standing.Remaining > 0 &&
-			(v.Closest == nil || row.Standing.Remaining < remaining(r, v.Closest.Slug)) {
+		if st := row.Standing; st != nil && !st.IsMax && st.Remaining > 0 &&
+			(v.Closest == nil || st.Remaining < bestRemaining) {
 			cc := c
 			v.Closest = &cc
+			bestRemaining = st.Remaining
 		}
 		if len(row.Tiers) == 1 && row.Status == report.NotEarned {
 			v.QuickWins = append(v.QuickWins, c)
 		}
 	}
 	return v
-}
-
-func remaining(r *report.Report, slug string) int {
-	for _, row := range r.Achievements {
-		if row.Slug == slug && row.Standing != nil {
-			return row.Standing.Remaining
-		}
-	}
-	return 1 << 30
 }
 
 func newCard(row report.Row) Card {
@@ -104,6 +98,9 @@ func newCard(row report.Row) Card {
 		c.BadgeURL = webui.Rel(webui.SiteURL + "achievements/" + row.Slug + "/")
 	}
 	c.ImageAlt = row.Name + " badge, not earned"
+	if row.Status == report.Unknown {
+		c.ImageAlt = row.Name + " badge, status hidden"
+	}
 	if c.Earned {
 		c.TierLabel = "✓"
 		c.ImageAlt = row.Name + " badge"
@@ -113,17 +110,23 @@ func newCard(row report.Row) Card {
 		}
 	}
 	switch s := row.Standing; {
-	case row.Status == report.Unknown:
-		c.Line = "hidden on this profile"
+	case row.Kind != catalog.Earnable:
+		c.Line = fixedLine(row.Kind, c.Earned, row.Unlocked)
 	case s != nil && s.IsMax:
 		c.Line = "max tier"
 		c.Progress = &Meter{Value: 1, Max: 1, Label: row.Name + ": max tier"}
 	case s != nil:
 		c.Line = fmt.Sprintf("%d to x%d", s.Remaining, s.Tier+1)
-		c.Progress = &Meter{Value: s.Count - s.Floor, Max: s.Target - s.Floor,
+		span := max(s.Target-s.Floor, 1)
+		c.Progress = &Meter{Value: min(max(s.Count-s.Floor, 0), span), Max: span,
 			Label: fmt.Sprintf("%s: %d of %d", row.Name, s.Count, s.Target)}
+		if s.IsAhead {
+			c.Notes = append(slices.Clone(c.Notes), aheadNote(row.Tier, s.Tier))
+		}
+	case row.Status == report.Unknown:
+		c.Line = "hidden on this profile"
 	case len(row.Tiers) > 1 && row.Tier < len(row.Tiers):
-		c.Line = fmt.Sprintf("next x%d at %d", row.Tier+1, row.Tiers[row.Tier])
+		c.Line = nextTierLine(row.Tier+1, row.Tiers[row.Tier])
 	case len(row.Tiers) > 1:
 		c.Line = "max tier"
 	case c.Earned && row.Unlocked != "":
@@ -141,15 +144,60 @@ func newCard(row report.Row) Card {
 	return c
 }
 
+// fixedLine is the status of a badge that can no longer be earned: no progress, no threshold.
+func fixedLine(kind catalog.Kind, earned bool, unlocked string) string {
+	switch {
+	case earned && unlocked != "":
+		return "since " + unlocked
+	case earned:
+		return "earned"
+	case kind == catalog.Disabled:
+		return "switched off by GitHub"
+	case kind == catalog.Retired:
+		return "no longer earnable"
+	case kind == catalog.Internal:
+		return "GitHub staff only"
+	}
+	return "not yet"
+}
+
+func nextTierLine(tier, threshold int) string {
+	if threshold <= 0 {
+		return fmt.Sprintf("next x%d: threshold unknown", tier)
+	}
+	return fmt.Sprintf("next x%d at %d", tier, threshold)
+}
+
+func aheadNote(officialTier, countTier int) string {
+	shown := "no tier"
+	if officialTier > 0 {
+		shown = fmt.Sprintf("x%d", officialTier)
+	}
+	return fmt.Sprintf("GitHub shows %s; the count says x%d", shown, countTier)
+}
+
+// milestoneLink emits a URL only for a well-formed "owner/repo" (and "#number"); anything else
+// stays label-only rather than becoming a broken link.
 func milestoneLink(m official.Milestone) Link {
 	switch {
 	case m.PR != "":
 		repo, num, _ := strings.Cut(m.PR, "#")
-		return Link{Label: m.Label, URL: "https://github.com/" + repo + "/pull/" + num}
-	case m.Repo != "":
+		if isRepo(repo) && isDigits(num) {
+			return Link{Label: m.Label, URL: "https://github.com/" + repo + "/pull/" + num}
+		}
+	case isRepo(m.Repo):
 		return Link{Label: m.Label, URL: "https://github.com/" + m.Repo}
 	}
 	return Link{Label: m.Label}
+}
+
+func isRepo(s string) bool {
+	owner, name, ok := strings.Cut(s, "/")
+	return ok && owner != "" && name != "" && !strings.Contains(name, "/")
+}
+
+func isDigits(s string) bool {
+	return s != "" && strings.Trim(s, "0123456789") == ""
 }
 
 func tierText(tiers []int) string {
