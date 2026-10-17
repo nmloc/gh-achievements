@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"strings"
+	"unicode"
 
 	"github.com/nmloc/gh-achievements/internal/catalog"
 	"github.com/nmloc/gh-achievements/internal/webui"
@@ -90,7 +92,18 @@ type badgeView struct {
 	Progress   string
 	TierText   string
 	Image      string
+	Initials   string
 	Prev, Next *catalog.Achievement
+}
+
+// initials is the first letter of the first two words, upper-case: "Open Sourcerer" → "OS".
+func initials(name string) string {
+	words := strings.Fields(name)
+	var out []rune
+	for _, w := range words[:min(2, len(words))] {
+		out = append(out, unicode.ToUpper([]rune(w)[0]))
+	}
+	return string(out)
 }
 
 type tierRow struct {
@@ -100,7 +113,7 @@ type tierRow struct {
 
 func view(a catalog.Achievement) badgeView {
 	v := badgeView{Achievement: a, Status: statusText(a.Kind), Progress: progressText(a), TierText: tierText(a),
-		Image: catalog.Image(a.Slug, len(a.Tiers))}
+		Image: catalog.Image(a.Slug, len(a.Tiers)), Initials: initials(a.Name)}
 	if a.IsTiered() {
 		for i, t := range a.Tiers {
 			needed := "unknown"

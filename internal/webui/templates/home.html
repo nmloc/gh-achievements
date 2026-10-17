@@ -22,7 +22,7 @@ gh achievements</code></pre>
 <table class="badges">
   <thead><tr><th scope="col">Achievement</th><th scope="col">How to earn it</th><th scope="col">Tiers</th><th scope="col">Status</th></tr></thead>
   <tbody>
-  {{range .Badges}}<tr><th scope="row">{{if .Image}}<img class="badge-icon" src="{{.Image}}" width="32" height="32" alt="" loading="lazy">{{end}}<a href="achievements/{{.Slug}}/">{{.Name}}</a></th><td>{{.HowToEarn}}</td><td>{{.TierText}}</td><td>{{.Status}}</td></tr>
+  {{range .Badges}}<tr><th scope="row">{{if .Image}}<img class="badge-icon" src="{{.Image}}" width="32" height="32" alt="" loading="lazy">{{else}}<span class="badge-icon placeholder" aria-hidden="true"></span>{{end}}<a href="achievements/{{.Slug}}/">{{.Name}}</a></th><td>{{.HowToEarn}}</td><td>{{.TierText}}</td><td>{{.Status}}</td></tr>
   {{end}}</tbody>
 </table>
 <p class="meta">Catalog verified against live profiles on <time datetime="{{.Verified}}">{{.Verified}}</time>.</p>
