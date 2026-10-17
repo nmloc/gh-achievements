@@ -13,14 +13,14 @@
    setting; webui_test checks the two copies match. */
 :root {
   --bg: #eef2f4; --surface: #ffffff; --ink: #142430; --muted: #5b6e7a; --line: #cfd9df;
-  --shelf: #dfe6ea; --edge: #c3ced5; --spot: rgba(255, 255, 255, .95);
+  --shelf: #dfe6ea; --shelf-muted: #526470; --edge: #c3ced5; --spot: rgba(255, 255, 255, .95);
   --gold: #c9971f; --silver: #8a96a0; --bronze: #b5754a; --metal-ink: #1d1600;
   --code-bg: #142430; --code-ink: #eaf1f5; --danger: #b3261e; --focus: #142430;
   color-scheme: light;
 }
 :root[data-theme="dark"] {
   --bg: #0d1c26; --surface: #122633; --ink: #eaf1f5; --muted: #93a9b7; --line: #25414f;
-  --shelf: #16303f; --edge: #08131a; --spot: rgba(64, 110, 140, .55);
+  --shelf: #16303f; --shelf-muted: #93a9b7; --edge: #08131a; --spot: rgba(64, 110, 140, .55);
   --gold: #e2b53a; --silver: #c7d0d6; --bronze: #d39468; --metal-ink: #1d1600;
   --code-bg: #08131a; --code-ink: #eaf1f5; --danger: #f2b8b5; --focus: #e2b53a;
   color-scheme: dark;
@@ -28,7 +28,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0d1c26; --surface: #122633; --ink: #eaf1f5; --muted: #93a9b7; --line: #25414f;
-    --shelf: #16303f; --edge: #08131a; --spot: rgba(64, 110, 140, .55);
+    --shelf: #16303f; --shelf-muted: #93a9b7; --edge: #08131a; --spot: rgba(64, 110, 140, .55);
     --gold: #e2b53a; --silver: #c7d0d6; --bronze: #d39468; --metal-ink: #1d1600;
     --code-bg: #08131a; --code-ink: #eaf1f5; --danger: #f2b8b5; --focus: #e2b53a;
     color-scheme: dark;
@@ -107,6 +107,7 @@ footer { max-width: 1040px; margin: 64px auto 0; padding: 20px 16px 36px; border
 
 /* The vitrine: a shelf lit from above. ::before carries the spotlight so it can fade in. */
 .vitrine {
+  --muted: var(--shelf-muted);
   position: relative; isolation: isolate; border-radius: 14px;
   background: linear-gradient(transparent 40%, var(--shelf)); box-shadow: inset 0 -6px 0 var(--edge);
 }

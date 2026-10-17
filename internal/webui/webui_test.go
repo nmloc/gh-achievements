@@ -157,3 +157,20 @@ func TestAppJS_starCountAndClick(t *testing.T) {
 		}
 	}
 }
+
+// Captions on the shelf sit on --shelf, where --muted is below AA in the light theme.
+func TestStyle_shelfCaptionsUseTheirOwnMutedToken(t *testing.T) {
+	css, err := Static("style.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(css)
+	for _, want := range []string{"--shelf-muted: #526470", "--shelf-muted: #93a9b7", "--muted: var(--shelf-muted)"} {
+		if !strings.Contains(s, want) {
+			t.Errorf("style.css lacks %s", want)
+		}
+	}
+	if n := strings.Count(s, "--shelf-muted: #93a9b7"); n != 2 {
+		t.Errorf("--shelf-muted dark value appears %d times, want once per dark block", n)
+	}
+}
