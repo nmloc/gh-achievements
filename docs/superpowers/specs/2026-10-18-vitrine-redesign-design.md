@@ -112,7 +112,7 @@ One moment only: on the home page the shelf's spotlight fades in once on load. D
 
 ## Constraints kept
 
-CSP unchanged except `font-src 'self'` being covered by `default-src 'self'`; no inline scripts
+CSP unchanged except `connect-src` gaining `https://api.github.com` for the star count (fonts are covered by `default-src 'self'`); no inline scripts
 or styles; no build step; no new Go dependencies; GA rules unchanged; every number keeps its
 source label; html/template escaping everywhere.
 
