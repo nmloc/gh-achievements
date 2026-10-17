@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/cli/go-gh/v2/pkg/config"
 )
 
 func TestMaxStars_ignoresForks(t *testing.T) {
@@ -72,5 +74,20 @@ func TestNewWithToken_isAuthenticatedAndNeedsAToken(t *testing.T) {
 	s, err := NewWithToken("gho_test")
 	if err != nil || !s.IsAuthenticated() {
 		t.Fatalf("NewWithToken = %v, %v", s, err)
+	}
+}
+
+// go-gh reads the gh config once per process (config.Read is guarded by a sync.Once), so
+// a GH_CONFIG_DIR set inside one test is ignored when an earlier test already read the
+// real config. Replacing the config.Read seam makes the test independent of run order.
+func TestNewWithToken_ignoresTheGhConfig(t *testing.T) {
+	const badAPIHost = "github.com:\n    api_host: \"not a host!\"\n"
+	original := config.Read
+	t.Cleanup(func() { config.Read = original })
+	config.Read = func(*config.Config) (*config.Config, error) {
+		return config.ReadFromString("hosts:\n  " + badAPIHost), nil
+	}
+	if _, err := NewWithToken("gho_test"); err != nil {
+		t.Fatalf("NewWithToken read the gh config: %v", err)
 	}
 }

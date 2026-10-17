@@ -56,12 +56,19 @@ func New() Source {
 }
 
 // NewWithToken counts with an explicit token: the site's bot token, or a signed-in
-// user's token for one request. A Transport is set so go-gh never reads a gh config.
+// user's token for one request. Host, AuthToken, Transport and APIHost are all set, so
+// go-gh takes no host, token or API host from a gh config. GH_DEBUG still enables request
+// logging, as go-gh always does.
 func NewWithToken(token string) (Source, error) {
 	if token == "" {
 		return nil, errors.New("counters: empty token")
 	}
-	opts := api.ClientOptions{Host: "github.com", AuthToken: token, Transport: http.DefaultTransport}
+	opts := api.ClientOptions{
+		Host:      "github.com",
+		APIHost:   "api.github.com",
+		AuthToken: token,
+		Transport: http.DefaultTransport,
+	}
 	rest, err := api.NewRESTClient(opts)
 	if err != nil {
 		return nil, err
