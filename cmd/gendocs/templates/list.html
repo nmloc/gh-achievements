@@ -1,0 +1,20 @@
+{{define "content"}}
+<p class="lede">GitHub publishes no official list of profile achievements any more. These are all the known ones ({{.Summary}}), with their tier thresholds and whether you can still earn them.</p>
+<table class="badges">
+  <thead><tr><th scope="col">Achievement</th><th scope="col">How to earn it</th><th scope="col">Tiers (x1 · x2 · x3 · x4)</th><th scope="col">Status</th></tr></thead>
+  <tbody>
+  {{range .Badges}}<tr><th scope="row"><a href="{{.Slug}}/">{{.Name}}</a></th><td>{{.HowToEarn}}</td><td>{{.TierText}}</td><td>{{.Status}}</td></tr>
+  {{end}}</tbody>
+</table>
+
+<h2>Profile highlights</h2>
+<p>Highlights appear below the achievements on a profile. They are not tiered.</p>
+<ul>
+{{range .Highlights}}<li><strong>{{.Name}}</strong>: {{.HowToEarn}}.</li>
+{{end}}</ul>
+
+<h2>Check your own progress</h2>
+<pre><code>{{.Install}}
+gh achievements</code></pre>
+<p class="meta">Verified against live profiles on <time datetime="{{.Verified}}">{{.Verified}}</time>. Also available as <a href="../achievements.json">achievements.json</a>.</p>
+{{end}}

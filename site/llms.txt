@@ -1,0 +1,34 @@
+# gh-achievements
+
+> Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed.
+
+gh-achievements is an open source GitHub CLI extension (MIT). Install with `gh extension install nmloc/gh-achievements`, run `gh achievements [username]`. It reads tiers, unlock dates and milestone history from GitHub's own profile pages and counts progress with the user's existing gh login, so no personal access token is created. It knows 15 achievements (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights. Catalog last verified 2026-10-17. It is not affiliated with GitHub.
+
+## Achievements
+
+- [Pull Shark](https://nmloc.github.io/gh-achievements/achievements/pull-shark/): Open pull requests that get merged. Tiers: 2 · 16 · 128 · 1024. Earnable.
+- [Starstruck](https://nmloc.github.io/gh-achievements/achievements/starstruck/): Create a repository that gets stars. Tiers: 16 · 128 · 512 · 4096. Earnable.
+- [Pair Extraordinaire](https://nmloc.github.io/gh-achievements/achievements/pair-extraordinaire/): Coauthor commits on merged pull requests. Tiers: 1 · 10 · 24 · 48. Earnable.
+- [Galaxy Brain](https://nmloc.github.io/gh-achievements/achievements/galaxy-brain/): Have discussion answers accepted. Tiers: 2 · 8 · 16 · 32. Earnable.
+- [Quickdraw](https://nmloc.github.io/gh-achievements/achievements/quickdraw/): Close an issue or pull request within 5 minutes of opening it. Tiers: one tier. Earnable.
+- [YOLO](https://nmloc.github.io/gh-achievements/achievements/yolo/): Merge a pull request without a review. Tiers: one tier. Earnable.
+- [Public Sponsor](https://nmloc.github.io/gh-achievements/achievements/public-sponsor/): Sponsor someone publicly through GitHub Sponsors. Tiers: one tier. Earnable.
+- [Finishing Touch](https://nmloc.github.io/gh-achievements/achievements/finishing-touch/): Get pull requests that improve GitHub's UI quality merged. Tiers: 1 · 4 · 16 · 32. Earnable.
+- [Heart On Your Sleeve](https://nmloc.github.io/gh-achievements/achievements/heart-on-your-sleeve/): React to something on GitHub with a ❤️ emoji. Tiers: ? · 16 · 128 · ?. Disabled (tested, not earnable now).
+- [Open Sourcerer](https://nmloc.github.io/gh-achievements/achievements/open-sourcerer/): Have pull requests merged in several public repositories. Tiers: ? · 8 · 16 · 64. Disabled (tested, not earnable now).
+- [Arctic Code Vault Contributor](https://nmloc.github.io/gh-achievements/achievements/arctic-code-vault-contributor/): Code in a repository of the 2020 GitHub Archive Program. Tiers: one tier. Retired (no longer earnable).
+- [Mars 2020 Contributor](https://nmloc.github.io/gh-achievements/achievements/mars-2020-contributor/): Code in a repository used by the Mars 2020 Helicopter Mission. Tiers: one tier. Retired (no longer earnable).
+- [Proxima Pioneer](https://nmloc.github.io/gh-achievements/achievements/proxima-pioneer/): GitHub staff: contributed to the Proxima proof of concept. Tiers: one tier. Internal (GitHub staff only).
+- [Proxima Staffshipper](https://nmloc.github.io/gh-achievements/achievements/proxima-staffshipper/): GitHub staff: shipped the Proxima staffship instance. Tiers: one tier. Internal (GitHub staff only).
+- [Proxima Staffuser](https://nmloc.github.io/gh-achievements/achievements/proxima-staffuser/): GitHub staff: your team was onboarded to Proxima. Tiers: one tier. Internal (GitHub staff only).
+
+## Docs
+
+- [All GitHub achievements](https://nmloc.github.io/gh-achievements/achievements/): the full list with tiers
+- [How accurate is it](https://nmloc.github.io/gh-achievements/methodology/): data sources, calibration, known limits
+- [Source code](https://github.com/nmloc/gh-achievements)
+
+## Optional
+
+- [achievements.json](https://nmloc.github.io/gh-achievements/achievements.json): the catalog as JSON
+- [llms-full.txt](https://nmloc.github.io/gh-achievements/llms-full.txt): every page as plain text

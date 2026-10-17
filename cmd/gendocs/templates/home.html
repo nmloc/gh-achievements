@@ -1,0 +1,34 @@
+{{define "content"}}
+<p class="lede">{{.Tagline}}</p>
+<div class="install">
+  <pre><code>{{.Install}}
+gh achievements</code></pre>
+  <p class="hint">Needs the <a href="https://cli.github.com/">GitHub CLI</a>. Add a username to check anyone: <code>gh achievements torvalds</code>.</p>
+</div>
+<figure class="demo">
+  <img src="demo.svg" width="940" height="700" alt="Terminal output of gh achievements torvalds: Pull Shark x2 at 72 of 128 merged pull requests, calibrated against GitHub's 16th milestone; Starstruck x4 from torvalds/linux; Pair Extraordinaire x4; retired Arctic Code Vault and Mars 2020 badges." loading="eager">
+  <figcaption>Real output for <a href="https://github.com/torvalds?tab=achievements">@torvalds</a>.</figcaption>
+</figure>
+
+<h2>What it shows</h2>
+<ul class="points">
+  <li><strong>Every achievement.</strong> All {{.Count}} known badges ({{.Summary}}) and 6 profile highlights, not just the ones you have.</li>
+  <li><strong>Your tier and the next one.</strong> A progress bar to the next threshold, e.g. 72 of 128 merged pull requests for Pull Shark x3.</li>
+  <li><strong>Checked against GitHub.</strong> Tiers, unlock dates and milestones come from GitHub's own badge history. Pull Shark's count is calibrated against the pull requests GitHub names. <a href="methodology/">How accurate is it?</a></li>
+  <li><strong>No token.</strong> It reuses your <code>gh auth login</code>. Nothing goes through a third-party server.</li>
+</ul>
+
+<h2>Every GitHub achievement</h2>
+<table class="badges">
+  <thead><tr><th scope="col">Achievement</th><th scope="col">How to earn it</th><th scope="col">Tiers</th><th scope="col">Status</th></tr></thead>
+  <tbody>
+  {{range .Badges}}<tr><th scope="row"><a href="achievements/{{.Slug}}/">{{.Name}}</a></th><td>{{.HowToEarn}}</td><td>{{.TierText}}</td><td>{{.Status}}</td></tr>
+  {{end}}</tbody>
+</table>
+<p class="meta">Catalog verified against live profiles on <time datetime="{{.Verified}}">{{.Verified}}</time>.</p>
+
+<h2>FAQ</h2>
+<dl class="faq">
+{{range .FAQ}}<dt>{{.Q}}</dt><dd>{{.A}}</dd>
+{{end}}</dl>
+{{end}}

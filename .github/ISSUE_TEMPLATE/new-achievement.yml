@@ -1,0 +1,21 @@
+name: New achievement spotted
+description: A badge on a profile that gh achievements lists as NEW or does not know.
+labels: [catalog]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Achievement name
+    validations:
+      required: true
+  - type: input
+    id: profile
+    attributes:
+      label: A profile that has it
+      placeholder: https://github.com/someone?tab=achievements
+    validations:
+      required: true
+  - type: textarea
+    id: how
+    attributes:
+      label: How it is earned, and its tiers, if known

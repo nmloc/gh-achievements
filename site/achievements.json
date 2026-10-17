@@ -1,0 +1,281 @@
+{
+  "achievements": [
+    {
+      "slug": "pull-shark",
+      "name": "Pull Shark",
+      "kind": "earnable",
+      "tiers": [
+        2,
+        16,
+        128,
+        1024
+      ],
+      "unit": "merged pull requests",
+      "howToEarn": "Open pull requests that get merged",
+      "details": "Pull Shark counts pull requests you opened that were merged. GitHub's own history for the badge names the 2nd, 16th, 128th and 1024th merged pull request.",
+      "counter": "merged-prs",
+      "faq": [
+        {
+          "q": "How many merged pull requests do you need for Pull Shark?",
+          "a": "2 for the base badge, 16 for x2 (bronze), 128 for x3 (silver) and 1024 for x4 (gold)."
+        },
+        {
+          "q": "Do pull requests in private repositories count towards Pull Shark?",
+          "a": "Yes. GitHub's Pull Shark history lists milestones in private repositories as \"inaccessible\", so they are counted even though visitors cannot see them."
+        }
+      ]
+    },
+    {
+      "slug": "starstruck",
+      "name": "Starstruck",
+      "kind": "earnable",
+      "tiers": [
+        16,
+        128,
+        512,
+        4096
+      ],
+      "unit": "stars on one repository",
+      "howToEarn": "Create a repository that gets stars",
+      "details": "Starstruck counts the stars of a repository you created. GitHub's history for the badge names the repository that reached each threshold.",
+      "counter": "stars",
+      "faq": [
+        {
+          "q": "How many stars do you need for Starstruck?",
+          "a": "One repository with 16 stars for the base badge, 128 for x2, 512 for x3 and 4096 for x4."
+        },
+        {
+          "q": "Do stars across several repositories add up for Starstruck?",
+          "a": "No. The thresholds apply to a single repository; GitHub's history names one repository per threshold."
+        }
+      ]
+    },
+    {
+      "slug": "pair-extraordinaire",
+      "name": "Pair Extraordinaire",
+      "kind": "earnable",
+      "tiers": [
+        1,
+        10,
+        24,
+        48
+      ],
+      "unit": "coauthored merged pull requests",
+      "howToEarn": "Coauthor commits on merged pull requests",
+      "details": "Pair Extraordinaire is awarded for coauthored commits on merged pull requests. GitHub's history for the badge lists the pull request and the coauthors for each threshold, including pull requests opened by someone else that list you as a coauthor.",
+      "counter": "none",
+      "noCounterReason": "GitHub's counting rule is not public: tier only, no counter",
+      "faq": [
+        {
+          "q": "How many coauthored pull requests do you need for Pair Extraordinaire?",
+          "a": "1 for the base badge, 10 for x2, 24 for x3 and 48 for x4."
+        },
+        {
+          "q": "Why does gh-achievements show no counter for Pair Extraordinaire?",
+          "a": "GitHub's counting rule is not public. On a real account, 60 merged pull requests had commits with a Co-authored-by trailer while GitHub's tier said 10 to 23, so any count from the API would be wrong. The tool shows the official tier only."
+        }
+      ]
+    },
+    {
+      "slug": "galaxy-brain",
+      "name": "Galaxy Brain",
+      "kind": "earnable",
+      "tiers": [
+        2,
+        8,
+        16,
+        32
+      ],
+      "unit": "accepted answers",
+      "howToEarn": "Have discussion answers accepted",
+      "details": "Galaxy Brain counts your GitHub Discussions answers that were marked as the accepted answer. Since 2024-02-06 answers in GitHub's own Community Discussions (github.com/orgs/community) no longer count.",
+      "counter": "answers",
+      "faq": [
+        {
+          "q": "How many accepted answers do you need for Galaxy Brain?",
+          "a": "2 for the base badge, 8 for x2, 16 for x3 and 32 for x4."
+        },
+        {
+          "q": "Do answers in GitHub Community Discussions count for Galaxy Brain?",
+          "a": "Not since 2024-02-06, when GitHub stopped awarding achievements there to counter spam. Answers in other repositories' discussions still count."
+        }
+      ]
+    },
+    {
+      "slug": "quickdraw",
+      "name": "Quickdraw",
+      "kind": "earnable",
+      "tiers": [
+        1
+      ],
+      "howToEarn": "Close an issue or pull request within 5 minutes of opening it",
+      "details": "Quickdraw (\"Gitty up!\") is a one-time badge for closing an issue or pull request within 5 minutes of opening it.",
+      "counter": "none"
+    },
+    {
+      "slug": "yolo",
+      "name": "YOLO",
+      "kind": "earnable",
+      "tiers": [
+        1
+      ],
+      "howToEarn": "Merge a pull request without a review",
+      "details": "YOLO (\"You want it? You merge it.\") is a one-time badge for merging a pull request without a code review.",
+      "counter": "none"
+    },
+    {
+      "slug": "public-sponsor",
+      "name": "Public Sponsor",
+      "kind": "earnable",
+      "tiers": [
+        1
+      ],
+      "howToEarn": "Sponsor someone publicly through GitHub Sponsors",
+      "details": "Public Sponsor is a one-time badge for sponsoring an open source contributor or organization through GitHub Sponsors with a public sponsorship. Private sponsorships do not count.",
+      "counter": "none"
+    },
+    {
+      "slug": "finishing-touch",
+      "name": "Finishing Touch",
+      "kind": "earnable",
+      "tiers": [
+        1,
+        4,
+        16,
+        32
+      ],
+      "unit": "merged UI quality pull requests",
+      "howToEarn": "Get pull requests that improve GitHub's UI quality merged",
+      "details": "Finishing Touch counts merged pull requests that GitHub classed as improving the quality of its own user interface. GitHub's history for the badge names the 1st, 4th, 16th and 32nd UI quality pull request merged.",
+      "counter": "none",
+      "noCounterReason": "GitHub decides which pull requests count as UI quality: tier only, no counter",
+      "faq": [
+        {
+          "q": "How many pull requests do you need for Finishing Touch?",
+          "a": "1 merged UI quality pull request for the base badge, 4 for x2, 16 for x3 and 32 for x4."
+        }
+      ]
+    },
+    {
+      "slug": "heart-on-your-sleeve",
+      "name": "Heart On Your Sleeve",
+      "kind": "disabled",
+      "tiers": [
+        0,
+        16,
+        128,
+        0
+      ],
+      "unit": "❤️ reactions",
+      "howToEarn": "React to something on GitHub with a ❤️ emoji",
+      "details": "Heart On Your Sleeve was tested by GitHub and is switched off: nobody can earn it now. The known thresholds are 16 ❤️ reactions for x2 and 128 for x3.",
+      "counter": "none"
+    },
+    {
+      "slug": "open-sourcerer",
+      "name": "Open Sourcerer",
+      "kind": "disabled",
+      "tiers": [
+        0,
+        8,
+        16,
+        64
+      ],
+      "unit": "merged open source pull requests",
+      "howToEarn": "Have pull requests merged in several public repositories",
+      "details": "Open Sourcerer was tested by GitHub and is switched off: nobody can earn it now. The known thresholds are 8 merged open source pull requests for x2, 16 for x3 and 64 for x4.",
+      "counter": "none"
+    },
+    {
+      "slug": "arctic-code-vault-contributor",
+      "name": "Arctic Code Vault Contributor",
+      "kind": "retired",
+      "tiers": [
+        1
+      ],
+      "howToEarn": "Code in a repository of the 2020 GitHub Archive Program",
+      "details": "Arctic Code Vault Contributor went to people who contributed code to repositories stored in the 2020 GitHub Archive Program. It can no longer be earned.",
+      "counter": "none"
+    },
+    {
+      "slug": "mars-2020-contributor",
+      "name": "Mars 2020 Contributor",
+      "kind": "retired",
+      "tiers": [
+        1
+      ],
+      "howToEarn": "Code in a repository used by the Mars 2020 Helicopter Mission",
+      "details": "Mars 2020 Contributor went to people who contributed code to repositories used in the Mars 2020 Helicopter Mission. It can no longer be earned.",
+      "counter": "none"
+    },
+    {
+      "slug": "proxima-pioneer",
+      "name": "Proxima Pioneer",
+      "kind": "internal",
+      "tiers": [
+        1
+      ],
+      "howToEarn": "GitHub staff: contributed to the Proxima proof of concept",
+      "details": "Proxima Pioneer is an internal badge for GitHub staff who contributed to the Proxima proof of concept. It cannot be earned through normal activity.",
+      "counter": "none"
+    },
+    {
+      "slug": "proxima-staffshipper",
+      "name": "Proxima Staffshipper",
+      "kind": "internal",
+      "tiers": [
+        1
+      ],
+      "howToEarn": "GitHub staff: shipped the Proxima staffship instance",
+      "details": "Proxima Staffshipper is an internal badge for GitHub staff who shipped the Proxima staffship instance. It cannot be earned through normal activity.",
+      "counter": "none"
+    },
+    {
+      "slug": "proxima-staffuser",
+      "name": "Proxima Staffuser",
+      "kind": "internal",
+      "tiers": [
+        1
+      ],
+      "howToEarn": "GitHub staff: your team was onboarded to Proxima",
+      "details": "Proxima Staffuser is an internal badge for GitHub staff whose team was onboarded to Proxima. It cannot be earned through normal activity.",
+      "counter": "none"
+    }
+  ],
+  "description": "Every known GitHub profile achievement, its tiers and whether it can be earned.",
+  "highlights": [
+    {
+      "name": "Developer Program Member",
+      "graphqlField": "isDeveloperProgramMember",
+      "howToEarn": "Register for the GitHub Developer Program"
+    },
+    {
+      "name": "Security Bug Bounty Hunter",
+      "graphqlField": "isBountyHunter",
+      "howToEarn": "Report a valid vulnerability through GitHub Security Bug Bounty"
+    },
+    {
+      "name": "GitHub Campus Expert",
+      "graphqlField": "isCampusExpert",
+      "howToEarn": "Join the GitHub Campus Expert program"
+    },
+    {
+      "name": "GitHub Star",
+      "graphqlField": "isGitHubStar",
+      "howToEarn": "Be selected for the GitHub Stars program"
+    },
+    {
+      "name": "Pro",
+      "howToEarn": "Subscribe to GitHub Pro"
+    },
+    {
+      "name": "Security advisory credit",
+      "howToEarn": "Have a security advisory you submitted accepted into the GitHub Advisory Database"
+    }
+  ],
+  "lastVerified": "2026-10-17",
+  "license": "MIT",
+  "name": "gh-achievements catalog",
+  "source": "https://github.com/nmloc/gh-achievements",
+  "url": "https://nmloc.github.io/gh-achievements/achievements.json"
+}

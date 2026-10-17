@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub Achievements Checker: tiers &amp; progress · gh-achievements</title>
+<meta name="description" content="See every GitHub achievement, your tier and how far you are from the next one. A free GitHub CLI extension, verified against GitHub, no token needed.">
+<link rel="canonical" href="https://nmloc.github.io/gh-achievements/">
+
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gh-achievements">
+<meta property="og:title" content="GitHub Achievements Checker: tiers &amp; progress · gh-achievements">
+<meta property="og:description" content="See every GitHub achievement, your tier and how far you are from the next one. A free GitHub CLI extension, verified against GitHub, no token needed.">
+<meta property="og:url" content="https://nmloc.github.io/gh-achievements/">
+<meta property="og:image" content="https://nmloc.github.io/gh-achievements/social.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/gh-achievements/style.css">
+<link rel="alternate" type="application/json" href="/gh-achievements/achievements.json" title="Achievement catalog (JSON)">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","applicationCategory":"DeveloperApplication","author":{"@type":"Person","name":"nmloc","url":"https://github.com/nmloc"},"codeRepository":"https://github.com/nmloc/gh-achievements","description":"Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed.","downloadUrl":"https://github.com/nmloc/gh-achievements/releases","isAccessibleForFree":true,"license":"https://opensource.org/licenses/MIT","name":"gh-achievements","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"macOS, Linux, Windows","url":"https://nmloc.github.io/gh-achievements/"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","acceptedAnswer":{"@type":"Answer","text":"Install the GitHub CLI extension with `gh extension install nmloc/gh-achievements` and run `gh achievements`. It lists every achievement, your tier and how many more you need for the next one. Add a username to check someone else."},"name":"How do I check my GitHub achievements progress?"},{"@type":"Question","acceptedAnswer":{"@type":"Answer","text":"No. It reuses the login of the GitHub CLI (gh auth login). Without a login it still works with public data."},"name":"Does gh-achievements need a GitHub token?"},{"@type":"Question","acceptedAnswer":{"@type":"Answer","text":"15 are known as of 2026-10-17: 8 earnable, 2 disabled, 2 retired, 3 internal. There are also 6 profile highlights such as Pro and Developer Program Member."},"name":"How many GitHub achievements are there?"},{"@type":"Question","acceptedAnswer":{"@type":"Answer","text":"Tiers and unlock dates come straight from GitHub's profile pages. Pull Shark's count is checked against the milestones GitHub names. Every number is labelled official, calibrated or counted."},"name":"How accurate is it?"},{"@type":"Question","acceptedAnswer":{"@type":"Answer","text":"Achievements can be turned off under Settings → Public profile → \"Show Achievements on my profile\". gh-achievements says when a profile hides them and shows live counts only."},"name":"Why don't my achievements show on my profile?"},{"@type":"Question","acceptedAnswer":{"@type":"Answer","text":"No. It is an independent open source project and is not affiliated with or endorsed by GitHub."},"name":"Is gh-achievements made by GitHub?"}]}</script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/gh-achievements/">🏆 gh-achievements</a>
+  <nav aria-label="Site">
+    <a href="/gh-achievements/achievements/">All achievements</a>
+    <a href="/gh-achievements/methodology/">How accurate is it</a>
+    <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+  </nav>
+</header>
+<main>
+
+<h1>GitHub Achievements Checker</h1>
+
+<p class="lede">Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub&#39;s own data, no token needed.</p>
+<div class="install">
+  <pre><code>gh extension install nmloc/gh-achievements
+gh achievements</code></pre>
+  <p class="hint">Needs the <a href="https://cli.github.com/">GitHub CLI</a>. Add a username to check anyone: <code>gh achievements torvalds</code>.</p>
+</div>
+<figure class="demo">
+  <img src="demo.svg" width="940" height="700" alt="Terminal output of gh achievements torvalds: Pull Shark x2 at 72 of 128 merged pull requests, calibrated against GitHub's 16th milestone; Starstruck x4 from torvalds/linux; Pair Extraordinaire x4; retired Arctic Code Vault and Mars 2020 badges." loading="eager">
+  <figcaption>Real output for <a href="https://github.com/torvalds?tab=achievements">@torvalds</a>.</figcaption>
+</figure>
+
+<h2>What it shows</h2>
+<ul class="points">
+  <li><strong>Every achievement.</strong> All 15 known badges (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights, not just the ones you have.</li>
+  <li><strong>Your tier and the next one.</strong> A progress bar to the next threshold, e.g. 72 of 128 merged pull requests for Pull Shark x3.</li>
+  <li><strong>Checked against GitHub.</strong> Tiers, unlock dates and milestones come from GitHub's own badge history. Pull Shark's count is calibrated against the pull requests GitHub names. <a href="methodology/">How accurate is it?</a></li>
+  <li><strong>No token.</strong> It reuses your <code>gh auth login</code>. Nothing goes through a third-party server.</li>
+</ul>
+
+<h2>Every GitHub achievement</h2>
+<table class="badges">
+  <thead><tr><th scope="col">Achievement</th><th scope="col">How to earn it</th><th scope="col">Tiers</th><th scope="col">Status</th></tr></thead>
+  <tbody>
+  <tr><th scope="row"><a href="achievements/pull-shark/">Pull Shark</a></th><td>Open pull requests that get merged</td><td>2 · 16 · 128 · 1024</td><td>Earnable</td></tr>
+  <tr><th scope="row"><a href="achievements/starstruck/">Starstruck</a></th><td>Create a repository that gets stars</td><td>16 · 128 · 512 · 4096</td><td>Earnable</td></tr>
+  <tr><th scope="row"><a href="achievements/pair-extraordinaire/">Pair Extraordinaire</a></th><td>Coauthor commits on merged pull requests</td><td>1 · 10 · 24 · 48</td><td>Earnable</td></tr>
+  <tr><th scope="row"><a href="achievements/galaxy-brain/">Galaxy Brain</a></th><td>Have discussion answers accepted</td><td>2 · 8 · 16 · 32</td><td>Earnable</td></tr>
+  <tr><th scope="row"><a href="achievements/quickdraw/">Quickdraw</a></th><td>Close an issue or pull request within 5 minutes of opening it</td><td>one tier</td><td>Earnable</td></tr>
+  <tr><th scope="row"><a href="achievements/yolo/">YOLO</a></th><td>Merge a pull request without a review</td><td>one tier</td><td>Earnable</td></tr>
+  <tr><th scope="row"><a href="achievements/public-sponsor/">Public Sponsor</a></th><td>Sponsor someone publicly through GitHub Sponsors</td><td>one tier</td><td>Earnable</td></tr>
+  <tr><th scope="row"><a href="achievements/finishing-touch/">Finishing Touch</a></th><td>Get pull requests that improve GitHub&#39;s UI quality merged</td><td>1 · 4 · 16 · 32</td><td>Earnable</td></tr>
+  <tr><th scope="row"><a href="achievements/heart-on-your-sleeve/">Heart On Your Sleeve</a></th><td>React to something on GitHub with a ❤️ emoji</td><td>? · 16 · 128 · ?</td><td>Disabled (tested, not earnable now)</td></tr>
+  <tr><th scope="row"><a href="achievements/open-sourcerer/">Open Sourcerer</a></th><td>Have pull requests merged in several public repositories</td><td>? · 8 · 16 · 64</td><td>Disabled (tested, not earnable now)</td></tr>
+  <tr><th scope="row"><a href="achievements/arctic-code-vault-contributor/">Arctic Code Vault Contributor</a></th><td>Code in a repository of the 2020 GitHub Archive Program</td><td>one tier</td><td>Retired (no longer earnable)</td></tr>
+  <tr><th scope="row"><a href="achievements/mars-2020-contributor/">Mars 2020 Contributor</a></th><td>Code in a repository used by the Mars 2020 Helicopter Mission</td><td>one tier</td><td>Retired (no longer earnable)</td></tr>
+  <tr><th scope="row"><a href="achievements/proxima-pioneer/">Proxima Pioneer</a></th><td>GitHub staff: contributed to the Proxima proof of concept</td><td>one tier</td><td>Internal (GitHub staff only)</td></tr>
+  <tr><th scope="row"><a href="achievements/proxima-staffshipper/">Proxima Staffshipper</a></th><td>GitHub staff: shipped the Proxima staffship instance</td><td>one tier</td><td>Internal (GitHub staff only)</td></tr>
+  <tr><th scope="row"><a href="achievements/proxima-staffuser/">Proxima Staffuser</a></th><td>GitHub staff: your team was onboarded to Proxima</td><td>one tier</td><td>Internal (GitHub staff only)</td></tr>
+  </tbody>
+</table>
+<p class="meta">Catalog verified against live profiles on <time datetime="2026-10-17">2026-10-17</time>.</p>
+
+<h2>FAQ</h2>
+<dl class="faq">
+<dt>How do I check my GitHub achievements progress?</dt><dd>Install the GitHub CLI extension with `gh extension install nmloc/gh-achievements` and run `gh achievements`. It lists every achievement, your tier and how many more you need for the next one. Add a username to check someone else.</dd>
+<dt>Does gh-achievements need a GitHub token?</dt><dd>No. It reuses the login of the GitHub CLI (gh auth login). Without a login it still works with public data.</dd>
+<dt>How many GitHub achievements are there?</dt><dd>15 are known as of 2026-10-17: 8 earnable, 2 disabled, 2 retired, 3 internal. There are also 6 profile highlights such as Pro and Developer Program Member.</dd>
+<dt>How accurate is it?</dt><dd>Tiers and unlock dates come straight from GitHub&#39;s profile pages. Pull Shark&#39;s count is checked against the milestones GitHub names. Every number is labelled official, calibrated or counted.</dd>
+<dt>Why don&#39;t my achievements show on my profile?</dt><dd>Achievements can be turned off under Settings → Public profile → &#34;Show Achievements on my profile&#34;. gh-achievements says when a profile hides them and shows live counts only.</dd>
+<dt>Is gh-achievements made by GitHub?</dt><dd>No. It is an independent open source project and is not affiliated with or endorsed by GitHub.</dd>
+</dl>
+
+</main>
+<footer>
+  <p>gh-achievements is an independent open source project (MIT) and is not affiliated with or endorsed by GitHub.
+  <a href="https://github.com/nmloc/gh-achievements">Source</a> · <a href="/gh-achievements/achievements.json">achievements.json</a> · <a href="/gh-achievements/llms.txt">llms.txt</a></p>
+</footer>
+</body>
+</html>

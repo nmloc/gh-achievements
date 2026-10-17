@@ -1,0 +1,7 @@
+{{define "content"}}
+{{range .Paras}}
+<h2>{{.Heading}}</h2>
+<p>{{.Text}}</p>
+{{end}}
+<p class="meta">Last verified <time datetime="{{.Verified}}">{{.Verified}}</time>. Found something off? <a href="https://github.com/nmloc/gh-achievements/issues/new?template=count-looks-wrong.yml">Report it</a>.</p>
+{{end}}

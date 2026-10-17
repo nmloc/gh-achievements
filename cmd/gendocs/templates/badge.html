@@ -1,0 +1,34 @@
+{{define "content"}}{{with .B}}
+<p class="lede">{{.Details}}</p>
+<dl class="facts">
+  <dt>How to earn it</dt><dd>{{.HowToEarn}}</dd>
+  <dt>Status</dt><dd>{{.Status}}</dd>
+  <dt>Tiers</dt><dd>{{.TierText}}</dd>
+  <dt>Progress in gh achievements</dt><dd>{{.Progress}}</dd>
+</dl>
+{{if .TierRows}}
+<h2>{{.Name}} tiers</h2>
+<table>
+  <thead><tr><th scope="col">Tier</th><th scope="col">Needed</th></tr></thead>
+  <tbody>{{range .TierRows}}<tr><td>{{.Label}}</td><td>{{.Needed}}</td></tr>{{end}}</tbody>
+</table>
+{{end}}
+{{if eq .Kind "earnable"}}
+<h2>Check your {{.Name}} progress</h2>
+<pre><code>{{$.Install}}
+gh achievements</code></pre>
+<p>It shows your {{.Name}} tier, when you unlocked it and, where GitHub's data allows, how many more you need for the next tier.</p>
+{{end}}
+{{if .FAQ}}
+<h2>FAQ</h2>
+<dl class="faq">
+{{range .FAQ}}<dt>{{.Q}}</dt><dd>{{.A}}</dd>
+{{end}}</dl>
+{{end}}
+<nav class="pager" aria-label="Other achievements">
+  {{with .Prev}}<a rel="prev" href="../{{.Slug}}/">← {{.Name}}</a>{{else}}<span></span>{{end}}
+  <a href="../">All achievements</a>
+  {{with .Next}}<a rel="next" href="../{{.Slug}}/">{{.Name}} →</a>{{else}}<span></span>{{end}}
+</nav>
+<p class="meta">Verified against live profiles on <time datetime="{{$.Verified}}">{{$.Verified}}</time>.</p>
+{{end}}{{end}}

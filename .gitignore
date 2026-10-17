@@ -1,0 +1,5 @@
+/gh-achievements
+/gh-achievements.exe
+/dist/
+*.bak
+.DS_Store

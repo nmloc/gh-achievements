@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How accurate is gh-achievements? Data sources &amp; limits</title>
+<meta name="description" content="Where gh-achievements gets each number: GitHub&#39;s own badge history, calibration against named milestones, and the limits of GitHub&#39;s API.">
+<link rel="canonical" href="https://nmloc.github.io/gh-achievements/methodology/">
+
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gh-achievements">
+<meta property="og:title" content="How accurate is gh-achievements? Data sources &amp; limits">
+<meta property="og:description" content="Where gh-achievements gets each number: GitHub&#39;s own badge history, calibration against named milestones, and the limits of GitHub&#39;s API.">
+<meta property="og:url" content="https://nmloc.github.io/gh-achievements/methodology/">
+<meta property="og:image" content="https://nmloc.github.io/gh-achievements/social.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/gh-achievements/style.css">
+<link rel="alternate" type="application/json" href="/gh-achievements/achievements.json" title="Achievement catalog (JSON)">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/gh-achievements/">🏆 gh-achievements</a>
+  <nav aria-label="Site">
+    <a href="/gh-achievements/achievements/">All achievements</a>
+    <a href="/gh-achievements/methodology/">How accurate is it</a>
+    <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+  </nav>
+</header>
+<main>
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="/gh-achievements/">gh-achievements</a></li><li><span aria-hidden="true">›</span> <a href="/gh-achievements/methodology/">How accurate is it</a></li></ol></nav>
+<h1>How accurate is gh-achievements?</h1>
+
+
+<h2>Three labels</h2>
+<p>gh-achievements labels every number. official: read from GitHub&#39;s own profile pages. calibrated: counted through the GitHub API, then checked against a milestone GitHub itself names. counted: counted through the API with nothing public to check it against.</p>
+
+<h2>GitHub&#39;s own record of each badge</h2>
+<p>When you open a badge on a profile, GitHub loads /users/&lt;user&gt;/achievements/&lt;slug&gt;/detail. That page lists the tier, the first unlock date and history rows naming the pull request, repository or answer behind each milestone. Rows in private repositories say &#34;inaccessible&#34;. None of this is in GitHub&#39;s REST or GraphQL API.</p>
+
+<h2>Calibration</h2>
+<p>For Pull Shark, GitHub names which merged pull request was its 2nd, 16th, 128th and 1024th. gh-achievements lists your merged pull requests in merge order and finds the highest milestone it can see. For @torvalds, GitHub&#39;s 16th is subsurface/subsurface#1506, and it is also 16th in the API&#39;s list, so the two counts agree (&#43;0). Any difference is added to the live count, so pull requests the API cannot show you are still counted.</p>
+
+<h2>An official tier is never contradicted</h2>
+<p>A tier GitHub granted is never taken back, so a count below that tier&#39;s threshold is raised to it. A count above GitHub&#39;s tier is shown with &#34;count says xN&#34;, because GitHub can lag behind the count.</p>
+
+<h2>Why Pair Extraordinaire has no counter</h2>
+<p>GitHub&#39;s rule for which coauthored commits count is not public, and the obvious rule is wrong. On the author&#39;s own account, 60 merged pull requests had commits with a Co-authored-by trailer while GitHub&#39;s tier said 10 to 23, and GitHub&#39;s first unlock (2024-12-17) came before the first such pull request (2026-05-28). Commit search&#39;s co-author: qualifier returned commits co-authored by other people. So the tool shows GitHub&#39;s tier and no number.</p>
+
+<h2>Known limits</h2>
+<p>GitHub search lists at most 1000 pull requests, so above that Pull Shark keeps the exact total but skips calibration. Counts only include what your gh login can see. Galaxy Brain is counted, not calibrated. Starstruck takes the most-starred repository among the ones GitHub names and the ones you own; the star count itself is live API data. Galaxy Brain&#39;s count includes answers in GitHub Community discussions, which stopped counting in 2024, so it can run high. The official pages are HTML, so a weekly canary job checks them against real profiles and opens an issue when GitHub changes them.</p>
+
+<h2>No token, no server</h2>
+<p>gh-achievements uses the credentials gh already stores (or GH_TOKEN). Without them it falls back to public data. It talks only to github.com and api.github.com; there is no gh-achievements server.</p>
+
+<p class="meta">Last verified <time datetime="2026-10-17">2026-10-17</time>. Found something off? <a href="https://github.com/nmloc/gh-achievements/issues/new?template=count-looks-wrong.yml">Report it</a>.</p>
+
+</main>
+<footer>
+  <p>gh-achievements is an independent open source project (MIT) and is not affiliated with or endorsed by GitHub.
+  <a href="https://github.com/nmloc/gh-achievements">Source</a> · <a href="/gh-achievements/achievements.json">achievements.json</a> · <a href="/gh-achievements/llms.txt">llms.txt</a></p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: How accurate is it?
+    url: https://nmloc.github.io/gh-achievements/methodology/
+    about: Where each number comes from, and the known limits.

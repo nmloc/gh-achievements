@@ -1,0 +1,19 @@
+name: Bug
+description: Something else does not work.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command you ran and its output.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version and OS
+      placeholder: gh-achievements v0.1.0, macOS 15, gh 2.80
+    validations:
+      required: true

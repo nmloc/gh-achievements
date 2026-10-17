@@ -1,0 +1,50 @@
+name: Canary
+
+# Weekly: parse live github.com pages and look for new achievements. The badge data is
+# HTML GitHub can change at any time; this turns a silent break into an issue.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: "Fail on purpose, to test the issue step"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Parse live pages
+        id: canary
+        env:
+          CANARY_SIMULATE_FAILURE: ${{ inputs.simulate_failure }}
+        run: go test -tags canary ./internal/official -run Canary -v 2>&1 | tee canary.log; exit "${PIPESTATUS[0]}"
+      - name: Open an issue
+        if: failure() && steps.canary.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "$(gh issue list --repo "$GITHUB_REPOSITORY" --label canary --state open --json number --jq '.[].number')" ]; then
+            echo "A canary issue is already open"; exit 0
+          fi
+          gh label create canary --repo "$GITHUB_REPOSITORY" --color B60205 --description "GitHub's achievement pages changed" --force
+          {
+            echo "The weekly canary failed: GitHub's achievement pages changed or a new achievement appeared."
+            echo
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '```'
+            grep -E -- '--- FAIL|_test.go:[0-9]+' canary.log | head -40
+            echo '```'
+          } > body.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Canary: achievement pages changed" --label canary --body-file body.md

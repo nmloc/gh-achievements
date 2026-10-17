@@ -1,0 +1,38 @@
+name: A count or tier looks wrong
+description: gh achievements disagrees with what GitHub shows on a profile.
+labels: [accuracy]
+body:
+  - type: input
+    id: user
+    attributes:
+      label: Username
+      description: A public profile where it happens.
+    validations:
+      required: true
+  - type: input
+    id: badge
+    attributes:
+      label: Achievement
+      placeholder: Pull Shark
+    validations:
+      required: true
+  - type: textarea
+    id: shown
+    attributes:
+      label: What gh achievements shows
+      description: Paste the lines for that achievement, including the [source] label.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: github
+    attributes:
+      label: What GitHub shows
+      description: The tier, and the history rows when you click the badge on the profile.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `gh achievements --version`.
