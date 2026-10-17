@@ -8,12 +8,13 @@ import (
 // RenderResultFragment is the result section alone, for /api/private.
 func RenderResultFragment(v ResultView) ([]byte, error) { return webui.RenderFragment("result", v) }
 
-// RenderResultPage is the full /result page.
+// RenderResultPage is the full /result page. Its <h1> is the @login in the result header.
 func RenderResultPage(v ResultView) ([]byte, error) {
+	v.Standalone = true
 	return webui.Render(webui.Page{
 		Path: "result", URL: webui.SiteURL + "result", Title: "@" + v.User + "'s GitHub achievements · gh-achievements",
 		Description: "Every GitHub achievement, @" + v.User + "'s tier and how far to the next one.",
-		Heading:     "GitHub achievements", Content: "result-page.html", NoIndex: true, Data: v,
+		Content:     "result-page.html", NoIndex: true, Data: v,
 	})
 }
 

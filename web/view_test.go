@@ -52,20 +52,30 @@ func TestResultView_closestNextUnlockIsTheSmallestRemaining(t *testing.T) {
 	}
 }
 
-func TestResultView_quickWinsAreUnearnedSingleTierBadges(t *testing.T) {
-	v := demoView(t, false)
-	var slugs []string
-	for _, c := range v.QuickWins {
-		slugs = append(slugs, c.Slug)
+func slugs(cards []Card) string {
+	var s []string
+	for _, c := range cards {
+		s = append(s, c.Slug)
 	}
-	if strings.Join(slugs, ",") != "quickdraw,yolo,public-sponsor" {
-		t.Fatalf("quick wins = %v", slugs)
+	return strings.Join(s, ",")
+}
+
+func TestResultView_shelves(t *testing.T) {
+	v := demoView(t, false)
+	if got := slugs(v.Display); got != "pull-shark,starstruck,pair-extraordinaire,arctic-code-vault-contributor,mars-2020-contributor" {
+		t.Errorf("on display = %s", got)
+	}
+	if got := slugs(v.Collect); got != "galaxy-brain,quickdraw,yolo,public-sponsor,finishing-touch" {
+		t.Errorf("still to collect = %s", got)
+	}
+	if got := slugs(v.Archive); got != "heart-on-your-sleeve,open-sourcerer,proxima-pioneer,proxima-staffshipper,proxima-staffuser" {
+		t.Errorf("archive = %s", got)
 	}
 }
 
 func TestResultView_cards(t *testing.T) {
 	v := demoView(t, false)
-	ps := card(t, v.Earnable, "pull-shark")
+	ps := card(t, v.Display, "pull-shark")
 	if !ps.Earned || ps.TierLabel != "x2" || !strings.Contains(ps.Image, "-bronze-") || ps.Source != "calibrated" ||
 		ps.Progress == nil || ps.Progress.Value != 56 || ps.Progress.Max != 112 || ps.Line != "72 / 128 to x3" {
 		t.Fatalf("pull shark = %+v %+v", ps, ps.Progress)
@@ -76,34 +86,34 @@ func TestResultView_cards(t *testing.T) {
 	if len(ps.Milestones) == 0 || ps.Milestones[1].URL != "https://github.com/subsurface/subsurface/pull/1506" {
 		t.Fatalf("milestones = %+v", ps.Milestones)
 	}
-	gb := card(t, v.Earnable, "galaxy-brain")
+	gb := card(t, v.Collect, "galaxy-brain")
 	if gb.Earned || !gb.Locked || !strings.Contains(gb.Image, "-default-") {
 		t.Fatalf("galaxy brain = %+v", gb)
 	}
-	if mars := card(t, v.Other, "mars-2020-contributor"); !mars.Earned || mars.TierLabel != "✓" {
+	if mars := card(t, v.Display, "mars-2020-contributor"); !mars.Earned || mars.TierLabel != "✓" {
 		t.Fatalf("mars = %+v", mars)
 	}
 	// GitHub deleted this art; the pinned community copy stands in (catalog.communityArt).
-	if heart := card(t, v.Other, "heart-on-your-sleeve"); !strings.HasSuffix(heart.Image, "/heart-on-your-sleeve-default.png") || !heart.Locked {
+	if heart := card(t, v.Archive, "heart-on-your-sleeve"); !strings.HasSuffix(heart.Image, "/heart-on-your-sleeve-default.png") || !heart.Locked {
 		t.Fatalf("heart = %+v", heart)
 	}
 }
 
-func TestResultView_hiddenProfileHasNoQuickWins(t *testing.T) {
+func TestResultView_hiddenProfileHasNothingOnDisplay(t *testing.T) {
 	r, err := report.Build("sindresorhus", fixtures.Official{}, &fixtures.Counts{Authed: true,
 		PRs: counters.MergedPRs{Total: 2241}, FactsValue: &counters.Facts{}})
 	if err != nil {
 		t.Fatal(err)
 	}
 	v := NewResultView(r, false)
-	if !v.Hidden || len(v.QuickWins) != 0 {
-		t.Fatalf("hidden %v quick wins %v", v.Hidden, v.QuickWins)
+	if !v.Hidden || len(v.Display) != 0 || len(v.Collect) != 8 {
+		t.Fatalf("hidden %v, display %s, collect %s", v.Hidden, slugs(v.Display), slugs(v.Collect))
 	}
 }
 
 func TestCard_nonEarnableKindsNeverShowProgress(t *testing.T) {
 	v := demoView(t, false)
-	heart := card(t, v.Other, "heart-on-your-sleeve")
+	heart := card(t, v.Archive, "heart-on-your-sleeve")
 	if heart.Line != "Switched off by GitHub" || heart.Progress != nil || strings.Contains(heart.Line, "0") {
 		t.Fatalf("heart = %q %+v", heart.Line, heart.Progress)
 	}

@@ -37,6 +37,7 @@
     if (window.gha) {
       window.gha.track("signin_complete");
       window.gha.reportView(out.querySelector("[data-report]"));
+      window.gha.fillStars();
     }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);

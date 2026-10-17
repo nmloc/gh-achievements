@@ -46,7 +46,7 @@
 </header>
 <main>
 {{if .P.Crumbs}}<nav class="crumbs" aria-label="Breadcrumb"><ol>{{range $i, $c := .P.Crumbs}}<li>{{if $i}}<span aria-hidden="true">›</span> {{end}}<a href="{{rel $c.URL}}">{{$c.Name}}</a></li>{{end}}</ol></nav>{{end}}
-<h1>{{.P.Heading}}</h1>
+{{with .P.Heading}}<h1>{{.}}</h1>{{end}}
 {{template "content" .P.Data}}
 </main>
 <footer>

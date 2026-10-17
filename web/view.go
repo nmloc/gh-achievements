@@ -38,9 +38,12 @@ type Card struct {
 type ResultView struct {
 	User, Avatar                     string
 	Private, Hidden, Authenticated   bool
+	Standalone                       bool // the full /result page: @login is its <h1>
 	Earned, EarnableTotal, TierTotal int
 	Closest                          *Card
-	QuickWins, Earnable, Other       []Card
+	Display                          []Card // "On display": every earned badge, any kind
+	Collect                          []Card // "Still to collect": earnable, not earned
+	Archive                          []Card // "The archive": cannot be earned, not earned
 	Highlights                       []report.HighlightRow
 	Verified                         string
 }
@@ -72,23 +75,27 @@ func NewResultView(r *report.Report, private bool) ResultView {
 		if row.Status == report.Earned {
 			v.TierTotal += row.Tier
 		}
-		if row.Kind != catalog.Earnable {
-			v.Other = append(v.Other, c)
+		earnable := row.Kind == catalog.Earnable
+		switch {
+		case c.Earned:
+			v.Display = append(v.Display, c)
+		case earnable:
+			v.Collect = append(v.Collect, c)
+		default:
+			v.Archive = append(v.Archive, c)
+		}
+		if !earnable {
 			continue
 		}
 		v.EarnableTotal++
 		if c.Earned {
 			v.Earned++
 		}
-		v.Earnable = append(v.Earnable, c)
 		if st := row.Standing; st != nil && !st.IsMax && st.Remaining > 0 &&
 			(v.Closest == nil || st.Remaining < bestRemaining) {
 			cc := c
 			v.Closest = &cc
 			bestRemaining = st.Remaining
-		}
-		if len(row.Tiers) == 1 && row.Status == report.NotEarned {
-			v.QuickWins = append(v.QuickWins, c)
 		}
 	}
 	return v
