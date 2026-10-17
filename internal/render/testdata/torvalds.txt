@@ -1,64 +1,25 @@
 
-  GitHub achievements · @torvalds
+  🏆 @torvalds
+  3 of 8 badges you can still earn, 12 tiers
+  Closest next unlock: Galaxy Brain, 0 / 2 answers to x1
 
-  EARNABLE
-  x2  Pull Shark                     since 2017-01-17
-      Open pull requests that get merged · tiers 2 · 16 · 128 · 1024
-          72 / 128   ████████░░░░░░░░ 56 to x3  [calibrated]
-      · checked at GitHub's #16 subsurface/subsurface#1506: GitHub counts +0 vs what your gh login can see
-  x4  Starstruck                     since 2011-09-04
-      Create a repository that gets stars · tiers 16 · 128 · 512 · 4096
-      252192  max tier  [counted]
-      · torvalds/linux (named in GitHub's history) has 252192 stars
-  x4  Pair Extraordinaire            since 2022-07-14
-      Coauthor commits on merged pull requests · tiers 1 · 10 · 24 · 48
-      max tier  [official]
-      · GitHub's counting rule is not public: tier only, no counter
-  --  Galaxy Brain
-      Have discussion answers accepted · tiers 2 · 8 · 16 · 32
-           0 / 2     ░░░░░░░░░░░░░░░░ 2 to x1  [counted]
-      · includes answers in GitHub Community discussions, which stopped counting on 2024-02-06
-  --  Quickdraw
-      Close an issue or pull request within 5 minutes of opening it
-      0 / 1  [official]
-  --  YOLO
-      Merge a pull request without a review
-      0 / 1  [official]
-  --  Public Sponsor
-      Sponsor someone publicly through GitHub Sponsors
-      0 / 1  [official]
-  --  Finishing Touch
-      Get pull requests that improve GitHub's UI quality merged · tiers 1 · 4 · 16 · 32
-      next x1 at 1  [official]
-      · GitHub decides which pull requests count as UI quality: tier only, no counter
+  On display
+  ● Pull Shark                     x2  ██████░░░░░░  72 / 128 to x3           calibrated
+  ● Starstruck                     x4  ████████████  Top tier, 252,192 stars  counted
+  ● Pair Extraordinaire            x4                Top tier                 official
+  ● Arctic Code Vault Contributor  ✓                 Since 2020
+  ● Mars 2020 Contributor          ✓                 Since 2021
 
-  DISABLED · tested by GitHub, not earnable now
-  --  Heart On Your Sleeve
-      React to something on GitHub with a ❤️ emoji · tiers ? · 16 · 128 · ?
-  --  Open Sourcerer
-      Have pull requests merged in several public repositories · tiers ? · 8 · 16 · 64
+  Still to collect
+  ○ Galaxy Brain                       ░░░░░░░░░░░░  0 / 2 answers to x1      counted
+  ○ Quickdraw                                        Close an issue or pull request within 5 minutes of opening it
+  ○ YOLO                                             Merge a pull request without a review
+  ○ Public Sponsor                                   Sponsor someone publicly through GitHub Sponsors
+  ○ Finishing Touch                                  First tier at 1          official
 
-  RETIRED · can no longer be earned
-  x1  Arctic Code Vault Contributor  since 2020-02-02
-      Code in a repository of the 2020 GitHub Archive Program
-  x1  Mars 2020 Contributor          since 2021-04-19
-      Code in a repository used by the Mars 2020 Helicopter Mission
+  The archive: 5 badges you can no longer earn (--all lists them)
 
-  INTERNAL · GitHub staff only
-  --  Proxima Pioneer
-      GitHub staff: contributed to the Proxima proof of concept
-  --  Proxima Staffshipper
-      GitHub staff: shipped the Proxima staffship instance
-  --  Proxima Staffuser
-      GitHub staff: your team was onboarded to Proxima
-
-  HIGHLIGHTS
-  ·   Developer Program Member
-  ·   Security Bug Bounty Hunter
-  ·   GitHub Campus Expert
-  ·   GitHub Star
-  ·   Pro
-  ·   Security advisory credit
+  Highlights: none of 6 yet
 
   official = GitHub's own pages · calibrated = counted, checked against GitHub · counted = counted only
 

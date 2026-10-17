@@ -35,6 +35,8 @@ go test ./internal/official -run TestUpdateFixtures -update     # refresh fixtur
 go test -tags canary ./internal/official -run Canary -v        # check live pages
 ```
 
+README screenshots: `go run ./cmd/devserver` in one terminal, then `node scripts/readme-screenshots.mjs` (needs Google Chrome).
+
 ## Adding an achievement
 
 1. Add it to `internal/catalog/catalog.go` with tiers, how to earn it and its kind.

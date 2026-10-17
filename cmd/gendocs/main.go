@@ -82,7 +82,7 @@ func generate() (map[string][]byte, error) {
 		return nil, fmt.Errorf("demo report: %w", err)
 	}
 	var colored bytes.Buffer
-	render.Text(&colored, demo, true)
+	render.Text(&colored, demo, render.Options{Color: true})
 	svg := terminalSVG(colored.String(), "DISABLED")
 	files["docs/demo.svg"] = svg
 	// social.png is rendered from this by scripts/social-png.sh; PNG bytes depend on
@@ -191,6 +191,13 @@ func progressText(a catalog.Achievement) string {
 	return "Earned or not (official)"
 }
 
+func lowerFirst(s string) string {
+	if s == "" {
+		return s
+	}
+	return strings.ToLower(s[:1]) + s[1:]
+}
+
 var tierNames = []string{"x1 · base", "x2 · bronze", "x3 · silver", "x4 · gold"}
 
 // ---------- README ----------
@@ -211,19 +218,27 @@ func readmeBadges() string {
 	return b.String()
 }
 
+// readmeTable groups the catalog like the site's list and, as GitHub's own badge dialog does,
+// shows every tier as its medal above the amount it needs.
 func readmeTable() string {
 	var b strings.Builder
-	b.WriteString("| Badge | Achievement | How to earn it | Tiers | Status | What `gh achievements` shows |\n")
-	b.WriteString("|:-:|---|---|---|---|---|\n")
-	for _, a := range catalog.Achievements {
-		art := ""
-		if img := catalog.Image(a.Slug, len(a.Tiers)); img != "" {
-			art = fmt.Sprintf(`<img src="%s" width="40" height="40" alt="%s badge">`, img, a.Name)
+	for _, g := range kindGroups {
+		fmt.Fprintf(&b, "### %s\n\n%s\n\n", g.Heading, g.Note)
+		b.WriteString("| Badge | Achievement | How to earn it | Tiers |\n|:-:|---|---|:-:|\n")
+		for _, a := range catalog.Achievements {
+			if a.Kind != g.Kind {
+				continue
+			}
+			art := ""
+			if img := catalog.Image(a.Slug, len(a.Tiers)); img != "" {
+				art = fmt.Sprintf(`<img src="%s" width="40" height="40" alt="%s badge">`, img, a.Name)
+			}
+			fmt.Fprintf(&b, "| %s | [%s](%sachievements/%s/) | %s<br><sub>gh achievements: %s</sub> | %s |\n",
+				art, a.Name, webui.SiteURL, a.Slug, a.HowToEarn, lowerFirst(progressText(a)), tierTable(a))
 		}
-		fmt.Fprintf(&b, "| %s | [%s](%sachievements/%s/) | %s | %s | %s | %s |\n",
-			art, a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind), progressText(a))
+		b.WriteString("\n")
 	}
-	b.WriteString("\nProfile highlights it also reports: ")
+	b.WriteString("Profile highlights it also reports: ")
 	names := make([]string, len(catalog.Highlights))
 	for i, h := range catalog.Highlights {
 		names[i] = h.Name
@@ -232,6 +247,30 @@ func readmeTable() string {
 	fmt.Fprintf(&b, "_Catalog last verified against live profiles on %s._\n", catalog.LastVerified)
 	return b.String()
 }
+
+// tierTable is one inline HTML table: a column per tier, its medal above the amount needed.
+// It stays on one line so the markdown row around it does not break.
+func tierTable(a catalog.Achievement) string {
+	n := min(max(len(a.Tiers), 1), len(metalTitles))
+	var head, art, need strings.Builder
+	for i := 0; i < n; i++ {
+		amount := "1"
+		if i < len(a.Tiers) {
+			amount = "?"
+			if a.Tiers[i] > 0 {
+				amount = fmt.Sprint(a.Tiers[i])
+			}
+		}
+		head.WriteString("<th>" + metalTitles[i] + "</th>")
+		fmt.Fprintf(&art, `<td align="center"><img src="%s" width="48" height="48" alt="%s %s"></td>`,
+			catalog.Image(a.Slug, i+1), a.Name, metals[i])
+		need.WriteString(`<td align="center">` + amount + "</td>")
+	}
+	return "<table><tr>" + head.String() + "</tr><tr>" + art.String() + "</tr><tr>" + need.String() + "</tr></table>"
+}
+
+// metalTitles head the tier columns, as on GitHub's own badge art.
+var metalTitles = []string{"Default", "Bronze", "Silver", "Gold"}
 
 // ---------- machine-readable ----------
 

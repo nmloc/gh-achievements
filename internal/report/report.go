@@ -3,6 +3,7 @@ package report
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/nmloc/gh-achievements/internal/catalog"
@@ -220,6 +221,11 @@ func (b *builder) row(a catalog.Achievement, d *official.Detail) Row {
 		}
 	}
 	return row
+}
+
+// IsWarning reports whether a note says something went wrong, so every view shows it.
+func IsWarning(note string) bool {
+	return strings.HasPrefix(note, "could not ") || strings.HasPrefix(note, "GitHub lists this badge but served no history")
 }
 
 func (b *builder) missingDetailNote(slug string) string {

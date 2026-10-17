@@ -5,6 +5,10 @@
 - New look for the site: your badges stand on a lit shelf, with a light and a dark theme (follows your system, switch in the header).
 - Progress reads as count against the next threshold, e.g. `72 / 128 to x3`.
 - A star button for the repository in the header and after your results.
+- The terminal report now reads like the site: your badges on display, the ones still to collect, the archive in one line, and the same wording (`72 / 128 to x3`, `Top tier`, `Since 2020`).
+- `gh achievements --all` lists the archive, every highlight and each badge's notes; notes that report a problem always show.
+- The first report printed to a terminal ends with one request to star the repository. It never repeats: a marker file, `gh-achievements/star-shown` in your user config directory, remembers it.
+- README: the achievements table shows every tier's medal and amount, and screenshots of the site in light and dark.
 
 ## v0.2.0
 

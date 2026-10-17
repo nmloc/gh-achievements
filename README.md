@@ -13,7 +13,7 @@
 </p>
 <!-- badges:end -->
 
-<p align="center"><strong>Every GitHub achievement, your tier and how far to the next one, verified against GitHub's own data.</strong></p>
+<p align="center"><strong>Your GitHub trophy case: every achievement, your tier and how far the next one is, verified against GitHub's own data.</strong></p>
 
 <p align="center">
   <a href="https://gh-achievements.vercel.app/check/"><img src="docs/check-button.svg" width="520" alt="🏆 Check your GitHub achievements → no install; sign in with GitHub to include private work"></a>
@@ -23,23 +23,36 @@
   <a href="https://gh-achievements.vercel.app/check/"><strong>gh-achievements.vercel.app/check</strong></a> · no install · or use the CLI below
 </p>
 
+<p align="center">
+  <a href="https://gh-achievements.vercel.app/result?u=torvalds">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+      <img src="docs/screenshot-light.png" width="880" alt="The gh-achievements result page for @torvalds: Pull Shark x2 at 72 / 128 to x3, Starstruck and Pair Extraordinaire at their top tier, and the retired Arctic Code Vault and Mars 2020 badges on a lit shelf; Galaxy Brain, Quickdraw, YOLO, Public Sponsor and Finishing Touch still to collect">
+    </picture>
+  </a>
+</p>
+
 [![Release](https://img.shields.io/github/v/release/nmloc/gh-achievements)](https://github.com/nmloc/gh-achievements/releases)
 [![Tests](https://github.com/nmloc/gh-achievements/actions/workflows/test.yml/badge.svg)](https://github.com/nmloc/gh-achievements/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-```bash
-gh extension install nmloc/gh-achievements
-gh achievements
-```
+## Two ways to check
 
-![Terminal output of gh achievements torvalds: Pull Shark x2 at 72 of 128 merged pull requests, calibrated against GitHub's 16th milestone; Starstruck x4 from torvalds/linux; Pair Extraordinaire x4; retired Arctic Code Vault and Mars 2020 badges](docs/demo.svg)
+| On the web | In your terminal |
+|---|---|
+| **[gh-achievements.vercel.app/check](https://gh-achievements.vercel.app/check/)** | `gh extension install nmloc/gh-achievements` then `gh achievements` |
+| Type any username, or sign in with GitHub to include private repositories. The token is used for one check and revoked at once; nothing is stored. Organizations that restrict third-party apps hide their private repositories until an admin approves gh-achievements. | Reuses your `gh auth login`, so it counts everything that login can see, including organizations that restrict third-party apps. |
 
-`gh-achievements` is a [GitHub CLI](https://cli.github.com/) extension that lists **all GitHub profile achievements** (Pull Shark, Starstruck, Pair Extraordinaire, Galaxy Brain, Quickdraw, YOLO, Public Sponsor, Finishing Touch and the retired ones) and shows **your tier and progress to the next one**. Site: **[gh-achievements.vercel.app](https://gh-achievements.vercel.app/)**.
+![Terminal output of gh achievements torvalds: on display Pull Shark x2 at 72 / 128 to x3 (calibrated), Starstruck at the top tier with 252,192 stars, Pair Extraordinaire at the top tier, the retired Arctic Code Vault and Mars 2020 badges; still to collect Galaxy Brain at 0 / 2 answers, Quickdraw, YOLO, Public Sponsor and Finishing Touch](docs/demo.svg)
 
-- **Every achievement**, not only the ones you have, plus profile highlights such as Pro and Developer Program Member.
-- **Your tier and the next one**: unlock date, a progress bar, and how many more you need.
-- **Checked against GitHub**: tiers and milestones come from GitHub's own badge history; Pull Shark's count is calibrated against the pull requests GitHub names.
-- **No stored token**: the CLI reuses `gh auth login` and talks only to GitHub. The web checker signs in with GitHub, uses the token for one check and revokes it.
+## What it shows
+
+`gh-achievements` is a [GitHub CLI](https://cli.github.com/) extension and a website that list all GitHub profile achievements (Pull Shark, Starstruck, Pair Extraordinaire, Galaxy Brain, Quickdraw, YOLO, Public Sponsor, Finishing Touch and the retired ones) and show your tier and progress to the next one.
+
+- **Every badge, not just yours.** All 15 known achievements (8 earnable, 2 switched off by GitHub, 2 retired, 3 for GitHub staff) and 6 profile highlights such as Pro.
+- **How far to the next tier.** Your count against the next threshold, such as `72 / 128 to x3` for Pull Shark.
+- **Checked against GitHub.** Tiers, unlock dates and milestones come from GitHub's own badge history, and every number is labelled `official`, `calibrated` or `counted`.
+- **No stored token.** The CLI reuses your `gh auth login` and talks only to GitHub. The web checker signs in with GitHub, uses the token for one check and revokes it.
 
 ## Install
 
@@ -57,35 +70,57 @@ Upgrade with `gh extension upgrade achievements`. Prebuilt binaries for macOS, L
 gh achievements              # the account you are signed in to with gh
 gh achievements torvalds     # anyone's public profile
 gh achievements --json       # machine-readable, for scripts
+gh achievements --all        # also the archive, every highlight and each badge's notes
 gh achievements --no-color   # plain text (NO_COLOR is honoured too)
 ```
 
 Not signed in to gh? It still works with public data and tells you what a login would add.
 
-## Web
-
-[gh-achievements.vercel.app](https://gh-achievements.vercel.app/check/): type a username for public data, or sign in with GitHub to include private repositories. The sign-in token is used for one check and revoked at once; nothing is stored. Organizations that restrict third-party apps hide their private repositories until an admin approves gh-achievements. The CLI uses your existing `gh` login instead, which your organizations may already have approved.
-
 ## All GitHub achievements
 
 <!-- catalog:start -->
-| Badge | Achievement | How to earn it | Tiers | Status | What `gh achievements` shows |
-|:-:|---|---|---|---|---|
-| <img src="https://github.githubassets.com/assets/pull-shark-gold-90985540b385.png" width="40" height="40" alt="Pull Shark badge"> | [Pull Shark](https://gh-achievements.vercel.app/achievements/pull-shark/) | Open pull requests that get merged | 2 · 16 · 128 · 1024 | Earnable | Count, checked against GitHub's milestones |
-| <img src="https://github.githubassets.com/assets/starstruck-gold-a35e077693cc.png" width="40" height="40" alt="Starstruck badge"> | [Starstruck](https://gh-achievements.vercel.app/achievements/starstruck/) | Create a repository that gets stars | 16 · 128 · 512 · 4096 | Earnable | Stars of the repository GitHub names |
-| <img src="https://github.githubassets.com/assets/pair-extraordinaire-gold-5335a3b8ae7d.png" width="40" height="40" alt="Pair Extraordinaire badge"> | [Pair Extraordinaire](https://gh-achievements.vercel.app/achievements/pair-extraordinaire/) | Coauthor commits on merged pull requests | 1 · 10 · 24 · 48 | Earnable | Official tier (no public counting rule) |
-| <img src="https://github.githubassets.com/assets/galaxy-brain-gold-9c2c03fd1acf.png" width="40" height="40" alt="Galaxy Brain badge"> | [Galaxy Brain](https://gh-achievements.vercel.app/achievements/galaxy-brain/) | Have discussion answers accepted | 2 · 8 · 16 · 32 | Earnable | Count of accepted answers |
-| <img src="https://github.githubassets.com/assets/quickdraw-default-39c6aec8ff89.png" width="40" height="40" alt="Quickdraw badge"> | [Quickdraw](https://gh-achievements.vercel.app/achievements/quickdraw/) | Close an issue or pull request within 5 minutes of opening it | one tier | Earnable | Earned or not (official) |
-| <img src="https://github.githubassets.com/assets/yolo-default-be0bbff04951.png" width="40" height="40" alt="YOLO badge"> | [YOLO](https://gh-achievements.vercel.app/achievements/yolo/) | Merge a pull request without a review | one tier | Earnable | Earned or not (official) |
-| <img src="https://github.githubassets.com/assets/public-sponsor-default-9fa68986b057.png" width="40" height="40" alt="Public Sponsor badge"> | [Public Sponsor](https://gh-achievements.vercel.app/achievements/public-sponsor/) | Sponsor someone publicly through GitHub Sponsors | one tier | Earnable | Earned or not (official) |
-| <img src="https://github.githubassets.com/assets/finishing-touch-gold-e19e1fcbfee2.png" width="40" height="40" alt="Finishing Touch badge"> | [Finishing Touch](https://gh-achievements.vercel.app/achievements/finishing-touch/) | Get pull requests that improve GitHub's UI quality merged | 1 · 4 · 16 · 32 | Earnable | Official tier (no public counting rule) |
-| <img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-gold.png" width="40" height="40" alt="Heart On Your Sleeve badge"> | [Heart On Your Sleeve](https://gh-achievements.vercel.app/achievements/heart-on-your-sleeve/) | React to something on GitHub with a ❤️ emoji | ? · 16 · 128 · ? | Disabled (tested, not earnable now) | Earned or not |
-| <img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/open-sourcerer-gold.png" width="40" height="40" alt="Open Sourcerer badge"> | [Open Sourcerer](https://gh-achievements.vercel.app/achievements/open-sourcerer/) | Have pull requests merged in several public repositories | ? · 8 · 16 · 64 | Disabled (tested, not earnable now) | Earned or not |
-| <img src="https://github.githubassets.com/assets/arctic-code-vault-contributor-default-df8d74122a06.png" width="40" height="40" alt="Arctic Code Vault Contributor badge"> | [Arctic Code Vault Contributor](https://gh-achievements.vercel.app/achievements/arctic-code-vault-contributor/) | Code in a repository of the 2020 GitHub Archive Program | one tier | Retired (no longer earnable) | Earned or not |
-| <img src="https://github.githubassets.com/assets/mars-2020-contributor-default-c9cad8495acf.png" width="40" height="40" alt="Mars 2020 Contributor badge"> | [Mars 2020 Contributor](https://gh-achievements.vercel.app/achievements/mars-2020-contributor/) | Code in a repository used by the Mars 2020 Helicopter Mission | one tier | Retired (no longer earnable) | Earned or not |
-| <img src="https://github.githubassets.com/assets/proxima-pioneer-default-51cd4e4969d5.png" width="40" height="40" alt="Proxima Pioneer badge"> | [Proxima Pioneer](https://gh-achievements.vercel.app/achievements/proxima-pioneer/) | GitHub staff: contributed to the Proxima proof of concept | one tier | Internal (GitHub staff only) | Earned or not |
-| <img src="https://github.githubassets.com/assets/proxima-staffshipper-default-84f658288021.png" width="40" height="40" alt="Proxima Staffshipper badge"> | [Proxima Staffshipper](https://gh-achievements.vercel.app/achievements/proxima-staffshipper/) | GitHub staff: shipped the Proxima staffship instance | one tier | Internal (GitHub staff only) | Earned or not |
-| <img src="https://github.githubassets.com/assets/proxima-staffuser-default-02bf6163ea31.png" width="40" height="40" alt="Proxima Staffuser badge"> | [Proxima Staffuser](https://gh-achievements.vercel.app/achievements/proxima-staffuser/) | GitHub staff: your team was onboarded to Proxima | one tier | Internal (GitHub staff only) | Earned or not |
+### Earnable
+
+You can still earn these.
+
+| Badge | Achievement | How to earn it | Tiers |
+|:-:|---|---|:-:|
+| <img src="https://github.githubassets.com/assets/pull-shark-gold-90985540b385.png" width="40" height="40" alt="Pull Shark badge"> | [Pull Shark](https://gh-achievements.vercel.app/achievements/pull-shark/) | Open pull requests that get merged<br><sub>gh achievements: count, checked against GitHub's milestones</sub> | <table><tr><th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/pull-shark-default-498c279a747d.png" width="48" height="48" alt="Pull Shark base"></td><td align="center"><img src="https://github.githubassets.com/assets/pull-shark-bronze-a37accb528d1.png" width="48" height="48" alt="Pull Shark bronze"></td><td align="center"><img src="https://github.githubassets.com/assets/pull-shark-silver-0643f87ac9fd.png" width="48" height="48" alt="Pull Shark silver"></td><td align="center"><img src="https://github.githubassets.com/assets/pull-shark-gold-90985540b385.png" width="48" height="48" alt="Pull Shark gold"></td></tr><tr><td align="center">2</td><td align="center">16</td><td align="center">128</td><td align="center">1024</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/starstruck-gold-a35e077693cc.png" width="40" height="40" alt="Starstruck badge"> | [Starstruck](https://gh-achievements.vercel.app/achievements/starstruck/) | Create a repository that gets stars<br><sub>gh achievements: stars of the repository GitHub names</sub> | <table><tr><th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/starstruck-default-b6610abad518.png" width="48" height="48" alt="Starstruck base"></td><td align="center"><img src="https://github.githubassets.com/assets/starstruck-bronze-b71ec4d7766a.png" width="48" height="48" alt="Starstruck bronze"></td><td align="center"><img src="https://github.githubassets.com/assets/starstruck-silver-275c101223c0.png" width="48" height="48" alt="Starstruck silver"></td><td align="center"><img src="https://github.githubassets.com/assets/starstruck-gold-a35e077693cc.png" width="48" height="48" alt="Starstruck gold"></td></tr><tr><td align="center">16</td><td align="center">128</td><td align="center">512</td><td align="center">4096</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/pair-extraordinaire-gold-5335a3b8ae7d.png" width="40" height="40" alt="Pair Extraordinaire badge"> | [Pair Extraordinaire](https://gh-achievements.vercel.app/achievements/pair-extraordinaire/) | Coauthor commits on merged pull requests<br><sub>gh achievements: official tier (no public counting rule)</sub> | <table><tr><th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/pair-extraordinaire-default-579438a20e01.png" width="48" height="48" alt="Pair Extraordinaire base"></td><td align="center"><img src="https://github.githubassets.com/assets/pair-extraordinaire-bronze-797214f41e7e.png" width="48" height="48" alt="Pair Extraordinaire bronze"></td><td align="center"><img src="https://github.githubassets.com/assets/pair-extraordinaire-silver-a0b2b472348c.png" width="48" height="48" alt="Pair Extraordinaire silver"></td><td align="center"><img src="https://github.githubassets.com/assets/pair-extraordinaire-gold-5335a3b8ae7d.png" width="48" height="48" alt="Pair Extraordinaire gold"></td></tr><tr><td align="center">1</td><td align="center">10</td><td align="center">24</td><td align="center">48</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/galaxy-brain-gold-9c2c03fd1acf.png" width="40" height="40" alt="Galaxy Brain badge"> | [Galaxy Brain](https://gh-achievements.vercel.app/achievements/galaxy-brain/) | Have discussion answers accepted<br><sub>gh achievements: count of accepted answers</sub> | <table><tr><th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/galaxy-brain-default-847262c21056.png" width="48" height="48" alt="Galaxy Brain base"></td><td align="center"><img src="https://github.githubassets.com/assets/galaxy-brain-bronze-da3c4829fd22.png" width="48" height="48" alt="Galaxy Brain bronze"></td><td align="center"><img src="https://github.githubassets.com/assets/galaxy-brain-silver-2ce8da282a85.png" width="48" height="48" alt="Galaxy Brain silver"></td><td align="center"><img src="https://github.githubassets.com/assets/galaxy-brain-gold-9c2c03fd1acf.png" width="48" height="48" alt="Galaxy Brain gold"></td></tr><tr><td align="center">2</td><td align="center">8</td><td align="center">16</td><td align="center">32</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/quickdraw-default-39c6aec8ff89.png" width="40" height="40" alt="Quickdraw badge"> | [Quickdraw](https://gh-achievements.vercel.app/achievements/quickdraw/) | Close an issue or pull request within 5 minutes of opening it<br><sub>gh achievements: earned or not (official)</sub> | <table><tr><th>Default</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/quickdraw-default-39c6aec8ff89.png" width="48" height="48" alt="Quickdraw base"></td></tr><tr><td align="center">1</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/yolo-default-be0bbff04951.png" width="40" height="40" alt="YOLO badge"> | [YOLO](https://gh-achievements.vercel.app/achievements/yolo/) | Merge a pull request without a review<br><sub>gh achievements: earned or not (official)</sub> | <table><tr><th>Default</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/yolo-default-be0bbff04951.png" width="48" height="48" alt="YOLO base"></td></tr><tr><td align="center">1</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/public-sponsor-default-9fa68986b057.png" width="40" height="40" alt="Public Sponsor badge"> | [Public Sponsor](https://gh-achievements.vercel.app/achievements/public-sponsor/) | Sponsor someone publicly through GitHub Sponsors<br><sub>gh achievements: earned or not (official)</sub> | <table><tr><th>Default</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/public-sponsor-default-9fa68986b057.png" width="48" height="48" alt="Public Sponsor base"></td></tr><tr><td align="center">1</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/finishing-touch-gold-e19e1fcbfee2.png" width="40" height="40" alt="Finishing Touch badge"> | [Finishing Touch](https://gh-achievements.vercel.app/achievements/finishing-touch/) | Get pull requests that improve GitHub's UI quality merged<br><sub>gh achievements: official tier (no public counting rule)</sub> | <table><tr><th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/finishing-touch-default-764b3a996d62.png" width="48" height="48" alt="Finishing Touch base"></td><td align="center"><img src="https://github.githubassets.com/assets/finishing-touch-bronze-7c49185628f3.png" width="48" height="48" alt="Finishing Touch bronze"></td><td align="center"><img src="https://github.githubassets.com/assets/finishing-touch-silver-75ab9a5c22ba.png" width="48" height="48" alt="Finishing Touch silver"></td><td align="center"><img src="https://github.githubassets.com/assets/finishing-touch-gold-e19e1fcbfee2.png" width="48" height="48" alt="Finishing Touch gold"></td></tr><tr><td align="center">1</td><td align="center">4</td><td align="center">16</td><td align="center">32</td></tr></table> |
+
+### Switched off by GitHub
+
+GitHub tested these and switched them off; nobody can earn them now.
+
+| Badge | Achievement | How to earn it | Tiers |
+|:-:|---|---|:-:|
+| <img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-gold.png" width="40" height="40" alt="Heart On Your Sleeve badge"> | [Heart On Your Sleeve](https://gh-achievements.vercel.app/achievements/heart-on-your-sleeve/) | React to something on GitHub with a ❤️ emoji<br><sub>gh achievements: earned or not</sub> | <table><tr><th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th></tr><tr><td align="center"><img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/heart-on-your-sleeve-default.png" width="48" height="48" alt="Heart On Your Sleeve base"></td><td align="center"><img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-bronze.png" width="48" height="48" alt="Heart On Your Sleeve bronze"></td><td align="center"><img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-silver.png" width="48" height="48" alt="Heart On Your Sleeve silver"></td><td align="center"><img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-gold.png" width="48" height="48" alt="Heart On Your Sleeve gold"></td></tr><tr><td align="center">?</td><td align="center">16</td><td align="center">128</td><td align="center">?</td></tr></table> |
+| <img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/open-sourcerer-gold.png" width="40" height="40" alt="Open Sourcerer badge"> | [Open Sourcerer](https://gh-achievements.vercel.app/achievements/open-sourcerer/) | Have pull requests merged in several public repositories<br><sub>gh achievements: earned or not</sub> | <table><tr><th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th></tr><tr><td align="center"><img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/open-sourcerer-default.png" width="48" height="48" alt="Open Sourcerer base"></td><td align="center"><img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/open-sourcerer-bronze.png" width="48" height="48" alt="Open Sourcerer bronze"></td><td align="center"><img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/open-sourcerer-silver.png" width="48" height="48" alt="Open Sourcerer silver"></td><td align="center"><img src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/open-sourcerer-gold.png" width="48" height="48" alt="Open Sourcerer gold"></td></tr><tr><td align="center">?</td><td align="center">8</td><td align="center">16</td><td align="center">64</td></tr></table> |
+
+### Retired
+
+No longer awarded. Profiles that have them keep them.
+
+| Badge | Achievement | How to earn it | Tiers |
+|:-:|---|---|:-:|
+| <img src="https://github.githubassets.com/assets/arctic-code-vault-contributor-default-df8d74122a06.png" width="40" height="40" alt="Arctic Code Vault Contributor badge"> | [Arctic Code Vault Contributor](https://gh-achievements.vercel.app/achievements/arctic-code-vault-contributor/) | Code in a repository of the 2020 GitHub Archive Program<br><sub>gh achievements: earned or not</sub> | <table><tr><th>Default</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/arctic-code-vault-contributor-default-df8d74122a06.png" width="48" height="48" alt="Arctic Code Vault Contributor base"></td></tr><tr><td align="center">1</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/mars-2020-contributor-default-c9cad8495acf.png" width="40" height="40" alt="Mars 2020 Contributor badge"> | [Mars 2020 Contributor](https://gh-achievements.vercel.app/achievements/mars-2020-contributor/) | Code in a repository used by the Mars 2020 Helicopter Mission<br><sub>gh achievements: earned or not</sub> | <table><tr><th>Default</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/mars-2020-contributor-default-c9cad8495acf.png" width="48" height="48" alt="Mars 2020 Contributor base"></td></tr><tr><td align="center">1</td></tr></table> |
+
+### GitHub staff only
+
+Only GitHub staff could earn these.
+
+| Badge | Achievement | How to earn it | Tiers |
+|:-:|---|---|:-:|
+| <img src="https://github.githubassets.com/assets/proxima-pioneer-default-51cd4e4969d5.png" width="40" height="40" alt="Proxima Pioneer badge"> | [Proxima Pioneer](https://gh-achievements.vercel.app/achievements/proxima-pioneer/) | GitHub staff: contributed to the Proxima proof of concept<br><sub>gh achievements: earned or not</sub> | <table><tr><th>Default</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/proxima-pioneer-default-51cd4e4969d5.png" width="48" height="48" alt="Proxima Pioneer base"></td></tr><tr><td align="center">1</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/proxima-staffshipper-default-84f658288021.png" width="40" height="40" alt="Proxima Staffshipper badge"> | [Proxima Staffshipper](https://gh-achievements.vercel.app/achievements/proxima-staffshipper/) | GitHub staff: shipped the Proxima staffship instance<br><sub>gh achievements: earned or not</sub> | <table><tr><th>Default</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/proxima-staffshipper-default-84f658288021.png" width="48" height="48" alt="Proxima Staffshipper base"></td></tr><tr><td align="center">1</td></tr></table> |
+| <img src="https://github.githubassets.com/assets/proxima-staffuser-default-02bf6163ea31.png" width="40" height="40" alt="Proxima Staffuser badge"> | [Proxima Staffuser](https://gh-achievements.vercel.app/achievements/proxima-staffuser/) | GitHub staff: your team was onboarded to Proxima<br><sub>gh achievements: earned or not</sub> | <table><tr><th>Default</th></tr><tr><td align="center"><img src="https://github.githubassets.com/assets/proxima-staffuser-default-02bf6163ea31.png" width="48" height="48" alt="Proxima Staffuser base"></td></tr><tr><td align="center">1</td></tr></table> |
 
 Profile highlights it also reports: Developer Program Member, Security Bug Bounty Hunter, GitHub Campus Expert, GitHub Star, Pro, Security advisory credit.
 
@@ -165,6 +200,10 @@ The catalog alone is published as [achievements.json](https://gh-achievements.ve
 ## Contributing
 
 Spotted a new badge, or a count that looks wrong? [Open an issue](https://github.com/nmloc/gh-achievements/issues/new/choose). See [CONTRIBUTING.md](CONTRIBUTING.md) for how the catalog, fixtures and site are built.
+
+## Like it?
+
+If gh-achievements helped you, a ⭐ helps other people find it: [star it on GitHub](https://github.com/nmloc/gh-achievements/stargazers).
 
 ## Credits
 
