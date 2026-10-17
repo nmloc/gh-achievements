@@ -819,7 +819,159 @@ func TestSVGs_matchTheSite(t *testing.T) {
 
 ---
 
-### Task 4: README and its screenshots
+### Task 4: README achievement table with a medal per tier
+
+Loc asked (2026-10-18) to learn from drknzz/GitHub-Achievements: each badge row there holds a small table, one column per tier (Default, Bronze, Silver, Gold) with that tier's medal above the amount it needs. Ours prints `2 · 16 · 128 · 1024` in one cell.
+
+**Files:**
+- Modify: `cmd/gendocs/main.go` (`readmeTable`), `cmd/gendocs/site.go` (share the group headings with `listGroups`), `cmd/gendocs/readme_test.go`
+- Regenerate: `README.md` (between `<!-- catalog:start -->` and `<!-- catalog:end -->`)
+
+**Interfaces:**
+- Produces: `kindGroups` — `[]struct{ Kind catalog.Kind; Heading, Note string }` in catalog order of kinds, used by both `listGroups` (site) and `readmeTable` (README), so the README and `/achievements/` group badges identically.
+
+- [ ] **Step 1: Failing test.** Replace `TestReadmeTable_hasTheBadgeArt` with:
+
+```go
+func TestReadmeTable_groupsBadgesAndShowsEveryTierMedal(t *testing.T) {
+	table := readmeTable()
+	last := -1
+	for _, h := range []string{"### Earnable", "### Switched off by GitHub", "### Retired", "### GitHub staff only"} {
+		i := strings.Index(table, h)
+		if i < 0 {
+			t.Errorf("%s missing", h)
+			continue
+		}
+		if i < last {
+			t.Errorf("%s out of order", h)
+		}
+		last = i
+	}
+	row := func(slug string) string {
+		for _, line := range strings.Split(table, "\n") {
+			if strings.Contains(line, "achievements/"+slug+"/)") {
+				return line
+			}
+		}
+		t.Fatalf("no row for %s", slug)
+		return ""
+	}
+	ps := row("pull-shark")
+	for i, want := range []string{"2", "16", "128", "1024"} {
+		if !strings.Contains(ps, `<img src="`+catalog.Image("pull-shark", i+1)+`" width="48" height="48" alt="Pull Shark `+metals[i]+`">`) {
+			t.Errorf("pull shark lacks its %s medal", metals[i])
+		}
+		if !strings.Contains(ps, `<td align="center">`+want+`</td>`) {
+			t.Errorf("pull shark lacks the amount %s", want)
+		}
+	}
+	if !strings.Contains(ps, "<th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th>") {
+		t.Errorf("pull shark tier headings: %s", ps)
+	}
+	if heart := row("heart-on-your-sleeve"); strings.Count(heart, `<td align="center">?</td>`) != 2 {
+		t.Errorf("heart on your sleeve shows unknown amounts as ?: %s", heart)
+	}
+	if yolo := row("yolo"); !strings.Contains(yolo, "<th>Default</th></tr>") || strings.Contains(yolo, "Bronze") ||
+		!strings.Contains(yolo, `<td align="center">1</td>`) {
+		t.Errorf("a single-tier badge has one medal and the amount 1: %s", yolo)
+	}
+	for _, a := range catalog.Achievements {
+		if line := row(a.Slug); strings.Count(line, "|") != 5 {
+			t.Errorf("%s row must stay one markdown row of 4 cells: %s", a.Slug, line)
+		}
+	}
+	if !strings.Contains(table, "Profile highlights it also reports:") || !strings.Contains(table, "_Catalog last verified against live profiles on ") {
+		t.Error("highlights and verified lines lost")
+	}
+}
+```
+
+Run `go test ./cmd/gendocs -run TestReadmeTable_` → FAIL.
+
+- [ ] **Step 2: Share the groups (`cmd/gendocs/site.go`).** Add above `listGroups`:
+
+```go
+// kindGroups names the catalog's sections, in display order, for the site's list and the README.
+var kindGroups = []struct {
+	Kind          catalog.Kind
+	Heading, Note string
+}{
+	{catalog.Earnable, "Earnable", "You can still earn these."},
+	{catalog.Disabled, "Switched off by GitHub", "GitHub tested these and switched them off; nobody can earn them now."},
+	{catalog.Retired, "Retired", "No longer awarded. Profiles that have them keep them."},
+	{catalog.Internal, "GitHub staff only", "Only GitHub staff could earn these."},
+}
+```
+
+and rewrite `listGroups` to build its `[]badgeGroup` from `kindGroups` (same headings and notes as today, so the site does not change).
+
+- [ ] **Step 3: Rewrite `readmeTable` (`cmd/gendocs/main.go`):**
+
+```go
+// readmeTable groups the catalog like the site's list and, as GitHub's own badge dialog does,
+// shows every tier as its medal above the amount it needs.
+func readmeTable() string {
+	var b strings.Builder
+	for _, g := range kindGroups {
+		fmt.Fprintf(&b, "### %s\n\n%s\n\n", g.Heading, g.Note)
+		b.WriteString("| Badge | Achievement | How to earn it | Tiers |\n|:-:|---|---|:-:|\n")
+		for _, a := range catalog.Achievements {
+			if a.Kind != g.Kind {
+				continue
+			}
+			art := ""
+			if img := catalog.Image(a.Slug, len(a.Tiers)); img != "" {
+				art = fmt.Sprintf(`<img src="%s" width="40" height="40" alt="%s badge">`, img, a.Name)
+			}
+			fmt.Fprintf(&b, "| %s | [%s](%sachievements/%s/) | %s | %s |\n",
+				art, a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierTable(a))
+		}
+		b.WriteString("\n")
+	}
+	b.WriteString("Profile highlights it also reports: ")
+	names := make([]string, len(catalog.Highlights))
+	for i, h := range catalog.Highlights {
+		names[i] = h.Name
+	}
+	b.WriteString(strings.Join(names, ", ") + ".\n\n")
+	fmt.Fprintf(&b, "_Catalog last verified against live profiles on %s._\n", catalog.LastVerified)
+	return b.String()
+}
+
+// tierTable is one inline HTML table: a column per tier, its medal above the amount needed.
+// It stays on one line so the markdown row around it does not break.
+func tierTable(a catalog.Achievement) string {
+	n := max(len(a.Tiers), 1)
+	var head, art, need strings.Builder
+	for i := 0; i < n; i++ {
+		amount := "1"
+		if i < len(a.Tiers) {
+			amount = "?"
+			if a.Tiers[i] > 0 {
+				amount = fmt.Sprint(a.Tiers[i])
+			}
+		}
+		head.WriteString("<th>" + metalTitles[i] + "</th>")
+		img := catalog.Image(a.Slug, i+1)
+		art.WriteString(fmt.Sprintf(`<td align="center"><img src="%s" width="48" height="48" alt="%s %s"></td>`, img, a.Name, metals[i]))
+		need.WriteString(`<td align="center">` + amount + "</td>")
+	}
+	return "<table><tr>" + head.String() + "</tr><tr>" + art.String() + "</tr><tr>" + need.String() + "</tr></table>"
+}
+
+// metalTitles head the tier columns, as on GitHub's own badge art.
+var metalTitles = []string{"Default", "Bronze", "Silver", "Gold"}
+```
+
+(`metals` is the site's `[]string{"base", "bronze", "silver", "gold"}` in `site.go`; the image alt uses it, e.g. `alt="Pull Shark bronze"`. A single-tier badge has one column: Default, its medal, amount `1`. If a badge ever had more than 4 tiers this would index past `metalTitles`; the catalog has at most 4 — add `n = min(n, len(metalTitles))`.)
+
+- [ ] **Step 4: Verify.** `go run ./cmd/gendocs`, then read the regenerated README section: four `###` groups, one row per badge, each row one line. `go run ./cmd/gendocs -check && go test ./... && gofmt -l .` clean. `TestReadmeBadges_showEveryEarnableBadgeAtItsTopTier` and the site list tests still pass (the site list must not change: `git diff --stat site/achievements/index.html` empty).
+
+- [ ] **Step 5: Commit** `docs(readme): a medal per tier in the achievements table`.
+
+---
+
+### Task 5: README and its screenshots
 
 **Files:**
 - Create: `scripts/readme-screenshots.mjs`, `docs/screenshot-light.png`, `docs/screenshot-dark.png`
@@ -988,7 +1140,7 @@ and in **FAQ** keep every question. In `CONTRIBUTING.md`, next to the site/test 
 
 ---
 
-### Task 5: Check it (controller)
+### Task 6: Check it (controller)
 
 - [ ] `go run . torvalds` in a real terminal tab (colour) and `--no-color`, `--all`, `--json | head`; a second run shows no star line; delete the marker afterwards only if it was created by this check (`<UserConfigDir>/gh-achievements/star-shown`, ask before deleting anything else).
 - [ ] View the README on the branch on GitHub after push (light and dark), and `docs/demo.svg` as an image.
