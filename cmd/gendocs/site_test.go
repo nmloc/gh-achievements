@@ -238,3 +238,23 @@ func TestSitePages_badgePageShowsEveryTierMedal(t *testing.T) {
 		t.Error("callback status card lost its id, role or style")
 	}
 }
+
+func TestSitePages_listLabelsTheTierColumns(t *testing.T) {
+	pages, err := sitePages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	list := string(pages["site/achievements/index.html"])
+	for _, want := range []string{
+		`<p class="meta">Tiers x1–x4: 2 · 16 · 128 · 1024</p>`, // Pull Shark
+		`<p class="meta">Tiers x1–x4: ? · 16 · 128 · ?</p>`,    // Heart On Your Sleeve: unknown ends
+		`<p class="meta">One tier</p>`,
+	} {
+		if !strings.Contains(list, want) {
+			t.Errorf("list lacks %s", want)
+		}
+	}
+	if strings.Contains(list, "Tiers: ") {
+		t.Error("an unlabelled tier line is back")
+	}
+}

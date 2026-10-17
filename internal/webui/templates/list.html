@@ -5,7 +5,7 @@
 <p class="hint">{{.Note}}</p>
 <ul class="medal-grid">
 {{range .Badges}}<li>{{if .Image}}<img class="medal-img" src="{{.Image}}" width="64" height="64" alt="" loading="lazy">{{else}}<span class="medal-img placeholder" aria-hidden="true">{{.Initials}}</span>{{end}}
-  <div><h3><a href="{{.Slug}}/">{{.Name}}</a></h3><p>{{.HowToEarn}}.</p><p class="meta">{{if .IsTiered}}Tiers: {{.TierText}}{{else}}One tier{{end}}</p></div></li>
+  <div><h3><a href="{{.Slug}}/">{{.Name}}</a></h3><p>{{.HowToEarn}}.</p><p class="meta">{{if .IsTiered}}Tiers x1–x{{len .Tiers}}: {{.TierText}}{{else}}One tier{{end}}</p></div></li>
 {{end}}</ul>
 {{end}}
 
