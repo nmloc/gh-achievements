@@ -9,6 +9,7 @@
 <ul class="vitrine shelf home-shelf" aria-label="The {{len .Earnable}} badges you can earn, at their top tier">
 {{range .Earnable}}<li><a class="medal" href="achievements/{{.Slug}}/"><img class="medal-img" src="{{.Image}}" width="88" height="88" alt=""><span class="medal-name">{{.Name}}</span></a></li>
 {{end}}</ul>
+<p class="meta"><a href="achievements/">See all {{.Count}} GitHub achievements</a>, including the retired ones and those GitHub switched off.</p>
 
 <h2>What it shows</h2>
 <ul class="points">

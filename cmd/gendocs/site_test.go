@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"testing"
@@ -143,7 +144,8 @@ func TestSitePages_homeIsATrophyCase(t *testing.T) {
 	for _, want := range []string{`<h1>Your GitHub trophy case</h1>`, `<form action="/result" method="get" id="check-form">`,
 		`<a href="/auth/login" data-signin>Sign in with GitHub</a> to include private work.`,
 		`<ul class="vitrine shelf home-shelf"`, `data-star="home"`, `data-copy="gh extension install nmloc/gh-achievements"`,
-		`"@type":"FAQPage"`, `"@type":"SoftwareApplication"`} {
+		`"@type":"FAQPage"`, `"@type":"SoftwareApplication"`,
+		fmt.Sprintf(`<p class="meta"><a href="achievements/">See all %d GitHub achievements</a>, including the retired ones and those GitHub switched off.</p>`, len(catalog.Achievements))} {
 		if !strings.Contains(home, want) {
 			t.Errorf("home lacks %s", want)
 		}
