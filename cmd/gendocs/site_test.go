@@ -220,6 +220,12 @@ func TestSitePages_badgePageShowsEveryTierMedal(t *testing.T) {
 			t.Errorf("pull shark page lacks %s", want)
 		}
 	}
+	// The strip is in the first screen: a lazy image there stayed unloaded in Chromium.
+	strip := ps[strings.Index(ps, `<ul class="tier-strip"`):]
+	strip = strip[:strings.Index(strip, "</ul>")]
+	if strings.Contains(strip, `loading="lazy"`) {
+		t.Error("tier strip medals must load eagerly")
+	}
 	if yolo := string(pages["site/achievements/yolo/index.html"]); strings.Contains(yolo, "tier-strip") {
 		t.Error("a single-tier badge has no tier strip")
 	}
