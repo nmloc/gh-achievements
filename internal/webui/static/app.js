@@ -8,6 +8,19 @@
   var GA = me && me.dataset.ga;
   var CONSENT = "gha:consent", USER = "gha:lastUser";
   var LOGIN = /^[A-Za-z0-9][A-Za-z0-9\-]{0,38}$/;
+  var THEME = "gha:theme";
+  // The theme in effect: an explicit choice (set by theme.js or the button), else the system's.
+  function currentTheme() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t === "light" || t === "dark") return t;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  // The button names the theme it switches to.
+  function labelTheme(btn) {
+    var next = currentTheme() === "dark" ? "light" : "dark";
+    btn.textContent = next === "dark" ? "Dark" : "Light";
+    btn.setAttribute("aria-label", "Switch to " + next + " theme");
+  }
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: nothing to remember */ } }
   function drop(k) { try { localStorage.removeItem(k); } catch (e) { /* nothing stored to drop */ } }
@@ -63,10 +76,17 @@
 
   function ready() {
     var banner = document.getElementById("consent");
+    var themeBtn = document.querySelector("[data-theme-toggle]");
+    if (themeBtn) {
+      labelTheme(themeBtn);
+      themeBtn.hidden = false;
+      var mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+      if (mq && mq.addEventListener) mq.addEventListener("change", function () { labelTheme(themeBtn); });
+    }
     if (consent === "granted") loadGA();
     else if (consent === null && banner) banner.hidden = false;
     document.addEventListener("click", function (e) {
-      var t = e.target.closest("[data-consent],[data-consent-reset],[data-signin],[data-share],[data-copy]");
+      var t = e.target.closest("[data-consent],[data-consent-reset],[data-signin],[data-share],[data-copy],[data-theme-toggle]");
       if (!t) return;
       if (t.dataset.consent) {
         consent = t.dataset.consent;
@@ -85,6 +105,11 @@
         var r = document.querySelector("[data-report]");
         var url = location.origin + "/result?u=" + encodeURIComponent(r ? r.dataset.user : "");
         copy(url, function () { t.textContent = "Link copied"; track("share_click"); });
+      } else if (t.hasAttribute("data-theme-toggle")) {
+        var next = currentTheme() === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        set(THEME, next);
+        labelTheme(t);
       } else if (t.dataset.copy) {
         copy(t.dataset.copy, function () { t.textContent = "Copied"; track("cli_copy"); });
       }
@@ -93,7 +118,7 @@
       var d = e.target;
       if (d.matches && d.matches("details[data-badge]") && d.open) track("badge_open", { badge: d.dataset.badge });
     }, true);
-    var SIZES = ["badge-img", "badge-icon", "badge-hero"];
+    var SIZES = ["badge-img", "badge-icon", "medal-img", "badge-hero"];
     // Swap a broken badge image for a placeholder tile that keeps its size class.
     function fallback(img) {
       var size = SIZES.filter(function (c) { return img.classList.contains(c); })[0];

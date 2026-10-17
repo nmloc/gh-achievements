@@ -19,6 +19,8 @@
 <meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<script src="/theme.js"></script>
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
 <link rel="alternate" type="application/json" href="/achievements.json" title="Achievement catalog (JSON)">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","applicationCategory":"DeveloperApplication","author":{"@type":"Person","name":"nmloc","url":"https://github.com/nmloc"},"codeRepository":"https://github.com/nmloc/gh-achievements","description":"Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed.","downloadUrl":"https://github.com/nmloc/gh-achievements/releases","isAccessibleForFree":true,"license":"https://opensource.org/licenses/MIT","name":"gh-achievements","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"macOS, Linux, Windows","url":"https://gh-achievements.vercel.app/"}</script>
@@ -27,13 +29,16 @@
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/">🏆 gh-achievements</a>
-  <nav aria-label="Site">
-    <a href="/check/">Check yours</a>
-    <a href="/achievements/">All achievements</a>
-    <a href="/methodology/">How accurate is it</a>
-    <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="/">🏆 gh-achievements</a>
+    <nav id="site-nav" aria-label="Site">
+      <a href="/check/">Check yours</a>
+      <a href="/achievements/">All achievements</a>
+      <a href="/methodology/">How it works</a>
+      <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+    </nav>
+    <button type="button" class="theme-btn" data-theme-toggle hidden>Dark</button>
+  </div>
 </header>
 <main>
 

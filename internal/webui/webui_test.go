@@ -14,6 +14,8 @@ func TestRender_usesTheVercelDomainAndRootPaths(t *testing.T) {
 	html := string(b)
 	for _, want := range []string{
 		`<link rel="stylesheet" href="/style.css">`,
+		`<script src="/theme.js"></script>`,
+		`<button type="button" class="theme-btn" data-theme-toggle hidden>`,
 		`<script src="/app.js" defer data-ga="G-3EEKKGL110"></script>`,
 		`<meta name="robots" content="noindex">`,
 		`id="consent" hidden`,
@@ -71,6 +73,52 @@ func TestStyle_openCardAndLongLinkRules(t *testing.T) {
 	} {
 		if !strings.Contains(string(css), want) {
 			t.Errorf("style.css lacks %q", want)
+		}
+	}
+}
+
+// The dark tokens are written twice: for an explicit choice and for the system setting.
+// They must never drift apart.
+func TestStyle_darkTokensMatchInBothBlocks(t *testing.T) {
+	css, err := Static("style.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	block := func(selector string) string {
+		s := string(css)
+		i := strings.Index(s, selector+" {")
+		if i < 0 {
+			t.Fatalf("style.css has no %s block", selector)
+		}
+		rest := s[i+len(selector)+2:]
+		return strings.Join(strings.Fields(rest[:strings.Index(rest, "}")]), " ")
+	}
+	explicit, system := block(`:root[data-theme="dark"]`), block(`:root:not([data-theme="light"])`)
+	if explicit != system {
+		t.Fatalf("dark tokens differ:\n explicit: %s\n system:   %s", explicit, system)
+	}
+	for _, want := range []string{"--bg: #0d1c26", "--gold: #e2b53a", "color-scheme: dark"} {
+		if !strings.Contains(explicit, want) {
+			t.Errorf("dark tokens lack %s", want)
+		}
+	}
+	for _, want := range []string{"@media (prefers-color-scheme: dark)", "font-display: swap",
+		`url("/fonts/bricolage-grotesque.woff2")`, "@media (prefers-reduced-motion: no-preference)"} {
+		if !strings.Contains(string(css), want) {
+			t.Errorf("style.css lacks %s", want)
+		}
+	}
+}
+
+func TestThemeJS_appliesOnlyAStoredLightOrDark(t *testing.T) {
+	js, err := Static("theme.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`localStorage.getItem("gha:theme")`, `t === "light" || t === "dark"`,
+		`setAttribute("data-theme", t)`, `classList.add("js")`} {
+		if !strings.Contains(string(js), want) {
+			t.Errorf("theme.js lacks %s", want)
 		}
 	}
 }

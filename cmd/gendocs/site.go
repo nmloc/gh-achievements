@@ -220,7 +220,7 @@ func sitePages() (map[string][]byte, error) {
 	})
 
 	out := map[string][]byte{}
-	for _, name := range []string{"style.css", "app.js", "callback.js"} {
+	for _, name := range []string{"style.css", "theme.js", "app.js", "callback.js", "fonts/bricolage-grotesque.woff2", "fonts/OFL.txt"} {
 		b, err := webui.Static(name)
 		if err != nil {
 			return nil, err

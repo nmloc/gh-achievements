@@ -101,3 +101,33 @@ func TestAppJS_sanitisesPageTitleForEveryHit(t *testing.T) {
 		}
 	}
 }
+
+// theme.js must run before the stylesheet so the first paint is in the chosen theme,
+// and the CSP forbids inline scripts on every page (JSON-LD data blocks excepted).
+func TestSitePages_themeLoadsFirstAndNoInlineScript(t *testing.T) {
+	pages, err := sitePages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for path, body := range pages {
+		if !strings.HasSuffix(path, ".html") {
+			continue
+		}
+		html := string(body)
+		theme := strings.Index(html, `<script src="/theme.js"></script>`)
+		css := strings.Index(html, `<link rel="stylesheet" href="/style.css">`)
+		if theme < 0 || css < 0 || theme > css {
+			t.Errorf("%s: theme.js (at %d) must load before the stylesheet (at %d)", path, theme, css)
+		}
+		for _, chunk := range strings.Split(html, "<script")[1:] {
+			head := chunk[:strings.Index(chunk, ">")]
+			if !strings.Contains(head, "src=") && !strings.Contains(head, `type="application/ld+json"`) {
+				t.Errorf("%s: inline script <script%s>", path, head)
+			}
+		}
+	}
+	if len(pages["site/fonts/bricolage-grotesque.woff2"]) < 10000 || len(pages["site/theme.js"]) == 0 ||
+		!strings.Contains(string(pages["site/fonts/OFL.txt"]), "SIL OPEN FONT LICENSE") {
+		t.Error("theme.js, the font or its licence is not copied into site/")
+	}
+}

@@ -21,6 +21,8 @@
 <meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<script src="{{.Base}}theme.js"></script>
+<link rel="preload" href="{{.Base}}fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{.Base}}style.css">
 <link rel="alternate" type="application/json" href="{{.Base}}achievements.json" title="Achievement catalog (JSON)">
 {{range .P.JSONLD}}<script type="application/ld+json">{{.}}</script>
@@ -29,13 +31,16 @@
 {{end}}</head>
 <body>
 <header class="top">
-  <a class="brand" href="{{.Base}}">🏆 gh-achievements</a>
-  <nav aria-label="Site">
-    <a href="{{.Base}}check/">Check yours</a>
-    <a href="{{.Base}}achievements/">All achievements</a>
-    <a href="{{.Base}}methodology/">How accurate is it</a>
-    <a href="{{.RepoURL}}">GitHub</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="{{.Base}}">🏆 gh-achievements</a>
+    <nav id="site-nav" aria-label="Site">
+      <a href="{{.Base}}check/">Check yours</a>
+      <a href="{{.Base}}achievements/">All achievements</a>
+      <a href="{{.Base}}methodology/">How it works</a>
+      <a href="{{.RepoURL}}">GitHub</a>
+    </nav>
+    <button type="button" class="theme-btn" data-theme-toggle hidden>Dark</button>
+  </div>
 </header>
 <main>
 {{if .P.Crumbs}}<nav class="crumbs" aria-label="Breadcrumb"><ol>{{range $i, $c := .P.Crumbs}}<li>{{if $i}}<span aria-hidden="true">›</span> {{end}}<a href="{{rel $c.URL}}">{{$c.Name}}</a></li>{{end}}</ol></nav>{{end}}
