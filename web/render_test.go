@@ -7,6 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/nmloc/gh-achievements/internal/counters"
+	"github.com/nmloc/gh-achievements/internal/fixtures"
+	"github.com/nmloc/gh-achievements/internal/report"
 )
 
 var update = flag.Bool("update", false, "rewrite golden files")
@@ -94,5 +98,51 @@ func TestRenderErrorPage_prefillsAndEscapes(t *testing.T) {
 	}
 	if !strings.Contains(string(hostile), `value="&#34;&gt;&lt;x"`) {
 		t.Error("the hostile username is not escaped inside the value attribute")
+	}
+}
+
+// A hidden profile has no tiers, so its Collect shelf shows live counts and must not be
+// called "Still to collect" (the cards show counts and "Top tier"), nor claim anything is on display.
+func TestRenderResult_hiddenProfileShelfSaysLiveCounts(t *testing.T) {
+	r, err := report.Build("sindresorhus", fixtures.Official{}, &fixtures.Counts{Authed: true,
+		PRs: counters.MergedPRs{Total: 2241}, FactsValue: &counters.Facts{}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := RenderResultPage(NewResultView(r, false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := string(out)
+	for _, want := range []string{`<h2 class="shelf-head">Live counts</h2>`,
+		`This profile hides its badges, so these are counts, not the tiers GitHub shows.`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("hidden profile page lacks %s", want)
+		}
+	}
+	for _, bad := range []string{"Still to collect", "On display"} {
+		if strings.Contains(page, bad) {
+			t.Errorf("hidden profile page contains %q", bad)
+		}
+	}
+}
+
+// A visible profile with nothing earned still gets an "On display" shelf, with a nudge.
+func TestRenderResult_nothingEarnedShowsTheEmptyShelf(t *testing.T) {
+	v := demoView(t, false)
+	v.Display = nil
+	if v.Hidden || len(v.Collect) == 0 {
+		t.Fatalf("setup: hidden %v, collect %d", v.Hidden, len(v.Collect))
+	}
+	out, err := RenderResultPage(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := string(out)
+	for _, want := range []string{`<h2 class="shelf-head">On display</h2>`,
+		`Nothing here yet. Start with a badge from the shelf below.`, `<h2 class="shelf-head">Still to collect</h2>`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("empty-display page lacks %s", want)
+		}
 	}
 }

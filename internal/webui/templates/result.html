@@ -25,8 +25,13 @@
   {{end}}
 
   {{with .Collect}}
+  {{if $.Hidden}}
+  <h2 class="shelf-head">Live counts</h2>
+  <p class="hint">This profile hides its badges, so these are counts, not the tiers GitHub shows.</p>
+  {{else}}
   <h2 class="shelf-head">Still to collect</h2>
   <p class="hint">Badges you can still earn. Open one to see how.</p>
+  {{end}}
   <div class="vitrine shelf">{{range .}}{{template "card" .}}{{end}}</div>
   {{end}}
 
