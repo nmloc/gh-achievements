@@ -185,8 +185,12 @@ func TestSitePages_listGroupsBadgesByKind(t *testing.T) {
 	last := -1
 	for _, h := range []string{"<h2>Earnable</h2>", "<h2>Switched off by GitHub</h2>", "<h2>Retired</h2>", "<h2>GitHub staff only</h2>"} {
 		i := strings.Index(list, h)
+		if i < 0 {
+			t.Errorf("%s missing", h)
+			continue
+		}
 		if i < last {
-			t.Errorf("%s missing or out of order", h)
+			t.Errorf("%s out of order", h)
 		}
 		last = i
 	}
