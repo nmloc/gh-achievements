@@ -47,8 +47,8 @@ func TestReadmeTable_hasTheBadgeArt(t *testing.T) {
 		switch {
 		case row == "":
 			t.Errorf("no row for %s", a.Slug)
-		case img == "" && !strings.HasPrefix(row, `| <img src="docs/icons/`+a.Slug+`.svg" width="40" height="40" alt="`):
-			t.Errorf("%s has no GitHub art, want our own icon: %s", a.Slug, row)
+		case img == "":
+			t.Errorf("%s has no art at all", a.Slug)
 		case img != "" && !strings.HasPrefix(row, `| <img src="`+img+`" width="40" height="40" alt="`):
 			t.Errorf("%s row lacks its art: %s", a.Slug, row)
 		}
@@ -73,14 +73,5 @@ func TestCheckButtonSVG_isWellFormedAndSaysWhatItDoes(t *testing.T) {
 	}
 	if strings.Contains(string(svg), "<image") || strings.Contains(string(svg), "href=") {
 		t.Error("README SVGs must be self-contained: GitHub does not load external resources inside them")
-	}
-}
-
-func TestReadmeIcons_areGeneratedForTheTable(t *testing.T) {
-	files := iconFiles()
-	for _, slug := range []string{"heart-on-your-sleeve", "open-sourcerer"} {
-		if len(files["docs/icons/"+slug+".svg"]) == 0 {
-			t.Errorf("docs/icons/%s.svg not generated", slug)
-		}
 	}
 }

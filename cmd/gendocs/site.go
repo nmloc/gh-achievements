@@ -92,7 +92,6 @@ type badgeView struct {
 	TierText   string
 	Image      string
 	Initials   string
-	Icon       string // our own icon when GitHub has no artwork
 	Prev, Next *catalog.Achievement
 }
 
@@ -103,7 +102,7 @@ type tierRow struct {
 
 func view(a catalog.Achievement) badgeView {
 	v := badgeView{Achievement: a, Status: statusText(a.Kind), Progress: progressText(a), TierText: tierText(a),
-		Image: catalog.Image(a.Slug, len(a.Tiers)), Initials: webui.Initials(a.Name), Icon: webui.OwnIcon(a.Slug)}
+		Image: catalog.Image(a.Slug, len(a.Tiers)), Initials: webui.Initials(a.Name)}
 	if a.IsTiered() {
 		for i, t := range a.Tiers {
 			needed := "unknown"

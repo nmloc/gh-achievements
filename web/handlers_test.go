@@ -214,7 +214,7 @@ func TestSecurityHeaders_cspAllowsWhatThePagesLoad(t *testing.T) {
 		}
 	}
 	for _, want := range []string{"script-src 'self' https://www.googletagmanager.com", "https://github.githubassets.com",
-		"https://avatars.githubusercontent.com", "frame-ancestors 'none'", "form-action 'self' https://github.com"} {
+		"https://avatars.githubusercontent.com", "https://raw.githubusercontent.com", "frame-ancestors 'none'", "form-action 'self' https://github.com"} {
 		if !strings.Contains(csp, want) {
 			t.Errorf("CSP lacks %s", want)
 		}

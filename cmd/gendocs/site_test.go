@@ -6,29 +6,22 @@ import (
 	"testing"
 )
 
-// GitHub deleted the artwork of the two disabled badges (its CDN answers 404), so they
-// get our own icon from /icons/ — never an empty grey circle that reads as broken.
-func TestSiteIcons_badgesWithoutGitHubArtGetOurOwnIcon(t *testing.T) {
+// Every badge shows real art: the two GitHub deleted come from the pinned community copy,
+// so no page renders an empty placeholder.
+func TestSitePages_everyBadgeHasArt(t *testing.T) {
 	pages, err := sitePages()
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, slug := range []string{"heart-on-your-sleeve", "open-sourcerer"} {
 		page := string(pages["site/achievements/"+slug+"/index.html"])
-		if !strings.Contains(page, `<img class="badge-hero own" src="/icons/`+slug+`.svg"`) {
-			t.Errorf("%s page has no own-icon hero", slug)
-		}
-		if len(iconFiles()["site/icons/"+slug+".svg"]) == 0 {
-			t.Errorf("site/icons/%s.svg not generated", slug)
+		if !strings.Contains(page, `<img class="badge-hero" src="https://raw.githubusercontent.com/Schweinepriester/`) {
+			t.Errorf("%s page lacks its art", slug)
 		}
 	}
 	for _, path := range []string{"site/achievements/index.html", "site/index.html"} {
-		page := string(pages[path])
-		if strings.Contains(page, "placeholder") {
+		if strings.Contains(string(pages[path]), "placeholder") {
 			t.Errorf("%s still renders an empty placeholder", path)
-		}
-		if n := strings.Count(page, `class="badge-icon own"`); n != 2 {
-			t.Errorf("%s has %d own icons, want 2", path, n)
 		}
 	}
 }

@@ -74,18 +74,3 @@ func TestStyle_openCardAndLongLinkRules(t *testing.T) {
 		}
 	}
 }
-
-func TestOwnIcon_onlyForBadgesWithoutGitHubArt(t *testing.T) {
-	for _, slug := range []string{"heart-on-your-sleeve", "open-sourcerer"} {
-		if got := OwnIcon(slug); got != "/icons/"+slug+".svg" {
-			t.Errorf("OwnIcon(%s) = %q", slug, got)
-		}
-		svg := string(OwnIconSVG(slug))
-		if !strings.HasPrefix(svg, "<svg") || !strings.Contains(svg, "<title") || strings.Contains(svg, "href") {
-			t.Errorf("OwnIconSVG(%s) is not a self-contained titled SVG", slug)
-		}
-	}
-	if OwnIcon("pull-shark") != "" || OwnIconSVG("pull-shark") != nil {
-		t.Error("badges with GitHub art must not get an own icon")
-	}
-}

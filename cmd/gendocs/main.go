@@ -104,9 +104,6 @@ func generate() (map[string][]byte, error) {
 	}
 	files[readmeIn] = []byte(updated)
 	files["docs/check-button.svg"] = checkButtonSVG()
-	for path, body := range iconFiles() {
-		files[path] = body
-	}
 
 	pages, err := sitePages()
 	if err != nil {
@@ -199,19 +196,6 @@ var tierNames = []string{"x1 · base", "x2 · bronze", "x3 · silver", "x4 · go
 
 // ---------- README ----------
 
-// iconFiles are our own icons for badges without GitHub artwork: served by the site
-// and referenced by the README table.
-func iconFiles() map[string][]byte {
-	out := map[string][]byte{}
-	for _, a := range catalog.Achievements {
-		if svg := webui.OwnIconSVG(a.Slug); svg != nil {
-			out["site/icons/"+a.Slug+".svg"] = svg
-			out["docs/icons/"+a.Slug+".svg"] = svg
-		}
-	}
-	return out
-}
-
 // readmeBadges is the hero row: GitHub's own top-tier art for every earnable badge,
 // each linking to its page. GitHub serves README images through its camo proxy.
 func readmeBadges() string {
@@ -236,8 +220,6 @@ func readmeTable() string {
 		art := ""
 		if img := catalog.Image(a.Slug, len(a.Tiers)); img != "" {
 			art = fmt.Sprintf(`<img src="%s" width="40" height="40" alt="%s badge">`, img, a.Name)
-		} else if webui.OwnIcon(a.Slug) != "" {
-			art = fmt.Sprintf(`<img src="docs/icons/%s.svg" width="40" height="40" alt="%s (GitHub never released its artwork)">`, a.Slug, a.Name)
 		}
 		fmt.Fprintf(&b, "| %s | [%s](%sachievements/%s/) | %s | %s | %s | %s |\n",
 			art, a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind), progressText(a))

@@ -83,7 +83,8 @@ func TestResultView_cards(t *testing.T) {
 	if mars := card(t, v.Other, "mars-2020-contributor"); !mars.Earned || mars.TierLabel != "✓" {
 		t.Fatalf("mars = %+v", mars)
 	}
-	if heart := card(t, v.Other, "heart-on-your-sleeve"); heart.Image != "" || heart.Initials != "HO" {
+	// GitHub deleted this art; the pinned community copy stands in (catalog.communityArt).
+	if heart := card(t, v.Other, "heart-on-your-sleeve"); !strings.HasSuffix(heart.Image, "/heart-on-your-sleeve-default.png") || !heart.Locked {
 		t.Fatalf("heart = %+v", heart)
 	}
 }
