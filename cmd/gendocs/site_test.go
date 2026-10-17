@@ -175,3 +175,54 @@ func TestSitePages_everyPageHasOneH1(t *testing.T) {
 		}
 	}
 }
+
+func TestSitePages_listGroupsBadgesByKind(t *testing.T) {
+	pages, err := sitePages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	list := string(pages["site/achievements/index.html"])
+	last := -1
+	for _, h := range []string{"<h2>Earnable</h2>", "<h2>Switched off by GitHub</h2>", "<h2>Retired</h2>", "<h2>GitHub staff only</h2>"} {
+		i := strings.Index(list, h)
+		if i < last {
+			t.Errorf("%s missing or out of order", h)
+		}
+		last = i
+	}
+	for _, a := range catalog.Achievements {
+		if !strings.Contains(list, `<h3><a href="`+a.Slug+`/">`+a.Name+`</a></h3>`) {
+			t.Errorf("list lacks a medal for %s", a.Slug)
+		}
+	}
+	if !strings.Contains(list, `<ul class="medal-grid">`) || strings.Contains(list, `<table class="badges">`) {
+		t.Error("the list is a medal grid now, not a table")
+	}
+}
+
+func TestSitePages_badgePageShowsEveryTierMedal(t *testing.T) {
+	pages, err := sitePages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ps := string(pages["site/achievements/pull-shark/index.html"])
+	for i := 1; i <= 4; i++ {
+		if !strings.Contains(ps, `<img class="medal-img" src="`+catalog.Image("pull-shark", i)+`"`) {
+			t.Errorf("pull shark page lacks the x%d medal", i)
+		}
+	}
+	for _, want := range []string{`<div class="vitrine badge-top">`, `<ul class="tier-strip" aria-label="Tiers">`, "x4 gold"} {
+		if !strings.Contains(ps, want) {
+			t.Errorf("pull shark page lacks %s", want)
+		}
+	}
+	if yolo := string(pages["site/achievements/yolo/index.html"]); strings.Contains(yolo, "tier-strip") {
+		t.Error("a single-tier badge has no tier strip")
+	}
+	if m := string(pages["site/methodology/index.html"]); !strings.Contains(m, `<div class="prose">`) {
+		t.Error("methodology is not in a readable column")
+	}
+	if cb := string(pages["site/auth/callback/index.html"]); !strings.Contains(cb, `<div id="status" class="notice checking" role="status" aria-live="polite">`) {
+		t.Error("callback status card lost its id, role or style")
+	}
+}

@@ -1,6 +1,9 @@
 {{define "content"}}{{with .B}}
-{{if .Image}}<img class="badge-hero" src="{{.Image}}" width="160" height="160" alt="{{.Name}} GitHub achievement badge">{{else}}<span class="badge-hero placeholder" aria-hidden="true">{{.Initials}}</span>{{end}}
-<p class="lede">{{.Details}}</p>
+<div class="vitrine badge-top">
+  {{if .Image}}<img class="badge-hero" src="{{.Image}}" width="160" height="160" alt="{{.Name}} GitHub achievement badge">{{else}}<span class="badge-hero placeholder" aria-hidden="true">{{.Initials}}</span>{{end}}
+  {{with .TierImages}}<ul class="tier-strip" aria-label="Tiers">{{range .}}<li><img class="medal-img" src="{{.Image}}" width="64" height="64" alt="" loading="lazy">{{.Label}}</li>{{end}}</ul>{{end}}
+</div>
+<p class="lede prose">{{.Details}}</p>
 <dl class="facts">
   <dt>How to earn it</dt><dd>{{.HowToEarn}}</dd>
   <dt>Status</dt><dd>{{.Status}}</dd>

@@ -158,7 +158,7 @@
       var d = e.target;
       if (d.matches && d.matches("details[data-badge]") && d.open) track("badge_open", { badge: d.dataset.badge });
     }, true);
-    var SIZES = ["badge-img", "badge-icon", "medal-img", "badge-hero"];
+    var SIZES = ["badge-img", "medal-img", "badge-hero"];
     // Swap a broken badge image for a placeholder tile that keeps its size class.
     function fallback(img) {
       var size = SIZES.filter(function (c) { return img.classList.contains(c); })[0];
