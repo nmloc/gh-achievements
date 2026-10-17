@@ -135,6 +135,16 @@ func fetchDetails(user string, off Official, slugs []string) (map[string]*offici
 		wg.Add(1)
 		go func(slug string) {
 			defer wg.Done()
+			// Deferred after wg.Done, so it runs before it. A panic here would end the
+			// whole process (and every in-flight request's deferred token revoke), so it
+			// becomes this badge's failure: the type only, never the value.
+			defer func() {
+				if p := recover(); p != nil {
+					mu.Lock()
+					errs[slug] = fmt.Errorf("detail panic: %T", p)
+					mu.Unlock()
+				}
+			}()
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			d, err := off.Detail(user, slug)

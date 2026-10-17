@@ -250,6 +250,40 @@ func TestOneFailedHistory_degradesOnlyItsRow(t *testing.T) {
 	}
 }
 
+// panicDetail panics (with a recognisable value) when asked for one badge's history.
+type panicDetail struct {
+	fixtures.Official
+	slug string
+}
+
+func (p panicDetail) Detail(user, slug string) (*official.Detail, error) {
+	if slug == p.slug {
+		panic("kaboom-SECRET")
+	}
+	return p.Official.Detail(user, slug)
+}
+
+func TestPanickingHistory_degradesOnlyItsRow(t *testing.T) {
+	// A worker goroutine that panics ends the whole process: the failure belongs to its badge.
+	r, err := Build("brannon", panicDetail{slug: "yolo"}, &fakeCounts{Authed: true, PRs: brannonPRs(155), FactsValue: &counters.Facts{}})
+	if err != nil {
+		t.Fatalf("Build failed on one badge: %v", err)
+	}
+	y := row(t, r, "yolo")
+	notes := strings.Join(y.Notes, " ")
+	if y.Status != Earned || !strings.Contains(notes, "could not read GitHub's history") || !strings.Contains(notes, "detail panic: string") {
+		t.Fatalf("yolo = %+v", y)
+	}
+	for _, row := range r.Achievements {
+		if strings.Contains(strings.Join(row.Notes, " "), "kaboom") {
+			t.Fatalf("panic value leaked into %s: %v", row.Slug, row.Notes)
+		}
+	}
+	if ps := row(t, r, "pull-shark"); ps.Source != progress.Calibrated {
+		t.Fatalf("pull shark lost its calibration: %+v", ps)
+	}
+}
+
 func TestStarstruck_deletedNamedRepoDoesNotWipeTheRow(t *testing.T) {
 	counts := &fakeCounts{Authed: true, FactsValue: &counters.Facts{},
 		Owned: 20, OwnedRepo: "brannon/small",

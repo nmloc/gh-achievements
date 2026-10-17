@@ -67,10 +67,11 @@ func TestAuthorize(t *testing.T) {
 
 // fakeGitHub is GitHub's token, /user and revoke endpoints.
 type fakeGitHub struct {
-	srv       *httptest.Server
-	revoked   []string
-	verifier  string
-	userFails bool // GET /user answers 500
+	srv                   *httptest.Server
+	revoked               []string
+	verifier              string
+	userFails             bool          // GET /user answers 500
+	tokenDelay, userDelay time.Duration // how long the token and /user endpoints stall
 }
 
 func newFakeGitHub(t *testing.T) *fakeGitHub {
@@ -78,6 +79,7 @@ func newFakeGitHub(t *testing.T) *fakeGitHub {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /login/oauth/access_token", func(w http.ResponseWriter, r *http.Request) {
 		_ = r.ParseForm()
+		time.Sleep(f.tokenDelay)
 		f.verifier = r.Form.Get("code_verifier")
 		w.Header().Set("Content-Type", "application/json")
 		if r.Form.Get("code") != "good-code" || r.Form.Get("client_secret") != "csecret" {
@@ -87,6 +89,7 @@ func newFakeGitHub(t *testing.T) *fakeGitHub {
 		_, _ = io.WriteString(w, `{"access_token":"gho_TEST_TOKEN","refresh_token":"ghr_REFRESH","token_type":"bearer"}`)
 	})
 	mux.HandleFunc("GET /user", func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(f.userDelay)
 		if f.userFails {
 			w.WriteHeader(http.StatusInternalServerError)
 			return

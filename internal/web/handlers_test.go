@@ -431,3 +431,45 @@ func TestFromEnv_requiresAStrongStateSecret(t *testing.T) {
 		t.Fatalf("missing secret: err = %v", err)
 	}
 }
+
+// panicOfficial panics in Detail: the badge workers run on their own goroutines.
+type panicOfficial struct{ fixtures.Official }
+
+func (panicOfficial) Detail(string, string) (*official.Detail, error) {
+	panic("kaboom-SECRET gho_TEST_TOKEN")
+}
+
+func TestPrivate_aPanickingBadgeWorkerCostsOneBadgeNotTheProcess(t *testing.T) {
+	gh := newFakeGitHub(t)
+	c, logs := testConfig(t, gh)
+	c.Official = panicOfficial{}
+	w := privateRequest(t, c, "good-code", nil)
+	if w.Code != 200 || !strings.Contains(w.Body.String(), `data-scope="private"`) || len(gh.revoked) != 1 {
+		t.Fatalf("status %d revoked %v", w.Code, gh.revoked)
+	}
+	leakCheck(t, w, logs, "kaboom")
+}
+
+func TestPrivate_slowUserLookupIsATimeoutAndRevokes(t *testing.T) {
+	gh := newFakeGitHub(t)
+	gh.userDelay = 600 * time.Millisecond
+	c, logs := testConfig(t, gh)
+	c.Timeout = 300 * time.Millisecond
+	w := privateRequest(t, c, "good-code", nil)
+	if w.Code != 504 || w.Header().Get("X-Error-Reason") != "timeout" || len(gh.revoked) != 1 {
+		t.Fatalf("status %d reason %q revoked %v", w.Code, w.Header().Get("X-Error-Reason"), gh.revoked)
+	}
+	leakCheck(t, w, logs)
+}
+
+func TestPrivate_slowExchangeIsATimeoutWithNothingToRevoke(t *testing.T) {
+	gh := newFakeGitHub(t)
+	gh.tokenDelay = 600 * time.Millisecond
+	c, logs := testConfig(t, gh)
+	c.Timeout = 300 * time.Millisecond
+	w := privateRequest(t, c, "good-code", nil)
+	if w.Code != 504 || w.Header().Get("X-Error-Reason") != "timeout" || len(gh.revoked) != 0 {
+		t.Fatalf("status %d reason %q revoked %v", w.Code, w.Header().Get("X-Error-Reason"), gh.revoked)
+	}
+	leakCheck(t, w, logs)
+}
