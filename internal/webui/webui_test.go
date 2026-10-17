@@ -151,7 +151,9 @@ func TestAppJS_starCountAndClick(t *testing.T) {
 	}
 	for _, want := range []string{`"https://api.github.com/repos/nmloc/gh-achievements"`, `credentials: "omit"`,
 		`referrerPolicy: "no-referrer"`, `sessionStorage`, `track("star_click", { place: t.dataset.star })`,
-		`fillStars: fillStars`, `[data-menu]`, `aria-expanded`} {
+		`fillStars: fillStars`, `[data-menu]`, `aria-expanded`,
+		// "★ Star 0" argues against starring: no count is shown until there is one.
+		`if (stars === null || stars < 1) return;`} {
 		if !strings.Contains(string(js), want) {
 			t.Errorf("app.js lacks %s", want)
 		}

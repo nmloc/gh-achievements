@@ -26,7 +26,7 @@
   var STARS = "gha:stars", REPO_API = "https://api.github.com/repos/nmloc/gh-achievements";
   var stars = null;
   function fillStars() {
-    if (stars === null) return;
+    if (stars === null || stars < 1) return;
     var text = stars.toLocaleString("en-US");
     Array.prototype.forEach.call(document.querySelectorAll("[data-stars]"), function (el) {
       el.textContent = text;
