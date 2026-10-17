@@ -8,6 +8,7 @@
 package official
 
 import (
+	"net/http"
 	"os"
 	"testing"
 
@@ -72,6 +73,23 @@ func TestCanary_noUnknownBadges(t *testing.T) {
 		for _, slug := range p.Earned {
 			if !known[slug] {
 				t.Errorf("new achievement on @%s: %q is not in internal/catalog", user, slug)
+			}
+		}
+	}
+}
+
+func TestCanary_badgeImagesStillLoad(t *testing.T) {
+	live(t)
+	for slug, urls := range catalog.Images {
+		for _, u := range urls {
+			resp, err := http.Head(u)
+			if err != nil {
+				t.Errorf("%s: %v", slug, err)
+				continue
+			}
+			resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				t.Errorf("%s: %s answered %d: GitHub renamed the artwork", slug, u, resp.StatusCode)
 			}
 		}
 	}

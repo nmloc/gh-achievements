@@ -89,6 +89,7 @@ type badgeView struct {
 	Status     string
 	Progress   string
 	TierText   string
+	Image      string
 	Prev, Next *catalog.Achievement
 }
 
@@ -98,7 +99,8 @@ type tierRow struct {
 }
 
 func view(a catalog.Achievement) badgeView {
-	v := badgeView{Achievement: a, Status: statusText(a.Kind), Progress: progressText(a), TierText: tierText(a)}
+	v := badgeView{Achievement: a, Status: statusText(a.Kind), Progress: progressText(a), TierText: tierText(a),
+		Image: catalog.Image(a.Slug, len(a.Tiers))}
 	if a.IsTiered() {
 		for i, t := range a.Tiers {
 			needed := "unknown"

@@ -49,3 +49,6 @@ footer { margin-top: 56px; padding-bottom: 32px; border-top: 1px solid var(--lin
   .facts { grid-template-columns: 1fr; }
   .facts dd { margin-bottom: 8px; }
 }
+.badge-hero { float: right; margin: 0 0 16px 16px; }
+.badge-icon { vertical-align: middle; margin-right: 8px; }
+@media (max-width: 600px) { .badge-hero { float: none; display: block; margin: 0 auto 16px; width: 120px; height: 120px; } }
