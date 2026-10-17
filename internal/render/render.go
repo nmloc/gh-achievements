@@ -162,7 +162,7 @@ func writeRow(w io.Writer, s style, c columns, row report.Row, all bool) {
 	name := s.dim(pad(row.Name, c.name))
 	if earned {
 		glyph, tier = s.metal(row.Tier, "●"), "✓"
-		if len(row.Tiers) > 1 {
+		if row.Tier > 1 || len(row.Tiers) > 1 {
 			tier = fmt.Sprintf("x%d", row.Tier)
 		}
 		name = s.bold(pad(row.Name, c.name))
@@ -174,6 +174,9 @@ func writeRow(w io.Writer, s style, c columns, row report.Row, all bool) {
 		b += strings.Repeat(" ", barWidth+2)
 	}
 	line := wording.Line(row)
+	if row.Kind == report.KindNew {
+		line += " · " + row.HowToEarn
+	}
 	if hasSource(row) {
 		b += pad(line, c.line) + "  " + s.dim(string(row.Source))
 	} else {
@@ -183,8 +186,8 @@ func writeRow(w io.Writer, s style, c columns, row report.Row, all bool) {
 		b += s.dim(fmt.Sprintf("  (count says x%d)", st.Tier))
 	}
 	fmt.Fprintln(w, strings.TrimRight(b, " "))
-	if all {
-		for _, note := range row.Notes {
+	for _, note := range row.Notes {
+		if all || report.IsWarning(note) {
 			fmt.Fprintf(w, "      %s\n", s.dim("↳ "+note))
 		}
 	}

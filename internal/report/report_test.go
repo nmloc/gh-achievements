@@ -327,3 +327,24 @@ func TestGalaxyBrain_warnsTheCountCanRunHigh(t *testing.T) {
 		t.Fatalf("notes = %q", gb.Notes)
 	}
 }
+
+func TestIsWarning_flagsFailuresAndNotInformation(t *testing.T) {
+	for _, note := range []string{
+		"could not count: rate limited",
+		"could not read GitHub's history for this badge (boom): tier shown as at least x1",
+		"GitHub lists this badge but served no history for it: tier shown as at least x1",
+	} {
+		if !IsWarning(note) {
+			t.Errorf("%q is a warning", note)
+		}
+	}
+	for _, note := range []string{
+		"checked at GitHub's #16 subsurface/subsurface#1506",
+		"sponsors someone, but no badge: only a public sponsorship earns it",
+		"",
+	} {
+		if IsWarning(note) {
+			t.Errorf("%q is not a warning", note)
+		}
+	}
+}

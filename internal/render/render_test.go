@@ -209,3 +209,86 @@ func TestJSON_roundTrips(t *testing.T) {
 		t.Fatalf("decoded %+v", back)
 	}
 }
+
+// withRows returns a copy of the demo report with edit applied to a copy of its rows.
+func withRows(t *testing.T, edit func(rows []report.Row) []report.Row) *report.Report {
+	t.Helper()
+	r := demoReport(t)
+	copyOf := *r
+	copyOf.Achievements = edit(append([]report.Row(nil), r.Achievements...))
+	return &copyOf
+}
+
+func TestText_failureNotesShowWithoutAll(t *testing.T) {
+	r := withRows(t, func(rows []report.Row) []report.Row {
+		for i := range rows {
+			if rows[i].Slug == "pull-shark" {
+				rows[i].Standing, rows[i].Source = nil, ""
+				rows[i].Notes = []string{"could not count: rate limited"}
+			}
+		}
+		return rows
+	})
+	if out := text(t, r, Options{}); !strings.Contains(out, "↳ could not count: rate limited") {
+		t.Fatalf("a failed count must show without --all:\n%s", out)
+	}
+	if out := text(t, demoReport(t), Options{}); strings.Contains(out, "↳") {
+		t.Errorf("information notes belong to --all:\n%s", out)
+	}
+}
+
+func TestText_aBadgeTheCatalogLacksShowsItsTierAndAsksForAnIssue(t *testing.T) {
+	r := withRows(t, func(rows []report.Row) []report.Row {
+		return append(rows, report.Row{Slug: "brand-new", Name: "Brand New", Kind: report.KindNew,
+			Status: report.Earned, Tier: 3, Unlocked: "2026-10-01",
+			HowToEarn: "Not in the catalog yet: please open an issue"})
+	})
+	out := text(t, r, Options{})
+	onDisplay := out[strings.Index(out, "On display"):strings.Index(out, "Still to collect")]
+	var line string
+	for _, l := range strings.Split(onDisplay, "\n") {
+		if strings.Contains(l, "Brand New") {
+			line = l
+		}
+	}
+	for _, want := range []string{"● Brand New", " x3 ", "Since 2026 · Not in the catalog yet: please open an issue"} {
+		if !strings.Contains(line, want) {
+			t.Errorf("the Brand New line in On display lacks %q: %q", want, line)
+		}
+	}
+	for i, line := range strings.Split(out, "\n") {
+		if strings.HasSuffix(line, " ") {
+			t.Errorf("line %d has trailing spaces: %q", i+1, line)
+		}
+	}
+}
+
+func TestText_coloursEachTierInItsMetal(t *testing.T) {
+	line := func(out, name string) string {
+		for _, l := range strings.Split(out, "\n") {
+			if strings.Contains(l, name) {
+				return l
+			}
+		}
+		t.Fatalf("no line for %s", name)
+		return ""
+	}
+	out := text(t, demoReport(t), Options{Color: true})
+	if l := line(out, "Pull Shark"); !strings.Contains(l, "\x1b[38;5;173m●") {
+		t.Errorf("tier 2 is bronze: %q", l)
+	}
+	if l := line(out, "Starstruck"); !strings.Contains(l, "\x1b[38;5;178m●") {
+		t.Errorf("tier 4 is gold: %q", l)
+	}
+	silver := withRows(t, func(rows []report.Row) []report.Row {
+		for i := range rows {
+			if rows[i].Slug == "pull-shark" {
+				rows[i].Tier = 3
+			}
+		}
+		return rows
+	})
+	if l := line(text(t, silver, Options{Color: true}), "Pull Shark"); !strings.Contains(l, "\x1b[38;5;250m●") {
+		t.Errorf("tier 3 is silver: %q", l)
+	}
+}
