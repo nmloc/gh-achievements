@@ -111,18 +111,26 @@ type badgeGroup struct {
 	Badges        []badgeView
 }
 
+// kindGroups names the catalog's sections, in display order, for the site's list and the README.
+var kindGroups = []struct {
+	Kind          catalog.Kind
+	Heading, Note string
+}{
+	{catalog.Earnable, "Earnable", "You can still earn these."},
+	{catalog.Disabled, "Switched off by GitHub", "GitHub tested these and switched them off; nobody can earn them now."},
+	{catalog.Retired, "Retired", "No longer awarded. Profiles that have them keep them."},
+	{catalog.Internal, "GitHub staff only", "Only GitHub staff could earn these."},
+}
+
 // listGroups sorts the catalog into the list page's sections, keeping catalog order.
 func listGroups(views []badgeView) []badgeGroup {
-	groups := []badgeGroup{
-		{Heading: "Earnable", Note: "You can still earn these."},
-		{Heading: "Switched off by GitHub", Note: "GitHub tested these and switched them off; nobody can earn them now."},
-		{Heading: "Retired", Note: "No longer awarded. Profiles that have them keep them."},
-		{Heading: "GitHub staff only", Note: "Only GitHub staff could earn these."},
+	groups := make([]badgeGroup, len(kindGroups))
+	for i, g := range kindGroups {
+		groups[i] = badgeGroup{Heading: g.Heading, Note: g.Note}
 	}
-	kinds := []catalog.Kind{catalog.Earnable, catalog.Disabled, catalog.Retired, catalog.Internal}
 	for _, v := range views {
-		for i, k := range kinds {
-			if v.Kind == k {
+		for i, g := range kindGroups {
+			if v.Kind == g.Kind {
 				groups[i].Badges = append(groups[i].Badges, v)
 			}
 		}

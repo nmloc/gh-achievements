@@ -35,27 +35,55 @@ func TestReadmeBadges_showEveryEarnableBadgeAtItsTopTier(t *testing.T) {
 	}
 }
 
-func TestReadmeTable_hasTheBadgeArt(t *testing.T) {
+func TestReadmeTable_groupsBadgesAndShowsEveryTierMedal(t *testing.T) {
 	table := readmeTable()
-	if !strings.HasPrefix(table, "| Badge | Achievement |") {
-		t.Fatalf("table header = %q", strings.SplitN(table, "\n", 2)[0])
+	last := -1
+	for _, h := range []string{"### Earnable", "### Switched off by GitHub", "### Retired", "### GitHub staff only"} {
+		i := strings.Index(table, h)
+		if i < 0 {
+			t.Errorf("%s missing", h)
+			continue
+		}
+		if i < last {
+			t.Errorf("%s out of order", h)
+		}
+		last = i
 	}
-	for _, a := range catalog.Achievements {
-		img := catalog.Image(a.Slug, len(a.Tiers))
-		row := ""
+	row := func(slug string) string {
 		for _, line := range strings.Split(table, "\n") {
-			if strings.Contains(line, "achievements/"+a.Slug+"/)") {
-				row = line
+			if strings.Contains(line, "achievements/"+slug+"/)") {
+				return line
 			}
 		}
-		switch {
-		case row == "":
-			t.Errorf("no row for %s", a.Slug)
-		case img == "":
-			t.Errorf("%s has no art at all", a.Slug)
-		case img != "" && !strings.HasPrefix(row, `| <img src="`+img+`" width="40" height="40" alt="`):
-			t.Errorf("%s row lacks its art: %s", a.Slug, row)
+		t.Fatalf("no row for %s", slug)
+		return ""
+	}
+	ps := row("pull-shark")
+	for i, want := range []string{"2", "16", "128", "1024"} {
+		if !strings.Contains(ps, `<img src="`+catalog.Image("pull-shark", i+1)+`" width="48" height="48" alt="Pull Shark `+metals[i]+`">`) {
+			t.Errorf("pull shark lacks its %s medal", metals[i])
 		}
+		if !strings.Contains(ps, `<td align="center">`+want+`</td>`) {
+			t.Errorf("pull shark lacks the amount %s", want)
+		}
+	}
+	if !strings.Contains(ps, "<th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th>") {
+		t.Errorf("pull shark tier headings: %s", ps)
+	}
+	if heart := row("heart-on-your-sleeve"); strings.Count(heart, `<td align="center">?</td>`) != 2 {
+		t.Errorf("heart on your sleeve shows unknown amounts as ?: %s", heart)
+	}
+	if yolo := row("yolo"); !strings.Contains(yolo, "<th>Default</th></tr>") || strings.Contains(yolo, "Bronze") ||
+		!strings.Contains(yolo, `<td align="center">1</td>`) {
+		t.Errorf("a single-tier badge has one medal and the amount 1: %s", yolo)
+	}
+	for _, a := range catalog.Achievements {
+		if line := row(a.Slug); strings.Count(line, "|") != 5 {
+			t.Errorf("%s row must stay one markdown row of 4 cells: %s", a.Slug, line)
+		}
+	}
+	if !strings.Contains(table, "Profile highlights it also reports:") || !strings.Contains(table, "_Catalog last verified against live profiles on ") {
+		t.Error("highlights and verified lines lost")
 	}
 }
 
