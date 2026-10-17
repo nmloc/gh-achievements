@@ -20,6 +20,11 @@ jobs:
         run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
       - run: go vet ./...
       - run: go test ./...
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Site scripts behave as intended
+        run: node --test "internal/webui/jstest/*.test.mjs"
       - name: Generated docs and site are up to date
         run: go run ./cmd/gendocs -check
       - name: Builds for every release target
