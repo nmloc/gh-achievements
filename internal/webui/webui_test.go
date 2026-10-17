@@ -43,3 +43,13 @@ func TestRel(t *testing.T) {
 		t.Fatalf("Rel = %q", got)
 	}
 }
+
+func TestInitials(t *testing.T) {
+	for name, want := range map[string]string{
+		"Heart On Your Sleeve": "HO", "YOLO": "Y", "open sourcerer": "OS", "": "", "Édith Piaf": "ÉP",
+	} {
+		if got := Initials(name); got != want {
+			t.Errorf("Initials(%q) = %q, want %q", name, got, want)
+		}
+	}
+}

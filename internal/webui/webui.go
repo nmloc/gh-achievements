@@ -8,6 +8,7 @@ import (
 	"embed"
 	"html/template"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -37,6 +38,16 @@ type Page struct {
 
 // Rel keeps internal links root-relative, so a local preview stays local.
 func Rel(u string) string { return strings.Replace(u, SiteURL, BasePath, 1) }
+
+// Initials is the first letter of the first two words, upper-case: "Open Sourcerer" → "OS".
+func Initials(name string) string {
+	words := strings.Fields(name)
+	var out []rune
+	for _, w := range words[:min(2, len(words))] {
+		out = append(out, unicode.ToUpper([]rune(w)[0]))
+	}
+	return string(out)
+}
 
 func parse(files ...string) (*template.Template, error) {
 	paths := make([]string, len(files))
