@@ -45,3 +45,14 @@ go test -tags canary ./internal/official -run Canary -v        # check live page
 
 Update `CHANGELOG.md`, then push a tag: `git tag v0.2.0 && git push origin v0.2.0`.
 The release workflow builds every platform.
+
+## Web (Vercel)
+
+`api/*/index.go` are Vercel functions; `internal/web` holds the handlers; `cmd/gendocs`
+writes `vercel.json` and the static pages. Run it all locally:
+
+1. Create `.env.local` (gitignored) with `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` (a dev
+   OAuth App whose callback is `http://localhost:8787/auth/callback`), `GH_BOT_TOKEN`
+   (fine-grained, public repositories, no permissions) and `STATE_SECRET`
+   (`openssl rand -base64 32`).
+2. `go run ./cmd/gendocs && go run ./cmd/devserver`, then open http://localhost:8787/check/.
