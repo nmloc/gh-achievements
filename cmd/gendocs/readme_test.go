@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/xml"
+	"os"
 	"strings"
 	"testing"
 
@@ -144,5 +145,29 @@ func TestSVGs_matchTheSite(t *testing.T) {
 	}
 	if !strings.Contains(string(socialSVG()), "72\u00a0/\u00a0128\u00a0to\u00a0x3") { // the SVG keeps columns with no-break spaces
 		t.Error("the social card should show the new progress wording")
+	}
+}
+
+func TestReadme_showsTheSiteAndBothWaysToCheck(t *testing.T) {
+	b, err := os.ReadFile("../../README.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	readme := string(b)
+	for _, want := range []string{
+		`<source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">`,
+		`<img src="docs/screenshot-light.png"`,
+		"## Two ways to check", "## What it shows", "gh achievements --all",
+		"(docs/demo.svg)", "docs/check-button.svg",
+		"https://github.com/nmloc/gh-achievements/stargazers",
+	} {
+		if !strings.Contains(readme, want) {
+			t.Errorf("README lacks %q", want)
+		}
+	}
+	for _, png := range []string{"../../docs/screenshot-light.png", "../../docs/screenshot-dark.png"} {
+		if fi, err := os.Stat(png); err != nil || fi.Size() < 20_000 {
+			t.Errorf("%s missing or too small", png)
+		}
 	}
 }

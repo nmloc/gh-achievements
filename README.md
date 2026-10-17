@@ -13,7 +13,7 @@
 </p>
 <!-- badges:end -->
 
-<p align="center"><strong>Every GitHub achievement, your tier and how far to the next one, verified against GitHub's own data.</strong></p>
+<p align="center"><strong>Your GitHub trophy case: every achievement, your tier and how far the next one is, verified against GitHub's own data.</strong></p>
 
 <p align="center">
   <a href="https://gh-achievements.vercel.app/check/"><img src="docs/check-button.svg" width="520" alt="🏆 Check your GitHub achievements → no install; sign in with GitHub to include private work"></a>
@@ -23,23 +23,33 @@
   <a href="https://gh-achievements.vercel.app/check/"><strong>gh-achievements.vercel.app/check</strong></a> · no install · or use the CLI below
 </p>
 
+<p align="center">
+  <a href="https://gh-achievements.vercel.app/result?u=torvalds">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+      <img src="docs/screenshot-light.png" width="880" alt="The gh-achievements result page for @torvalds: Pull Shark x2 at 72 / 128 to x3, Starstruck and Pair Extraordinaire at their top tier, and the retired Arctic Code Vault and Mars 2020 badges on a lit shelf; Galaxy Brain, Quickdraw, YOLO, Public Sponsor and Finishing Touch still to collect">
+    </picture>
+  </a>
+</p>
+
 [![Release](https://img.shields.io/github/v/release/nmloc/gh-achievements)](https://github.com/nmloc/gh-achievements/releases)
 [![Tests](https://github.com/nmloc/gh-achievements/actions/workflows/test.yml/badge.svg)](https://github.com/nmloc/gh-achievements/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-```bash
-gh extension install nmloc/gh-achievements
-gh achievements
-```
+## Two ways to check
 
-![Terminal output of gh achievements torvalds: Pull Shark x2 at 72 of 128 merged pull requests, calibrated against GitHub's 16th milestone; Starstruck x4 from torvalds/linux; Pair Extraordinaire x4; retired Arctic Code Vault and Mars 2020 badges](docs/demo.svg)
+| On the web | In your terminal |
+|---|---|
+| **[gh-achievements.vercel.app/check](https://gh-achievements.vercel.app/check/)** | `gh extension install nmloc/gh-achievements` then `gh achievements` |
+| Type any username, or sign in with GitHub to include private repositories. The token is used for one check and revoked at once; nothing is stored. | Reuses your `gh auth login`, so it counts everything that login can see, including organizations that restrict third-party apps. |
 
-`gh-achievements` is a [GitHub CLI](https://cli.github.com/) extension that lists **all GitHub profile achievements** (Pull Shark, Starstruck, Pair Extraordinaire, Galaxy Brain, Quickdraw, YOLO, Public Sponsor, Finishing Touch and the retired ones) and shows **your tier and progress to the next one**. Site: **[gh-achievements.vercel.app](https://gh-achievements.vercel.app/)**.
+![Terminal output of gh achievements torvalds: on display Pull Shark x2 at 72 / 128 to x3 (calibrated), Starstruck at the top tier with 252,192 stars, Pair Extraordinaire at the top tier, the retired Arctic Code Vault and Mars 2020 badges; still to collect Galaxy Brain at 0 / 2 answers, Quickdraw, YOLO, Public Sponsor and Finishing Touch](docs/demo.svg)
 
-- **Every achievement**, not only the ones you have, plus profile highlights such as Pro and Developer Program Member.
-- **Your tier and the next one**: unlock date, a progress bar, and how many more you need.
-- **Checked against GitHub**: tiers and milestones come from GitHub's own badge history; Pull Shark's count is calibrated against the pull requests GitHub names.
-- **No stored token**: the CLI reuses `gh auth login` and talks only to GitHub. The web checker signs in with GitHub, uses the token for one check and revokes it.
+## What it shows
+
+- **Every badge, not just yours.** All 15 known achievements (8 earnable, 2 switched off by GitHub, 2 retired, 3 for GitHub staff) and 6 profile highlights such as Pro.
+- **How far to the next tier.** Your count against the next threshold, such as `72 / 128 to x3` for Pull Shark.
+- **Checked against GitHub.** Tiers, unlock dates and milestones come from GitHub's own badge history, and every number is labelled `official`, `calibrated` or `counted`.
 
 ## Install
 
@@ -57,14 +67,11 @@ Upgrade with `gh extension upgrade achievements`. Prebuilt binaries for macOS, L
 gh achievements              # the account you are signed in to with gh
 gh achievements torvalds     # anyone's public profile
 gh achievements --json       # machine-readable, for scripts
+gh achievements --all        # also the archive, every highlight and each badge's notes
 gh achievements --no-color   # plain text (NO_COLOR is honoured too)
 ```
 
 Not signed in to gh? It still works with public data and tells you what a login would add.
-
-## Web
-
-[gh-achievements.vercel.app](https://gh-achievements.vercel.app/check/): type a username for public data, or sign in with GitHub to include private repositories. The sign-in token is used for one check and revoked at once; nothing is stored. Organizations that restrict third-party apps hide their private repositories until an admin approves gh-achievements. The CLI uses your existing `gh` login instead, which your organizations may already have approved.
 
 ## All GitHub achievements
 
@@ -190,6 +197,10 @@ The catalog alone is published as [achievements.json](https://gh-achievements.ve
 ## Contributing
 
 Spotted a new badge, or a count that looks wrong? [Open an issue](https://github.com/nmloc/gh-achievements/issues/new/choose). See [CONTRIBUTING.md](CONTRIBUTING.md) for how the catalog, fixtures and site are built.
+
+## Like it?
+
+If gh-achievements helped you, a ⭐ helps other people find it: [star it on GitHub](https://github.com/nmloc/gh-achievements/stargazers).
 
 ## Credits
 
