@@ -1,0 +1,45 @@
+package webui
+
+import (
+	"strings"
+	"testing"
+)
+
+func TestRender_usesTheVercelDomainAndRootPaths(t *testing.T) {
+	b, err := Render(Page{Path: "404.html", URL: SiteURL + "404.html", Title: "T", Description: "D",
+		Heading: "H", Content: "404.html", NoIndex: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	html := string(b)
+	for _, want := range []string{
+		`<link rel="stylesheet" href="/style.css">`,
+		`<script src="/app.js" defer data-ga="G-3EEKKGL110"></script>`,
+		`<meta name="robots" content="noindex">`,
+		`id="consent" hidden`,
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("missing %s", want)
+		}
+	}
+	if strings.Contains(html, "nmloc.github.io") || strings.Contains(html, "/gh-achievements/") {
+		t.Error("old GitHub Pages paths remain")
+	}
+}
+
+func TestRender_noInlineScripts(t *testing.T) {
+	// The CSP forbids inline scripts; only JSON-LD data blocks are allowed inline.
+	b, _ := Render(Page{Path: "404.html", URL: SiteURL, Title: "T", Description: "D", Heading: "H", Content: "404.html"})
+	for _, chunk := range strings.Split(string(b), "<script")[1:] {
+		head := chunk[:strings.Index(chunk, ">")]
+		if !strings.Contains(head, "src=") && !strings.Contains(head, `type="application/ld+json"`) {
+			t.Fatalf("inline script: <script%s>", head)
+		}
+	}
+}
+
+func TestRel(t *testing.T) {
+	if got := Rel(SiteURL + "achievements/"); got != "/achievements/" {
+		t.Fatalf("Rel = %q", got)
+	}
+}

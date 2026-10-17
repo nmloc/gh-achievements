@@ -277,5 +277,5 @@
   "license": "MIT",
   "name": "gh-achievements catalog",
   "source": "https://github.com/nmloc/gh-achievements",
-  "url": "https://nmloc.github.io/gh-achievements/achievements.json"
+  "url": "https://gh-achievements.vercel.app/achievements.json"
 }

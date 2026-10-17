@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nmloc.github.io/gh-achievements/sitemap.xml
+Sitemap: https://gh-achievements.vercel.app/sitemap.xml

@@ -37,7 +37,7 @@ Flags:
   --no-color   plain text output (also honours NO_COLOR)
   --version    print the version
 
-Docs: https://nmloc.github.io/gh-achievements/
+Docs: https://gh-achievements.vercel.app/
 `
 
 func main() {

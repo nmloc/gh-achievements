@@ -161,3 +161,9 @@ Console after launch.
 
 Per-IP rate limiting, a stored history of results, a README SVG card, Pair Extraordinaire
 and Finishing Touch counters, a custom domain.
+
+## Changes during planning
+
+1. **No streaming.** Vercel documents no streaming for Go functions. `/auth/callback` is a static page that shows "Checking…" at once and POSTs `code`+`state` to `/api/private`; the token still lives in one request. Progress steps are a static list, not live.
+2. **Results live at `/result?u=<login>`**, not `/check?u=`: Vercel serves static files before rewrites, so a static `/check` would swallow `/check?u=`.
+3. **Too large for 50 s → a message** ("use the CLI"), not a partial report: `report.Build` has no partial mode.

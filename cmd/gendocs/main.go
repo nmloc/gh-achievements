@@ -20,12 +20,10 @@ import (
 	"github.com/nmloc/gh-achievements/internal/fixtures"
 	"github.com/nmloc/gh-achievements/internal/render"
 	"github.com/nmloc/gh-achievements/internal/report"
+	"github.com/nmloc/gh-achievements/internal/webui"
 )
 
 const (
-	siteURL  = "https://nmloc.github.io/gh-achievements/"
-	repoURL  = "https://github.com/nmloc/gh-achievements"
-	install  = "gh extension install nmloc/gh-achievements"
 	tagline  = "Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed."
 	readmeIn = "README.md"
 )
@@ -117,7 +115,7 @@ func generate() (map[string][]byte, error) {
 	files["site/achievements.json"] = data
 	files["site/llms.txt"] = []byte(llmsTxt())
 	files["site/llms-full.txt"] = []byte(llmsFull())
-	files["site/robots.txt"] = []byte("User-agent: *\nAllow: /\n\nSitemap: " + siteURL + "sitemap.xml\n")
+	files["site/robots.txt"] = []byte("User-agent: *\nAllow: /\n\nSitemap: " + webui.SiteURL + "sitemap.xml\n")
 	files["site/sitemap.xml"] = []byte(sitemap())
 	files["site/.nojekyll"] = []byte{}
 	return files, nil
@@ -190,7 +188,7 @@ func readmeTable() string {
 	b.WriteString("|---|---|---|---|---|\n")
 	for _, a := range catalog.Achievements {
 		fmt.Fprintf(&b, "| [%s](%sachievements/%s/) | %s | %s | %s | %s |\n",
-			a.Name, siteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind), progressText(a))
+			a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind), progressText(a))
 	}
 	b.WriteString("\nProfile highlights it also reports: ")
 	names := make([]string, len(catalog.Highlights))
@@ -208,8 +206,8 @@ func catalogJSON() ([]byte, error) {
 	doc := map[string]interface{}{
 		"name":         "gh-achievements catalog",
 		"description":  "Every known GitHub profile achievement, its tiers and whether it can be earned.",
-		"url":          siteURL + "achievements.json",
-		"source":       repoURL,
+		"url":          webui.SiteURL + "achievements.json",
+		"source":       webui.RepoURL,
 		"lastVerified": catalog.LastVerified,
 		"license":      "MIT",
 		"achievements": catalog.Achievements,
@@ -226,21 +224,21 @@ func llmsTxt() string {
 	var b strings.Builder
 	b.WriteString("# gh-achievements\n\n")
 	b.WriteString("> " + tagline + "\n\n")
-	b.WriteString("gh-achievements is an open source GitHub CLI extension (MIT). Install with `" + install + "`, run `gh achievements [username]`. ")
+	b.WriteString("gh-achievements is an open source GitHub CLI extension (MIT). Install with `" + webui.Install + "`, run `gh achievements [username]`. ")
 	b.WriteString("It reads tiers, unlock dates and milestone history from GitHub's own profile pages and counts progress with the user's existing gh login, so no personal access token is created. ")
 	fmt.Fprintf(&b, "It knows %d achievements (%s) and %d profile highlights. Catalog last verified %s. It is not affiliated with GitHub.\n\n",
 		len(catalog.Achievements), kindSummary(), len(catalog.Highlights), catalog.LastVerified)
 	b.WriteString("## Achievements\n\n")
 	for _, a := range catalog.Achievements {
-		fmt.Fprintf(&b, "- [%s](%sachievements/%s/): %s. Tiers: %s. %s.\n", a.Name, siteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind))
+		fmt.Fprintf(&b, "- [%s](%sachievements/%s/): %s. Tiers: %s. %s.\n", a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind))
 	}
 	b.WriteString("\n## Docs\n\n")
-	b.WriteString("- [All GitHub achievements](" + siteURL + "achievements/): the full list with tiers\n")
-	b.WriteString("- [How accurate is it](" + siteURL + "methodology/): data sources, calibration, known limits\n")
-	b.WriteString("- [Source code](" + repoURL + ")\n")
+	b.WriteString("- [All GitHub achievements](" + webui.SiteURL + "achievements/): the full list with tiers\n")
+	b.WriteString("- [How accurate is it](" + webui.SiteURL + "methodology/): data sources, calibration, known limits\n")
+	b.WriteString("- [Source code](" + webui.RepoURL + ")\n")
 	b.WriteString("\n## Optional\n\n")
-	b.WriteString("- [achievements.json](" + siteURL + "achievements.json): the catalog as JSON\n")
-	b.WriteString("- [llms-full.txt](" + siteURL + "llms-full.txt): every page as plain text\n")
+	b.WriteString("- [achievements.json](" + webui.SiteURL + "achievements.json): the catalog as JSON\n")
+	b.WriteString("- [llms-full.txt](" + webui.SiteURL + "llms-full.txt): every page as plain text\n")
 	return b.String()
 }
 
@@ -258,7 +256,7 @@ func llmsFull() string {
 	b.WriteString(llmsTxt())
 	for _, a := range catalog.Achievements {
 		fmt.Fprintf(&b, "\n---\n\n# %s (GitHub achievement)\n\nURL: %sachievements/%s/\nStatus: %s\nHow to earn: %s\nTiers: %s\n\n%s\n",
-			a.Name, siteURL, a.Slug, statusText(a.Kind), a.HowToEarn, tierText(a), a.Details)
+			a.Name, webui.SiteURL, a.Slug, statusText(a.Kind), a.HowToEarn, tierText(a), a.Details)
 		for _, qa := range a.FAQ {
 			fmt.Fprintf(&b, "\nQ: %s\nA: %s\n", qa.Q, qa.A)
 		}
@@ -275,9 +273,9 @@ func llmsFull() string {
 }
 
 func sitemap() string {
-	urls := []string{siteURL, siteURL + "achievements/", siteURL + "methodology/"}
+	urls := []string{webui.SiteURL, webui.SiteURL + "achievements/", webui.SiteURL + "methodology/"}
 	for _, a := range catalog.Achievements {
-		urls = append(urls, siteURL+"achievements/"+a.Slug+"/")
+		urls = append(urls, webui.SiteURL+"achievements/"+a.Slug+"/")
 	}
 	var b strings.Builder
 	b.WriteString(`<?xml version="1.0" encoding="UTF-8"?>` + "\n")

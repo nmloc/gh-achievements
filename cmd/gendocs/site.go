@@ -1,35 +1,13 @@
 package main
 
 import (
-	"bytes"
-	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"strings"
 
 	"github.com/nmloc/gh-achievements/internal/catalog"
+	"github.com/nmloc/gh-achievements/internal/webui"
 )
-
-//go:embed templates/*.html templates/style.css
-var templateFS embed.FS
-
-// basePath is where GitHub Pages serves the project site.
-const basePath = "/gh-achievements/"
-
-type crumb struct{ Name, URL string }
-
-type page struct {
-	Path        string // output path under site/
-	URL         string // canonical URL
-	Title       string // <title>, ≤ ~65 chars
-	Description string // meta description, ≤ maxDescription
-	NoIndex     bool
-	Heading     string
-	Crumbs      []crumb
-	JSONLD      []template.JS
-	Data        interface{}
-}
 
 type para struct{ Heading, Text string }
 
@@ -66,7 +44,7 @@ var methodology = []para{
 func siteFAQ() []catalog.QA {
 	return []catalog.QA{
 		{Q: "How do I check my GitHub achievements progress?",
-			A: "Install the GitHub CLI extension with `" + install + "` and run `gh achievements`. It lists every achievement, your tier and how many more you need for the next one. Add a username to check someone else."},
+			A: "Install the GitHub CLI extension with `" + webui.Install + "` and run `gh achievements`. It lists every achievement, your tier and how many more you need for the next one. Add a username to check someone else."},
 		{Q: "Does gh-achievements need a GitHub token?",
 			A: "No. It reuses the login of the GitHub CLI (gh auth login). Without a login it still works with public data."},
 		{Q: "How many GitHub achievements are there?",
@@ -97,7 +75,7 @@ func faqLD(qas []catalog.QA) template.JS {
 	return ld(map[string]interface{}{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": items})
 }
 
-func breadcrumbLD(crumbs []crumb) template.JS {
+func breadcrumbLD(crumbs []webui.Crumb) template.JS {
 	items := make([]map[string]interface{}, len(crumbs))
 	for i, c := range crumbs {
 		items[i] = map[string]interface{}{"@type": "ListItem", "position": i + 1, "name": c.Name, "item": c.URL}
@@ -134,44 +112,33 @@ func view(a catalog.Achievement) badgeView {
 }
 
 func sitePages() (map[string][]byte, error) {
-	layout, err := template.New("layout.html").Funcs(template.FuncMap{
-		// rel keeps internal links root-relative, so a local preview stays local.
-		"rel": func(u string) string { return strings.Replace(u, siteURL, basePath, 1) },
-	}).ParseFS(templateFS, "templates/layout.html")
-	if err != nil {
-		return nil, err
-	}
-	css, err := templateFS.ReadFile("templates/style.css")
-	if err != nil {
-		return nil, err
-	}
-
-	home := crumb{"gh-achievements", siteURL}
-	all := crumb{"All GitHub achievements", siteURL + "achievements/"}
+	home := webui.Crumb{Name: "gh-achievements", URL: webui.SiteURL}
+	all := webui.Crumb{Name: "All GitHub achievements", URL: webui.SiteURL + "achievements/"}
 	var views []badgeView
 	for _, a := range catalog.Achievements {
 		views = append(views, view(a))
 	}
 
-	pages := []page{
+	pages := []webui.Page{
 		{
-			Path: "index.html", URL: siteURL,
+			Path: "index.html", URL: webui.SiteURL,
 			Title:       "GitHub Achievements Checker: tiers & progress · gh-achievements",
 			Description: "See every GitHub achievement, your tier and how far you are from the next one. A free GitHub CLI extension, verified against GitHub, no token needed.",
 			Heading:     "GitHub Achievements Checker",
+			Content:     "home.html",
 			JSONLD: []template.JS{
 				ld(map[string]interface{}{
 					"@context": "https://schema.org", "@type": "SoftwareApplication",
 					"name": "gh-achievements", "description": tagline,
 					"applicationCategory": "DeveloperApplication", "operatingSystem": "macOS, Linux, Windows",
-					"url": siteURL, "downloadUrl": repoURL + "/releases", "codeRepository": repoURL,
+					"url": webui.SiteURL, "downloadUrl": webui.RepoURL + "/releases", "codeRepository": webui.RepoURL,
 					"license": "https://opensource.org/licenses/MIT", "isAccessibleForFree": true,
 					"offers": map[string]interface{}{"@type": "Offer", "price": "0", "priceCurrency": "USD"},
 					"author": map[string]interface{}{"@type": "Person", "name": "nmloc", "url": "https://github.com/nmloc"},
 				}),
 				faqLD(siteFAQ()),
 			},
-			Data: map[string]interface{}{"Badges": views, "FAQ": siteFAQ(), "Install": install, "Tagline": tagline,
+			Data: map[string]interface{}{"Badges": views, "FAQ": siteFAQ(), "Install": webui.Install, "Tagline": tagline,
 				"Summary": kindSummary(), "Verified": catalog.LastVerified, "Count": len(catalog.Achievements)},
 		},
 		{
@@ -179,16 +146,18 @@ func sitePages() (map[string][]byte, error) {
 			Title:       fmt.Sprintf("All %d GitHub Achievements: list, tiers & how to get them", len(catalog.Achievements)),
 			Description: "The complete list of GitHub profile achievements, with tier thresholds, how to earn each one and whether it can still be earned.",
 			Heading:     "All GitHub achievements",
-			Crumbs:      []crumb{home, all},
+			Content:     "list.html",
+			Crumbs:      []webui.Crumb{home, all},
 			Data: map[string]interface{}{"Badges": views, "Highlights": catalog.Highlights, "Verified": catalog.LastVerified,
-				"Summary": kindSummary(), "Install": install},
+				"Summary": kindSummary(), "Install": webui.Install},
 		},
 		{
-			Path: "methodology/index.html", URL: siteURL + "methodology/",
+			Path: "methodology/index.html", URL: webui.SiteURL + "methodology/",
 			Title:       "How accurate is gh-achievements? Data sources & limits",
 			Description: "Where gh-achievements gets each number: GitHub's own badge history, calibration against named milestones, and the limits of GitHub's API.",
 			Heading:     "How accurate is gh-achievements?",
-			Crumbs:      []crumb{home, {"How accurate is it", siteURL + "methodology/"}},
+			Content:     "methodology.html",
+			Crumbs:      []webui.Crumb{home, {Name: "How accurate is it", URL: webui.SiteURL + "methodology/"}},
 			Data:        map[string]interface{}{"Paras": methodology, "Verified": catalog.LastVerified},
 		},
 	}
@@ -200,8 +169,8 @@ func sitePages() (map[string][]byte, error) {
 		if i < len(views)-1 {
 			v.Next = &catalog.Achievements[i+1]
 		}
-		url := siteURL + "achievements/" + v.Slug + "/"
-		crumbs := []crumb{home, all, {v.Name, url}}
+		url := webui.SiteURL + "achievements/" + v.Slug + "/"
+		crumbs := []webui.Crumb{home, all, {Name: v.Name, URL: url}}
 		desc := fmt.Sprintf("%s is a GitHub achievement. %s.", v.Name, v.HowToEarn)
 		if v.IsTiered() {
 			desc += " Tiers: " + v.TierText + "."
@@ -213,58 +182,43 @@ func sitePages() (map[string][]byte, error) {
 		if len(desc)+len(tail) <= maxDescription {
 			desc += tail
 		}
-		p := page{
+		p := webui.Page{
 			Path: "achievements/" + v.Slug + "/index.html", URL: url,
 			Title:       badgeTitle(v.Name),
 			Description: desc,
 			Heading:     v.Name,
+			Content:     "badge.html",
 			Crumbs:      crumbs,
 			JSONLD:      []template.JS{breadcrumbLD(crumbs)},
-			Data:        map[string]interface{}{"B": v, "Install": install, "Verified": catalog.LastVerified},
+			Data:        map[string]interface{}{"B": v, "Install": webui.Install, "Verified": catalog.LastVerified},
 		}
 		if len(v.FAQ) > 0 {
 			p.JSONLD = append(p.JSONLD, faqLD(v.FAQ))
 		}
 		pages = append(pages, p)
 	}
-	pages = append(pages, page{
-		Path: "404.html", URL: siteURL + "404.html", Title: "Page not found · gh-achievements",
+	pages = append(pages, webui.Page{
+		Path: "404.html", URL: webui.SiteURL + "404.html", Title: "Page not found · gh-achievements",
 		Description: "This page does not exist.", Heading: "Page not found", NoIndex: true,
+		Content: "404.html",
 	})
 
-	out := map[string][]byte{"site/style.css": css}
+	out := map[string][]byte{}
+	for _, name := range []string{"style.css", "app.js", "callback.js"} {
+		b, err := webui.Static(name)
+		if err != nil {
+			return nil, err
+		}
+		out["site/"+name] = b
+	}
 	for _, p := range pages {
-		body, err := renderPage(layout, p)
+		body, err := webui.Render(p)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", p.Path, err)
 		}
 		out["site/"+p.Path] = body
 	}
 	return out, nil
-}
-
-func renderPage(layout *template.Template, p page) ([]byte, error) {
-	t, err := layout.Clone()
-	if err != nil {
-		return nil, err
-	}
-	name := "templates/" + map[string]string{
-		"index.html": "home.html", "achievements/index.html": "list.html",
-		"methodology/index.html": "methodology.html", "404.html": "404.html",
-	}[p.Path]
-	if name == "templates/" {
-		name = "templates/badge.html"
-	}
-	if _, err := t.ParseFS(templateFS, name); err != nil {
-		return nil, err
-	}
-	var buf bytes.Buffer
-	if err := t.ExecuteTemplate(&buf, "layout", map[string]interface{}{
-		"P": p, "SiteURL": siteURL, "RepoURL": repoURL, "Base": basePath,
-	}); err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
 }
 
 // badgeTitle keeps the <title> within what search results show (~60 characters).
