@@ -82,7 +82,7 @@ func generate() (map[string][]byte, error) {
 		return nil, fmt.Errorf("demo report: %w", err)
 	}
 	var colored bytes.Buffer
-	render.Text(&colored, demo, true)
+	render.Text(&colored, demo, render.Options{Color: true})
 	svg := terminalSVG(colored.String(), "DISABLED")
 	files["docs/demo.svg"] = svg
 	// social.png is rendered from this by scripts/social-png.sh; PNG bytes depend on

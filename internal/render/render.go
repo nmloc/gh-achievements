@@ -6,9 +6,26 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/nmloc/gh-achievements/internal/catalog"
+	"github.com/nmloc/gh-achievements/internal/progress"
 	"github.com/nmloc/gh-achievements/internal/report"
+	"github.com/nmloc/gh-achievements/internal/wording"
+)
+
+// Options picks what Text prints.
+type Options struct {
+	Color bool // ANSI colour and bold
+	All   bool // also the archive, every highlight and each badge's notes
+}
+
+// StarURL is where the one-time star request points.
+const StarURL = "https://github.com/nmloc/gh-achievements"
+
+const (
+	barWidth = 12
+	legend   = "official = GitHub's own pages · calibrated = counted, checked against GitHub · counted = counted only"
 )
 
 // JSON writes the report as indented JSON.
@@ -26,161 +43,199 @@ func (s style) wrap(code, text string) string {
 	}
 	return "\x1b[" + code + "m" + text + "\x1b[0m"
 }
-func (s style) bold(t string) string  { return s.wrap("1", t) }
-func (s style) dim(t string) string   { return s.wrap("2", t) }
-func (s style) green(t string) string { return s.wrap("32", t) }
+func (s style) bold(t string) string { return s.wrap("1", t) }
+func (s style) dim(t string) string  { return s.wrap("2", t) }
+func (s style) gold(t string) string { return s.wrap("38;5;178", t) }
 
-// tier marks use GitHub's own label colours: bronze, silver, gold.
-func (s style) mark(tier int, text string) string {
+// metal colours a tier the way the site does: bronze x2, silver x3, gold x4.
+func (s style) metal(tier int, text string) string {
 	switch tier {
-	case 1:
-		return s.green(text)
 	case 2:
-		return s.wrap("38;5;216", text)
+		return s.wrap("38;5;173", text)
 	case 3:
-		return s.wrap("38;5;252", text)
+		return s.wrap("38;5;250", text)
 	case 4:
-		return s.wrap("38;5;221", text)
+		return s.gold(text)
 	}
-	return s.dim(text)
+	return text
 }
 
-// Text writes the human report. color adds ANSI styling.
-func Text(w io.Writer, r *report.Report, color bool) {
-	s := style{on: color}
-	p := func(format string, a ...interface{}) { fmt.Fprintf(w, format+"\n", a...) }
+// StarLine is the one-time request to star the repository.
+func StarLine(color bool) string {
+	return "  " + style{on: color}.gold("★") + " Found it useful? Star it: " + StarURL
+}
 
+// Text writes the human report: the headline, then the shelves the result page shows.
+func Text(w io.Writer, r *report.Report, opt Options) {
+	s := style{on: opt.Color}
+	p := func(format string, a ...any) { fmt.Fprintf(w, format+"\n", a...) }
+
+	shelves := map[wording.Shelf][]report.Row{}
+	for _, row := range r.Achievements {
+		shelves[wording.ShelfOf(row)] = append(shelves[wording.ShelfOf(row)], row)
+	}
+	display, collect, archive := shelves[wording.Display], shelves[wording.Collect], shelves[wording.Archive]
+	shown := append(append([]report.Row{}, display...), collect...)
+	if opt.All {
+		shown = append(shown, archive...)
+	}
+	cols := measure(shown)
+	rows := func(list []report.Row) {
+		for _, row := range list {
+			writeRow(w, s, cols, row, opt.All)
+		}
+	}
+
+	sum := wording.Summarize(r)
 	p("")
-	p("  %s", s.bold("GitHub achievements · @"+r.User))
+	p("  %s", s.bold("🏆 @"+r.User))
+	p("  %d of %d badges you can still earn, %d tiers", sum.Earned, sum.EarnableTotal, sum.TierTotal)
+	if c := sum.Closest; c != nil {
+		p("  Closest next unlock: %s, %s", c.Name, wording.Line(*c))
+	}
 	if r.AchievementsHidden {
-		p("  This profile hides achievements: no official tiers, counters only.")
+		p("  %s", s.dim("This profile hides its achievements: live counts only, no official tiers."))
 	}
 	if !r.Authenticated {
 		p("  %s", s.dim("Not signed in to gh: public data only. Run `gh auth login` for full counts."))
 	}
 
-	kinds := append([]catalog.Kind{}, catalog.Kinds...)
-	kinds = append(kinds, report.KindNew)
-	for _, kind := range kinds {
-		rows := rowsOf(r, kind)
-		if len(rows) == 0 {
-			continue
-		}
-		title := catalog.KindTitle(kind)
-		if kind == report.KindNew {
-			title = "NEW · on this profile, not in the catalog yet"
+	switch {
+	case len(display) > 0:
+		p("")
+		p("  %s", s.bold("On display"))
+		rows(display)
+	case !r.AchievementsHidden:
+		p("")
+		p("  %s", s.bold("On display"))
+		p("  %s", s.dim("Nothing yet. Start with a badge from the list below."))
+	}
+	if len(collect) > 0 {
+		title := "Still to collect"
+		if r.AchievementsHidden {
+			title = "Live counts"
 		}
 		p("")
 		p("  %s", s.bold(title))
-		for _, row := range rows {
-			writeRow(w, s, row)
-		}
+		rows(collect)
 	}
-
-	p("")
-	p("  %s", s.bold("HIGHLIGHTS"))
-	for _, h := range r.Highlights {
-		if h.Earned {
-			p("  %s   %s", s.green("✓"), h.Name)
+	if len(archive) > 0 {
+		p("")
+		if opt.All {
+			p("  %s", s.bold("The archive"))
+			rows(archive)
 		} else {
-			p("  %s   %s", s.dim("·"), s.dim(h.Name))
+			p("  %s %s", s.bold(fmt.Sprintf("The archive: %d %s you can no longer earn", len(archive), plural(len(archive), "badge"))),
+				s.dim("(--all lists them)"))
 		}
 	}
+	writeHighlights(w, s, r.Highlights, opt.All)
 	p("")
-	p("  %s", s.dim("official = GitHub's own pages · calibrated = counted, checked against GitHub · counted = counted only"))
+	p("  %s", s.dim(legend))
 	p("")
 }
 
-func rowsOf(r *report.Report, kind catalog.Kind) []report.Row {
-	var rows []report.Row
-	for _, row := range r.Achievements {
-		if row.Kind == kind {
-			rows = append(rows, row)
+type columns struct{ name, line int }
+
+// measure finds the widest name and the widest line that is followed by a source label,
+// so names, bars and source labels each line up in one column.
+func measure(rows []report.Row) columns {
+	var c columns
+	for _, row := range rows {
+		c.name = max(c.name, width(row.Name))
+		if hasSource(row) {
+			c.line = max(c.line, width(wording.Line(row)))
 		}
 	}
-	return rows
+	return c
 }
 
-func writeRow(w io.Writer, s style, row report.Row) {
-	p := func(format string, a ...interface{}) { fmt.Fprintf(w, format+"\n", a...) }
+// hasSource reports whether a row ends with its source label: earnable tiered badges, whose
+// count or tier a reader may want to trace.
+func hasSource(row report.Row) bool {
+	return row.Kind == catalog.Earnable && row.Source != "" && len(row.Tiers) > 1
+}
 
-	mark := "--"
-	switch row.Status {
-	case report.Earned:
-		mark = fmt.Sprintf("x%d", row.Tier)
-	case report.Unknown:
-		mark = "··"
+func writeRow(w io.Writer, s style, c columns, row report.Row, all bool) {
+	earned := row.Status == report.Earned
+	glyph, tier := s.dim("○"), ""
+	name := s.dim(pad(row.Name, c.name))
+	if earned {
+		glyph, tier = s.metal(row.Tier, "●"), "✓"
+		if len(row.Tiers) > 1 {
+			tier = fmt.Sprintf("x%d", row.Tier)
+		}
+		name = s.bold(pad(row.Name, c.name))
 	}
-	when := ""
-	if row.Unlocked != "" {
-		when = "since " + row.Unlocked
+	b := "  " + glyph + " " + name + "  " + s.metal(row.Tier, pad(tier, 2)) + "  "
+	if row.Standing != nil {
+		b += bar(s, *row.Standing) + "  "
+	} else {
+		b += strings.Repeat(" ", barWidth+2)
 	}
-	name := fmt.Sprintf("%-30s", row.Name)
-	if row.Status == report.Earned {
-		name = s.bold(name)
+	line := wording.Line(row)
+	if hasSource(row) {
+		b += pad(line, c.line) + "  " + s.dim(string(row.Source))
+	} else {
+		b += line
 	}
-	head := fmt.Sprintf("  %s %s %s", s.mark(row.Tier, fmt.Sprintf("%-3s", mark)), name, s.dim(when))
-	p("%s", strings.TrimRight(head, " "))
+	if st := row.Standing; st != nil && st.IsAhead {
+		b += s.dim(fmt.Sprintf("  (count says x%d)", st.Tier))
+	}
+	fmt.Fprintln(w, strings.TrimRight(b, " "))
+	if all {
+		for _, note := range row.Notes {
+			fmt.Fprintf(w, "      %s\n", s.dim("↳ "+note))
+		}
+	}
+}
 
-	how := row.HowToEarn
-	if len(row.Tiers) > 1 {
-		how += " · tiers " + tierList(row.Tiers)
+// bar fills from the current tier's threshold to the next one; a top tier is full.
+func bar(s style, st progress.Standing) string {
+	filled := barWidth
+	if !st.IsMax {
+		filled = 0
+		if span := st.Target - st.Floor; span > 0 {
+			filled = (barWidth*(st.Count-st.Floor)*2 + span) / (span * 2) // round half up
+		}
+		filled = max(0, min(barWidth, filled))
 	}
-	p("      %s", s.dim(how))
+	return s.gold(strings.Repeat("█", filled)) + s.dim(strings.Repeat("░", barWidth-filled))
+}
 
-	if row.Kind != catalog.Earnable {
+func writeHighlights(w io.Writer, s style, hs []report.HighlightRow, all bool) {
+	fmt.Fprintln(w)
+	if all {
+		fmt.Fprintf(w, "  %s\n", s.bold("Highlights"))
+		for _, h := range hs {
+			if h.Earned {
+				fmt.Fprintf(w, "  %s %s\n", s.gold("●"), h.Name)
+			} else {
+				fmt.Fprintf(w, "  %s\n", s.dim("○ "+h.Name))
+			}
+		}
 		return
 	}
-	switch {
-	case row.Standing != nil:
-		p("      %s", standing(s, row))
-	case len(row.Tiers) > 1 && row.Counter == catalog.CounterNone && row.Status != report.Unknown:
-		if row.Tier >= len(row.Tiers) {
-			p("      max tier  [%s]", row.Source)
-		} else {
-			p("      next x%d at %d  [%s]", row.Tier+1, row.Tiers[row.Tier], row.Source)
-		}
-	case len(row.Tiers) == 1 && row.Status == report.Earned:
-		p("      %s  [%s]", s.green("done"), row.Source)
-	case len(row.Tiers) == 1 && row.Status == report.NotEarned:
-		p("      0 / 1  [%s]", row.Source)
-	}
-	for _, note := range row.Notes {
-		p("      · %s", note)
-	}
-}
-
-func tierList(tiers []int) string {
-	parts := make([]string, len(tiers))
-	for i, t := range tiers {
-		if t == 0 {
-			parts[i] = "?"
-		} else {
-			parts[i] = fmt.Sprint(t)
+	var earned []string
+	for _, h := range hs {
+		if h.Earned {
+			earned = append(earned, h.Name)
 		}
 	}
-	return strings.Join(parts, " · ")
+	text := fmt.Sprintf("none of %d yet", len(hs))
+	if len(earned) > 0 {
+		text = strings.Join(earned, ", ")
+	}
+	fmt.Fprintf(w, "  %s %s\n", s.bold("Highlights:"), text)
 }
 
-func standing(s style, row report.Row) string {
-	st := row.Standing
-	ahead := ""
-	if st.IsAhead {
-		ahead = fmt.Sprintf("  (count says x%d)", st.Tier)
+func plural(n int, word string) string {
+	if n == 1 {
+		return word
 	}
-	if st.IsMax {
-		return fmt.Sprintf("%6d  max tier  [%s]%s", st.Count, row.Source, ahead)
-	}
-	return fmt.Sprintf("%6d / %-5d %s %d to x%d  [%s]%s",
-		st.Count, st.Target, bar(s, st.Count, st.Floor, st.Target), st.Remaining, st.Tier+1, row.Source, ahead)
+	return word + "s"
 }
 
-func bar(s style, value, lo, hi int) string {
-	const width = 16
-	filled := 0
-	if hi > lo {
-		filled = (width*(value-lo)*2 + (hi - lo)) / ((hi - lo) * 2) // round half up
-	}
-	filled = max(0, min(width, filled))
-	return s.green(strings.Repeat("█", filled)) + s.dim(strings.Repeat("░", width-filled))
-}
+func width(s string) int { return utf8.RuneCountInString(s) }
+
+func pad(s string, n int) string { return s + strings.Repeat(" ", max(n-width(s), 0)) }
