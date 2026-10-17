@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
-<rect width="1280" height="640" fill="#0d1117"/>
-<rect x="0" y="0" width="1280" height="8" fill="#fae57e"/>
-<text x="80" y="150" font-family="DejaVu Sans,Helvetica,Arial,sans-serif" font-size="76" font-weight="700" fill="#e6edf3">gh-achievements</text>
-<text x="80" y="225" font-family="DejaVu Sans,Helvetica,Arial,sans-serif" font-size="38" fill="#e6edf3">Check your GitHub achievements progress</text>
-<text x="80" y="280" font-family="DejaVu Sans,Helvetica,Arial,sans-serif" font-size="28" fill="#8b949e">Every badge · your tier · how far to the next · verified against GitHub · no token</text>
-<rect x="80" y="330" width="1120" height="230" rx="14" fill="#161b22" stroke="#30363d"/>
-<text x="110" y="385" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#f9bfa7" font-weight="700">x2</text>
-<text x="170" y="385" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e6edf3" font-weight="700">Pull Shark      </text>
-<text x="470" y="385" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e6edf3">72 / 128 ██████░░░░░░ 56 to x3 [calibrated]</text>
-<text x="110" y="433" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#fae57e" font-weight="700">x4</text>
-<text x="170" y="433" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e6edf3" font-weight="700">Starstruck      </text>
-<text x="470" y="433" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e6edf3">252192  max tier  [counted]</text>
-<text x="110" y="481" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#fae57e" font-weight="700">x4</text>
-<text x="170" y="481" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e6edf3" font-weight="700">Pair Extraord.  </text>
-<text x="470" y="481" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e6edf3">max tier  [official]</text>
-<text x="110" y="529" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#3fb950" font-weight="700">x1</text>
-<text x="170" y="529" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e6edf3" font-weight="700">Arctic Code Vault</text>
-<text x="470" y="529" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#8b949e"> retired · since 2020-02-02</text>
-<text x="80" y="605" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#3fb950">$ gh extension install nmloc/gh-achievements</text>
+<rect width="1280" height="640" fill="#0d1c26"/>
+<rect x="0" y="0" width="1280" height="8" fill="#e2b53a"/>
+<text x="80" y="150" font-family="DejaVu Sans,Helvetica,Arial,sans-serif" font-size="76" font-weight="700" fill="#eaf1f5">gh-achievements</text>
+<text x="80" y="225" font-family="DejaVu Sans,Helvetica,Arial,sans-serif" font-size="38" fill="#eaf1f5">Check your GitHub achievements progress</text>
+<text x="80" y="280" font-family="DejaVu Sans,Helvetica,Arial,sans-serif" font-size="28" fill="#93a9b7">Every badge · your tier · how far to the next · verified against GitHub · no token</text>
+<rect x="80" y="330" width="1120" height="230" rx="14" fill="#122633" stroke="#25414f"/>
+<text x="110" y="385" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#d39468">●</text>
+<text x="170" y="385" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5" font-weight="700">Pull Shark</text>
+<text x="470" y="385" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5">x2  72 / 128 to x3  calibrated</text>
+<text x="110" y="433" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e2b53a">●</text>
+<text x="170" y="433" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5" font-weight="700">Starstruck</text>
+<text x="470" y="433" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5">x4  Top tier, 252,192 stars  counted</text>
+<text x="110" y="481" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e2b53a">●</text>
+<text x="170" y="481" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5" font-weight="700">Pair Extraord.</text>
+<text x="470" y="481" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5">x4  Top tier  official</text>
+<text x="110" y="529" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5">●</text>
+<text x="170" y="529" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5" font-weight="700">Arctic Code Vault</text>
+<text x="470" y="529" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#eaf1f5">✓   Since 2020</text>
+<text x="80" y="605" font-family="DejaVu Sans Mono,Menlo,Consolas,monospace" font-size="26" fill="#e2b53a">$ gh extension install nmloc/gh-achievements</text>
 </svg>

@@ -10,42 +10,26 @@ import (
 
 var reANSI = regexp.MustCompile("\x1b\\[([0-9;]*)m")
 
-// GitHub's own tier label colours, plus a dark terminal palette.
+// The site's dark palette: muted text, bronze, silver and gold metals.
 var ansiFill = map[string]string{
-	"2": "#8b949e", "32": "#3fb950",
-	"38;5;216": "#f9bfa7", "38;5;252": "#e1e4e4", "38;5;221": "#fae57e",
-}
-
-// demoSections are the report sections the README demo keeps; the rest are summarised
-// in one line, so the image stays readable.
-var demoSections = map[string]bool{"EARNABLE": true, "RETIRED": true}
-
-// sectionWords start the report's section headings (render.Text).
-var sectionWords = map[string]bool{
-	"EARNABLE": true, "DISABLED": true, "RETIRED": true, "INTERNAL": true, "NEW": true, "HIGHLIGHTS": true,
+	"2": "#93a9b7", "38;5;173": "#d39468", "38;5;250": "#c7d0d6", "38;5;178": "#e2b53a",
 }
 
 func plain(s string) string { return reANSI.ReplaceAllString(s, "") }
 
+// keepDemoLines keeps the whole report except the legend line and trailing blank
+// lines; the new layout already folds the archive into one line.
 func keepDemoLines(out string) []string {
 	var kept []string
-	keep := true
 	for _, line := range strings.Split(strings.TrimRight(out, "\n"), "\n") {
-		p := strings.TrimSpace(plain(line))
-		if f := strings.Fields(p); len(f) > 0 && sectionWords[f[0]] {
-			keep = demoSections[f[0]]
+		if strings.HasPrefix(strings.TrimSpace(plain(line)), "official =") {
+			continue
 		}
-		if strings.HasPrefix(p, "official =") {
-			keep = false
-		}
-		if keep {
-			kept = append(kept, line)
-		}
+		kept = append(kept, line)
 	}
-	for len(kept) > 0 && plain(kept[len(kept)-1]) == "" {
+	for len(kept) > 0 && strings.TrimSpace(plain(kept[len(kept)-1])) == "" {
 		kept = kept[:len(kept)-1]
 	}
-	kept = append(kept, "", "  \x1b[2m… plus disabled and internal badges, and profile highlights\x1b[0m")
 	return kept
 }
 
@@ -69,10 +53,10 @@ func terminalSVG(out, _ string) []byte {
 	var b strings.Builder
 	fmt.Fprintf(&b, `<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 %d %d" role="img" aria-labelledby="t">`+"\n", width, height, width, height)
 	b.WriteString(`<title id="t">gh achievements torvalds: terminal output</title>` + "\n")
-	fmt.Fprintf(&b, `<rect width="%d" height="%d" rx="10" fill="#0d1117"/>`+"\n", width, height)
+	fmt.Fprintf(&b, `<rect width="%d" height="%d" rx="10" fill="#0d1c26"/>`+"\n", width, height)
 	b.WriteString(`<circle cx="20" cy="20" r="6" fill="#ff5f56"/><circle cx="40" cy="20" r="6" fill="#ffbd2e"/><circle cx="60" cy="20" r="6" fill="#27c93f"/>` + "\n")
-	fmt.Fprintf(&b, `<text x="%d" y="24" fill="#8b949e" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" text-anchor="middle">gh achievements torvalds</text>`+"\n", width/2)
-	fmt.Fprintf(&b, `<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="%d" fill="#e6edf3">`+"\n", fontSize)
+	fmt.Fprintf(&b, `<text x="%d" y="24" fill="#93a9b7" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" text-anchor="middle">gh achievements torvalds</text>`+"\n", width/2)
+	fmt.Fprintf(&b, `<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="%d" fill="#eaf1f5">`+"\n", fontSize)
 	for i, line := range lines {
 		fmt.Fprintf(&b, `<text x="%d" y="%d">%s</text>`+"\n", padX, top+i*lineH, spans(line))
 	}
@@ -128,25 +112,26 @@ func socialSVG() []byte {
 	const sans = `font-family="DejaVu Sans,Helvetica,Arial,sans-serif"`
 	var b strings.Builder
 	b.WriteString(`<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">` + "\n")
-	b.WriteString(`<rect width="1280" height="640" fill="#0d1117"/>` + "\n")
-	b.WriteString(`<rect x="0" y="0" width="1280" height="8" fill="#fae57e"/>` + "\n")
-	fmt.Fprintf(&b, `<text x="80" y="150" %s font-size="76" font-weight="700" fill="#e6edf3">gh-achievements</text>`+"\n", sans)
-	fmt.Fprintf(&b, `<text x="80" y="225" %s font-size="38" fill="#e6edf3">Check your GitHub achievements progress</text>`+"\n", sans)
-	fmt.Fprintf(&b, `<text x="80" y="280" %s font-size="28" fill="#8b949e">Every badge · your tier · how far to the next · verified against GitHub · no token</text>`+"\n", sans)
-	b.WriteString(`<rect x="80" y="330" width="1120" height="230" rx="14" fill="#161b22" stroke="#30363d"/>` + "\n")
-	rows := []struct{ mark, fill, name, rest, restFill string }{
-		{"x2", "#f9bfa7", "Pull Shark      ", "72 / 128 ██████░░░░░░ 56 to x3 [calibrated]", "#e6edf3"},
-		{"x4", "#fae57e", "Starstruck      ", "252192  max tier  [counted]", "#e6edf3"},
-		{"x4", "#fae57e", "Pair Extraord.  ", "max tier  [official]", "#e6edf3"},
-		{"x1", "#3fb950", "Arctic Code Vault", " retired · since 2020-02-02", "#8b949e"},
+	b.WriteString(`<rect width="1280" height="640" fill="#0d1c26"/>` + "\n")
+	b.WriteString(`<rect x="0" y="0" width="1280" height="8" fill="#e2b53a"/>` + "\n")
+	fmt.Fprintf(&b, `<text x="80" y="150" %s font-size="76" font-weight="700" fill="#eaf1f5">gh-achievements</text>`+"\n", sans)
+	fmt.Fprintf(&b, `<text x="80" y="225" %s font-size="38" fill="#eaf1f5">Check your GitHub achievements progress</text>`+"\n", sans)
+	fmt.Fprintf(&b, `<text x="80" y="280" %s font-size="28" fill="#93a9b7">Every badge · your tier · how far to the next · verified against GitHub · no token</text>`+"\n", sans)
+	b.WriteString(`<rect x="80" y="330" width="1120" height="230" rx="14" fill="#122633" stroke="#25414f"/>` + "\n")
+	const ink = "#eaf1f5"
+	rows := []struct{ mark, fill, name, rest string }{
+		{"●", "#d39468", "Pull Shark", "x2  72 / 128 to x3  calibrated"},
+		{"●", "#e2b53a", "Starstruck", "x4  Top tier, 252,192 stars  counted"},
+		{"●", "#e2b53a", "Pair Extraord.", "x4  Top tier  official"},
+		{"●", ink, "Arctic Code Vault", "✓   Since 2020"},
 	}
 	for i, r := range rows {
 		y := 385 + i*48
-		fmt.Fprintf(&b, `<text x="110" y="%d" %s font-size="26" fill="%s" font-weight="700">%s</text>`+"\n", y, mono, r.fill, r.mark)
-		fmt.Fprintf(&b, `<text x="170" y="%d" %s font-size="26" fill="#e6edf3" font-weight="700">%s</text>`+"\n", y, mono, html.EscapeString(r.name))
-		fmt.Fprintf(&b, `<text x="470" y="%d" %s font-size="26" fill="%s">%s</text>`+"\n", y, mono, r.restFill, strings.ReplaceAll(html.EscapeString(r.rest), " ", "\u00a0"))
+		fmt.Fprintf(&b, `<text x="110" y="%d" %s font-size="26" fill="%s">%s</text>`+"\n", y, mono, r.fill, r.mark)
+		fmt.Fprintf(&b, `<text x="170" y="%d" %s font-size="26" fill="%s" font-weight="700">%s</text>`+"\n", y, mono, ink, html.EscapeString(r.name))
+		fmt.Fprintf(&b, `<text x="470" y="%d" %s font-size="26" fill="%s">%s</text>`+"\n", y, mono, ink, strings.ReplaceAll(html.EscapeString(r.rest), " ", "\u00a0"))
 	}
-	fmt.Fprintf(&b, `<text x="80" y="605" %s font-size="26" fill="#3fb950">$ gh extension install nmloc/gh-achievements</text>`+"\n", mono)
+	fmt.Fprintf(&b, `<text x="80" y="605" %s font-size="26" fill="#e2b53a">$ gh extension install nmloc/gh-achievements</text>`+"\n", mono)
 	b.WriteString("</svg>\n")
 	return []byte(b.String())
 }
@@ -158,15 +143,14 @@ func checkButtonSVG() []byte {
 	var b strings.Builder
 	b.WriteString(`<svg xmlns="http://www.w3.org/2000/svg" width="520" height="84" viewBox="0 0 520 84" role="img" aria-labelledby="t">` + "\n")
 	b.WriteString(`<title id="t">Check your GitHub achievements: no install, sign in to include private work</title>` + "\n")
-	b.WriteString(`<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2ea043"/><stop offset="1" stop-color="#1a7f37"/></linearGradient></defs>` + "\n")
-	b.WriteString(`<rect x="1" y="1" width="518" height="82" rx="14" fill="url(#g)" stroke="#116329" stroke-width="2"/>` + "\n")
+	b.WriteString(`<rect x="1" y="1" width="518" height="82" rx="14" fill="#142430" stroke="#e2b53a" stroke-width="2"/>` + "\n")
 	// A trophy: cup, two handles, stem and base.
-	b.WriteString(`<g transform="translate(26 18)" fill="#fae57e" stroke="#fae57e" stroke-width="3" stroke-linejoin="round">` +
+	b.WriteString(`<g transform="translate(26 18)" fill="#e2b53a" stroke="#e2b53a" stroke-width="3" stroke-linejoin="round">` +
 		`<path d="M10 4h28v14a14 14 0 0 1-28 0z"/>` +
 		`<path d="M10 9H4v4a8 8 0 0 0 7 8" fill="none"/><path d="M38 9h6v4a8 8 0 0 1-7 8" fill="none"/>` +
 		`<path d="M21 32h6v7h-6z"/><path d="M14 41h20v5H14z"/></g>` + "\n")
-	fmt.Fprintf(&b, `<text x="90" y="40" %s font-size="25" font-weight="700" fill="#ffffff">Check your GitHub achievements →</text>`+"\n", sans)
-	fmt.Fprintf(&b, `<text x="90" y="64" %s font-size="15" fill="#dafbe1">No install · sign in with GitHub to include private work</text>`+"\n", sans)
+	fmt.Fprintf(&b, `<text x="90" y="40" %s font-size="25" font-weight="700" fill="#eaf1f5">Check your GitHub achievements →</text>`+"\n", sans)
+	fmt.Fprintf(&b, `<text x="90" y="64" %s font-size="15" fill="#c7d0d6">No install · sign in with GitHub to include private work</text>`+"\n", sans)
 	b.WriteString("</svg>\n")
 	return []byte(b.String())
 }
