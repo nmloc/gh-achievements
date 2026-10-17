@@ -2,9 +2,7 @@ package web
 
 import (
 	"fmt"
-	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/nmloc/gh-achievements/internal/catalog"
@@ -12,6 +10,7 @@ import (
 	"github.com/nmloc/gh-achievements/internal/progress"
 	"github.com/nmloc/gh-achievements/internal/report"
 	"github.com/nmloc/gh-achievements/internal/webui"
+	"github.com/nmloc/gh-achievements/internal/wording"
 )
 
 // Meter feeds a <progress> element: progress from the current tier's floor to the next.
@@ -56,12 +55,6 @@ var sourceMeaning = map[progress.Source]string{
 	progress.Counted:    "Counted through the GitHub API; nothing public to check it against.",
 }
 
-// shortUnit names what a count counts, for badges whose name does not already say it.
-var shortUnit = map[string]string{"starstruck": "stars", "galaxy-brain": "answers"}
-
-// yearPattern finds the year in an unlock date such as "2020-02-02" or "Jan 2021".
-var yearPattern = regexp.MustCompile(`\b(19|20)\d{2}\b`)
-
 // NewResultView turns a report into the page model. private marks a signed-in result.
 func NewResultView(r *report.Report, private bool) ResultView {
 	v := ResultView{
@@ -69,33 +62,21 @@ func NewResultView(r *report.Report, private bool) ResultView {
 		Private: private, Hidden: r.AchievementsHidden, Authenticated: r.Authenticated,
 		Highlights: r.Highlights, Verified: r.CatalogVerified,
 	}
-	bestRemaining := 0
+	sum := wording.Summarize(r)
+	v.Earned, v.EarnableTotal, v.TierTotal = sum.Earned, sum.EarnableTotal, sum.TierTotal
+	if sum.Closest != nil {
+		c := newCard(*sum.Closest)
+		v.Closest = &c
+	}
 	for _, row := range r.Achievements {
 		c := newCard(row)
-		if row.Status == report.Earned {
-			v.TierTotal += row.Tier
-		}
-		earnable := row.Kind == catalog.Earnable
-		switch {
-		case c.Earned:
+		switch wording.ShelfOf(row) {
+		case wording.Display:
 			v.Display = append(v.Display, c)
-		case earnable:
+		case wording.Collect:
 			v.Collect = append(v.Collect, c)
 		default:
 			v.Archive = append(v.Archive, c)
-		}
-		if !earnable {
-			continue
-		}
-		v.EarnableTotal++
-		if c.Earned {
-			v.Earned++
-		}
-		if st := row.Standing; st != nil && !st.IsMax && st.Remaining > 0 &&
-			(v.Closest == nil || st.Remaining < bestRemaining) {
-			cc := c
-			v.Closest = &cc
-			bestRemaining = st.Remaining
 		}
 	}
 	return v
@@ -124,30 +105,18 @@ func newCard(row report.Row) Card {
 			c.ImageAlt = fmt.Sprintf("%s, %s tier (x%d)", row.Name, tierNames[min(row.Tier, 4)], row.Tier)
 		}
 	}
-	switch s := row.Standing; {
-	case row.Kind != catalog.Earnable:
-		c.Line = fixedLine(row.Kind, c.Earned, row.Unlocked)
-	case s != nil && s.IsMax:
-		c.Line = topTierLine(row.Slug, s.Count)
-		c.Progress = &Meter{Value: 1, Max: 1, Label: row.Name + ": top tier"}
-	case s != nil:
-		c.Line = countLine(row.Slug, s.Count, s.Target, s.Tier+1)
-		span := max(s.Target-s.Floor, 1)
-		c.Progress = &Meter{Value: min(max(s.Count-s.Floor, 0), span), Max: span,
-			Label: fmt.Sprintf("%s: %d of %d", row.Name, s.Count, s.Target)}
-		if s.IsAhead {
-			c.Notes = append(slices.Clone(c.Notes), aheadNote(row.Tier, s.Tier))
+	c.Line = wording.Line(row)
+	if s := row.Standing; row.Kind == catalog.Earnable && s != nil {
+		if s.IsMax {
+			c.Progress = &Meter{Value: 1, Max: 1, Label: row.Name + ": top tier"}
+		} else {
+			span := max(s.Target-s.Floor, 1)
+			c.Progress = &Meter{Value: min(max(s.Count-s.Floor, 0), span), Max: span,
+				Label: fmt.Sprintf("%s: %d of %d", row.Name, s.Count, s.Target)}
+			if s.IsAhead {
+				c.Notes = append(slices.Clone(c.Notes), aheadNote(row.Tier, s.Tier))
+			}
 		}
-	case row.Status == report.Unknown:
-		c.Line = "Hidden on this profile"
-	case len(row.Tiers) > 1 && row.Tier < len(row.Tiers):
-		c.Line = nextTierLine(row.Tier, row.Tiers[row.Tier])
-	case len(row.Tiers) > 1:
-		c.Line = "Top tier"
-	case c.Earned:
-		c.Line = sinceLine(row.Unlocked)
-	default:
-		c.Line = row.HowToEarn
 	}
 	if row.Official != nil {
 		for _, m := range row.Official.Milestones {
@@ -169,71 +138,6 @@ func webNotes(notes []string) []string {
 		out = append(out, strings.ReplaceAll(n, "what your gh login can see", "what this check can see"))
 	}
 	return out
-}
-
-// fixedLine is the status of a badge that can no longer be earned: no progress, no threshold.
-func fixedLine(kind catalog.Kind, earned bool, unlocked string) string {
-	switch {
-	case earned:
-		return sinceLine(unlocked)
-	case kind == catalog.Disabled:
-		return "Switched off by GitHub"
-	case kind == catalog.Retired:
-		return "No longer earnable"
-	case kind == catalog.Internal:
-		return "GitHub staff only"
-	}
-	return "Not yet"
-}
-
-// countLine is "count / next threshold to xN": where the count stands against the next tier.
-func countLine(slug string, count, target, nextTier int) string {
-	nums := group(count) + " / " + group(target)
-	if unit := shortUnit[slug]; unit != "" {
-		nums += " " + unit
-	}
-	return fmt.Sprintf("%s to x%d", nums, nextTier)
-}
-
-// topTierLine adds the count where it means something on its own ("252,192 stars").
-func topTierLine(slug string, count int) string {
-	if unit := shortUnit[slug]; unit != "" && count > 0 {
-		return "Top tier, " + group(count) + " " + unit
-	}
-	return "Top tier"
-}
-
-// nextTierLine is for a tiered badge with no counter: the tier GitHub shows, then the next threshold.
-func nextTierLine(tier, threshold int) string {
-	switch {
-	case tier == 0 && threshold > 0:
-		return fmt.Sprintf("First tier at %d", threshold)
-	case tier == 0:
-		return "First tier: threshold unknown"
-	case threshold > 0:
-		return fmt.Sprintf("x%d, next tier at %d", tier, threshold)
-	}
-	return fmt.Sprintf("x%d, next tier unknown", tier)
-}
-
-// sinceLine is the year a badge was first unlocked, or "Earned" when GitHub gives no date.
-func sinceLine(unlocked string) string {
-	if y := yearPattern.FindString(unlocked); y != "" {
-		return "Since " + y
-	}
-	if unlocked != "" {
-		return "Since " + unlocked
-	}
-	return "Earned"
-}
-
-// group writes n with thousands separators: 252192 → "252,192". Counts are never negative.
-func group(n int) string {
-	s := strconv.Itoa(n)
-	for i := len(s) - 3; i > 0; i -= 3 {
-		s = s[:i] + "," + s[i:]
-	}
-	return s
 }
 
 func aheadNote(officialTier, countTier int) string {
