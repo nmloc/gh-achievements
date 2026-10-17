@@ -149,7 +149,7 @@ func checkButtonSVG() []byte {
 		`<path d="M10 4h28v14a14 14 0 0 1-28 0z"/>` +
 		`<path d="M10 9H4v4a8 8 0 0 0 7 8" fill="none"/><path d="M38 9h6v4a8 8 0 0 1-7 8" fill="none"/>` +
 		`<path d="M21 32h6v7h-6z"/><path d="M14 41h20v5H14z"/></g>` + "\n")
-	fmt.Fprintf(&b, `<text x="90" y="40" %s font-size="25" font-weight="700" fill="#eaf1f5">Check your GitHub achievements →</text>`+"\n", sans)
+	fmt.Fprintf(&b, `<text x="90" y="40" %s font-size="25" font-weight="700" textLength="400" lengthAdjust="spacingAndGlyphs" fill="#eaf1f5">Check your GitHub achievements →</text>`+"\n", sans)
 	fmt.Fprintf(&b, `<text x="90" y="64" %s font-size="15" fill="#c7d0d6">No install · sign in with GitHub to include private work</text>`+"\n", sans)
 	b.WriteString("</svg>\n")
 	return []byte(b.String())

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -107,6 +108,10 @@ func TestCheckButtonSVG_isWellFormedAndSaysWhatItDoes(t *testing.T) {
 			t.Errorf("button SVG lacks %q", want)
 		}
 	}
+	// A fixed length keeps the arrow off the edge when a wider fallback font is used.
+	if !strings.Contains(string(svg), `textLength="400" lengthAdjust="spacingAndGlyphs"`) {
+		t.Error("the button title must have a fixed textLength so wider fonts cannot overflow")
+	}
 	if strings.Contains(string(svg), "<image") || strings.Contains(string(svg), "href=") {
 		t.Error("README SVGs must be self-contained: GitHub does not load external resources inside them")
 	}
@@ -157,6 +162,15 @@ func TestReadme_showsTheSiteAndBothWaysToCheck(t *testing.T) {
 		t.Fatal(err)
 	}
 	readme := string(b)
+	counts := map[catalog.Kind]int{}
+	for _, a := range catalog.Achievements {
+		counts[a.Kind]++
+	}
+	scope := fmt.Sprintf("All %d known achievements (%d earnable, %d switched off by GitHub, %d retired, %d for GitHub staff) and %d profile highlights",
+		len(catalog.Achievements), counts[catalog.Earnable], counts[catalog.Disabled], counts[catalog.Retired], counts[catalog.Internal], len(catalog.Highlights))
+	if !strings.Contains(readme, scope) {
+		t.Errorf("README lacks the sentence computed from the catalog: %q", scope)
+	}
 	for _, want := range []string{
 		`<source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">`,
 		`<img src="docs/screenshot-light.png"`,
