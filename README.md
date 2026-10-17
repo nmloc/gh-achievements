@@ -45,7 +45,7 @@ Not signed in to gh? It still works with public data and tells you what a login 
 
 ## Web
 
-[gh-achievements.vercel.app](https://gh-achievements.vercel.app/check/): type a username for public data, or sign in with GitHub to include private repositories. The sign-in token is used for one check and revoked at once; nothing is stored. Organizations that restrict third-party apps hide their private repositories until an admin approves gh-achievements (the CLI sees them because it uses gh's own login).
+[gh-achievements.vercel.app](https://gh-achievements.vercel.app/check/): type a username for public data, or sign in with GitHub to include private repositories. The sign-in token is used for one check and revoked at once; nothing is stored. Organizations that restrict third-party apps hide their private repositories until an admin approves gh-achievements. The CLI uses your existing `gh` login instead, which your organizations may already have approved.
 
 ## All GitHub achievements
 
