@@ -25,6 +25,7 @@ not know, or a number that disagrees with what GitHub shows. Use the issue forms
 
 ```bash
 go test ./...                        # unit tests on saved github.com pages
+node --test "internal/webui/jstest/*.test.mjs"   # behaviour tests for the site's app.js and theme.js (Node 22+)
 go run . torvalds                    # run the CLI from source
 gh extension install .               # install your checkout as `gh achievements`
 go run ./cmd/gendocs                 # regenerate README table, site/ and docs/

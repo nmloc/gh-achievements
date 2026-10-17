@@ -1,35 +1,35 @@
 {{define "content"}}
-<p class="lede">{{.Tagline}}</p>
-<p><a href="/check/" class="btn primary big">Check your achievements →</a></p>
-<div class="install">
-  <pre><code>{{.Install}}
-gh achievements</code></pre>
-  <p class="hint">Needs the <a href="https://cli.github.com/">GitHub CLI</a>. Add a username to check anyone: <code>gh achievements torvalds</code>.</p>
-</div>
-<figure class="demo">
-  <img src="demo.svg" width="940" height="700" alt="Terminal output of gh achievements torvalds: Pull Shark x2 at 72 of 128 merged pull requests, calibrated against GitHub's 16th milestone; Starstruck x4 from torvalds/linux; Pair Extraordinaire x4; retired Arctic Code Vault and Mars 2020 badges." loading="eager">
-  <figcaption>Real output for <a href="https://github.com/torvalds?tab=achievements">@torvalds</a>.</figcaption>
-</figure>
+<section class="hero">
+  <h1>Your GitHub trophy case</h1>
+  <p class="lede">See every GitHub achievement, the tier you hold and how far the next one is, checked against GitHub's own data.</p>
+  {{template "checkform" ""}}
+  <p class="signin"><a href="/auth/login" data-signin>Sign in with GitHub</a> to include private work.</p>
+</section>
+
+<ul class="vitrine shelf home-shelf" aria-label="The {{len .Earnable}} badges you can earn, at their top tier">
+{{range .Earnable}}<li><a class="medal" href="achievements/{{.Slug}}/"><img class="medal-img" src="{{.Image}}" width="88" height="88" alt=""><span class="medal-name">{{.Name}}</span></a></li>
+{{end}}</ul>
+<p class="meta"><a href="achievements/">See all {{.Count}} GitHub achievements</a>, including the retired ones and those GitHub switched off.</p>
 
 <h2>What it shows</h2>
 <ul class="points">
-  <li><strong>Every achievement.</strong> All {{.Count}} known badges ({{.Summary}}) and 6 profile highlights, not just the ones you have.</li>
-  <li><strong>Your tier and the next one.</strong> A progress bar to the next threshold, e.g. 72 of 128 merged pull requests for Pull Shark x3.</li>
-  <li><strong>Checked against GitHub.</strong> Tiers, unlock dates and milestones come from GitHub's own badge history. Pull Shark's count is calibrated against the pull requests GitHub names. <a href="methodology/">How accurate is it?</a></li>
-  <li><strong>No stored token.</strong> The CLI reuses your <code>gh auth login</code> and talks only to GitHub. The web checker signs in with GitHub, uses the token for one check and revokes it.</li>
+  <li><h3>Every badge, not just yours</h3><p>All {{.Count}} known achievements ({{.Summary}}) and {{.HighlightCount}} profile highlights.</p></li>
+  <li><h3>How far to the next tier</h3><p>Your count against the next threshold, such as 72 / 128 merged pull requests for Pull Shark x3.</p></li>
+  <li><h3>Checked against GitHub</h3><p>Tiers, unlock dates and milestones come from GitHub's own badge history. <a href="methodology/">How it works</a></p></li>
 </ul>
 
-<h2>Every GitHub achievement</h2>
-<table class="badges">
-  <thead><tr><th scope="col">Achievement</th><th scope="col">How to earn it</th><th scope="col">Tiers</th><th scope="col">Status</th></tr></thead>
-  <tbody>
-  {{range .Badges}}<tr><th scope="row">{{if .Image}}<img class="badge-icon" src="{{.Image}}" width="32" height="32" alt="" loading="lazy">{{else}}<span class="badge-icon placeholder" aria-hidden="true"></span>{{end}}<a href="achievements/{{.Slug}}/">{{.Name}}</a></th><td>{{.HowToEarn}}</td><td>{{.TierText}}</td><td>{{.Status}}</td></tr>
-  {{end}}</tbody>
-</table>
-<p class="meta">Catalog verified against live profiles on <time datetime="{{.Verified}}">{{.Verified}}</time>.</p>
+<h2>Prefer the terminal?</h2>
+<div class="install">
+  <pre><code>{{.Install}}
+gh achievements</code></pre>
+  <button type="button" class="btn small" data-copy="{{.Install}}">Copy</button>
+</div>
+<p class="meta">Needs the <a href="https://cli.github.com/">GitHub CLI</a> and reuses your <code>gh auth login</code>, so it counts everything your login can see. Add a username to check anyone: <code>gh achievements torvalds</code>. The web checker uses your GitHub sign-in for one check, then revokes the token.</p>
 
 <h2>FAQ</h2>
 <dl class="faq">
 {{range .FAQ}}<dt>{{.Q}}</dt><dd>{{.A}}</dd>
 {{end}}</dl>
+
+{{template "star-banner" "home"}}
 {{end}}

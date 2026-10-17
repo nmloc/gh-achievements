@@ -92,12 +92,42 @@ type badgeView struct {
 	TierText   string
 	Image      string
 	Initials   string
+	TierImages []tierImage
 	Prev, Next *catalog.Achievement
 }
 
 type tierRow struct {
 	Label  string
 	Needed string
+}
+
+type tierImage struct{ Label, Image string }
+
+// metals names GitHub's tier art: x1 base, x2 bronze, x3 silver, x4 gold.
+var metals = []string{"base", "bronze", "silver", "gold"}
+
+type badgeGroup struct {
+	Heading, Note string
+	Badges        []badgeView
+}
+
+// listGroups sorts the catalog into the list page's sections, keeping catalog order.
+func listGroups(views []badgeView) []badgeGroup {
+	groups := []badgeGroup{
+		{Heading: "Earnable", Note: "You can still earn these."},
+		{Heading: "Switched off by GitHub", Note: "GitHub tested these and switched them off; nobody can earn them now."},
+		{Heading: "Retired", Note: "No longer awarded. Profiles that have them keep them."},
+		{Heading: "GitHub staff only", Note: "Only GitHub staff could earn these."},
+	}
+	kinds := []catalog.Kind{catalog.Earnable, catalog.Disabled, catalog.Retired, catalog.Internal}
+	for _, v := range views {
+		for i, k := range kinds {
+			if v.Kind == k {
+				groups[i].Badges = append(groups[i].Badges, v)
+			}
+		}
+	}
+	return groups
 }
 
 func view(a catalog.Achievement) badgeView {
@@ -111,6 +141,10 @@ func view(a catalog.Achievement) badgeView {
 			}
 			v.TierRows = append(v.TierRows, tierRow{tierNames[i], needed})
 		}
+		for i := 0; i < min(len(a.Tiers), len(catalog.Images[a.Slug]), len(metals)); i++ {
+			v.TierImages = append(v.TierImages, tierImage{
+				Label: fmt.Sprintf("x%d %s", i+1, metals[i]), Image: catalog.Image(a.Slug, i+1)})
+		}
 	}
 	return v
 }
@@ -122,13 +156,19 @@ func sitePages() (map[string][]byte, error) {
 	for _, a := range catalog.Achievements {
 		views = append(views, view(a))
 	}
+	var earnable []badgeView
+	for _, v := range views {
+		if v.Kind == catalog.Earnable {
+			earnable = append(earnable, v)
+		}
+	}
 
 	pages := []webui.Page{
 		{
 			Path: "index.html", URL: webui.SiteURL,
 			Title:       "GitHub Achievements Checker: tiers & progress · gh-achievements",
 			Description: "See every GitHub achievement, your tier and how far you are from the next one. A free GitHub CLI extension, verified against GitHub, no token needed.",
-			Heading:     "GitHub Achievements Checker",
+			Heading:     "", // the hero holds the <h1>
 			Content:     "home.html",
 			JSONLD: []template.JS{
 				ld(map[string]interface{}{
@@ -142,8 +182,8 @@ func sitePages() (map[string][]byte, error) {
 				}),
 				faqLD(siteFAQ()),
 			},
-			Data: map[string]interface{}{"Badges": views, "FAQ": siteFAQ(), "Install": webui.Install, "Tagline": tagline,
-				"Summary": kindSummary(), "Verified": catalog.LastVerified, "Count": len(catalog.Achievements)},
+			Data: map[string]interface{}{"Earnable": earnable, "FAQ": siteFAQ(), "Install": webui.Install,
+				"Summary": kindSummary(), "Count": len(catalog.Achievements), "HighlightCount": len(catalog.Highlights)},
 		},
 		{
 			Path: "achievements/index.html", URL: all.URL,
@@ -152,7 +192,7 @@ func sitePages() (map[string][]byte, error) {
 			Heading:     "All GitHub achievements",
 			Content:     "list.html",
 			Crumbs:      []webui.Crumb{home, all},
-			Data: map[string]interface{}{"Badges": views, "Highlights": catalog.Highlights, "Verified": catalog.LastVerified,
+			Data: map[string]interface{}{"Groups": listGroups(views), "Highlights": catalog.Highlights, "Verified": catalog.LastVerified,
 				"Summary": kindSummary(), "Install": webui.Install},
 		},
 		{
@@ -220,7 +260,7 @@ func sitePages() (map[string][]byte, error) {
 	})
 
 	out := map[string][]byte{}
-	for _, name := range []string{"style.css", "app.js", "callback.js"} {
+	for _, name := range []string{"style.css", "theme.js", "app.js", "callback.js", "fonts/bricolage-grotesque.woff2", "fonts/OFL.txt"} {
 		b, err := webui.Static(name)
 		if err != nil {
 			return nil, err

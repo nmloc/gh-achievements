@@ -19,6 +19,8 @@
 <meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<script src="/theme.js"></script>
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
 <link rel="alternate" type="application/json" href="/achievements.json" title="Achievement catalog (JSON)">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","applicationCategory":"DeveloperApplication","author":{"@type":"Person","name":"nmloc","url":"https://github.com/nmloc"},"codeRepository":"https://github.com/nmloc/gh-achievements","description":"Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed.","downloadUrl":"https://github.com/nmloc/gh-achievements/releases","isAccessibleForFree":true,"license":"https://opensource.org/licenses/MIT","name":"gh-achievements","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"macOS, Linux, Windows","url":"https://gh-achievements.vercel.app/"}</script>
@@ -27,60 +29,63 @@
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/">🏆 gh-achievements</a>
-  <nav aria-label="Site">
-    <a href="/check/">Check yours</a>
-    <a href="/achievements/">All achievements</a>
-    <a href="/methodology/">How accurate is it</a>
-    <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="/">🏆 gh-achievements</a>
+    <nav id="site-nav" aria-label="Site">
+      <a href="/check/">Check yours</a>
+      <a href="/achievements/">All achievements</a>
+      <a href="/methodology/">How it works</a>
+      <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+    </nav>
+    <a class="star" href="https://github.com/nmloc/gh-achievements" rel="noopener" data-star="header"><span aria-hidden="true">★</span> Star<span class="star-long"> on GitHub</span> <span class="star-count" data-stars hidden></span></a>
+    <button type="button" class="theme-btn" data-theme-toggle hidden>Dark</button>
+    <button type="button" class="menu-btn" data-menu aria-expanded="false" aria-controls="site-nav">Menu</button>
+  </div>
 </header>
 <main>
 
-<h1>GitHub Achievements Checker</h1>
 
-<p class="lede">Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub&#39;s own data, no token needed.</p>
-<p><a href="/check/" class="btn primary big">Check your achievements →</a></p>
-<div class="install">
-  <pre><code>gh extension install nmloc/gh-achievements
-gh achievements</code></pre>
-  <p class="hint">Needs the <a href="https://cli.github.com/">GitHub CLI</a>. Add a username to check anyone: <code>gh achievements torvalds</code>.</p>
-</div>
-<figure class="demo">
-  <img src="demo.svg" width="940" height="700" alt="Terminal output of gh achievements torvalds: Pull Shark x2 at 72 of 128 merged pull requests, calibrated against GitHub's 16th milestone; Starstruck x4 from torvalds/linux; Pair Extraordinaire x4; retired Arctic Code Vault and Mars 2020 badges." loading="eager">
-  <figcaption>Real output for <a href="https://github.com/torvalds?tab=achievements">@torvalds</a>.</figcaption>
-</figure>
+
+<section class="hero">
+  <h1>Your GitHub trophy case</h1>
+  <p class="lede">See every GitHub achievement, the tier you hold and how far the next one is, checked against GitHub's own data.</p>
+  
+<form action="/result" method="get" id="check-form">
+  <label for="u" class="visually-hidden">GitHub username</label>
+  <input id="u" name="u" required autocomplete="username" autocapitalize="off" spellcheck="false"
+    pattern="[A-Za-z0-9][A-Za-z0-9\-]{0,38}" placeholder="GitHub username" value="">
+  <button type="submit" class="btn primary">Check</button>
+</form>
+
+  <p class="signin"><a href="/auth/login" data-signin>Sign in with GitHub</a> to include private work.</p>
+</section>
+
+<ul class="vitrine shelf home-shelf" aria-label="The 8 badges you can earn, at their top tier">
+<li><a class="medal" href="achievements/pull-shark/"><img class="medal-img" src="https://github.githubassets.com/assets/pull-shark-gold-90985540b385.png" width="88" height="88" alt=""><span class="medal-name">Pull Shark</span></a></li>
+<li><a class="medal" href="achievements/starstruck/"><img class="medal-img" src="https://github.githubassets.com/assets/starstruck-gold-a35e077693cc.png" width="88" height="88" alt=""><span class="medal-name">Starstruck</span></a></li>
+<li><a class="medal" href="achievements/pair-extraordinaire/"><img class="medal-img" src="https://github.githubassets.com/assets/pair-extraordinaire-gold-5335a3b8ae7d.png" width="88" height="88" alt=""><span class="medal-name">Pair Extraordinaire</span></a></li>
+<li><a class="medal" href="achievements/galaxy-brain/"><img class="medal-img" src="https://github.githubassets.com/assets/galaxy-brain-gold-9c2c03fd1acf.png" width="88" height="88" alt=""><span class="medal-name">Galaxy Brain</span></a></li>
+<li><a class="medal" href="achievements/quickdraw/"><img class="medal-img" src="https://github.githubassets.com/assets/quickdraw-default-39c6aec8ff89.png" width="88" height="88" alt=""><span class="medal-name">Quickdraw</span></a></li>
+<li><a class="medal" href="achievements/yolo/"><img class="medal-img" src="https://github.githubassets.com/assets/yolo-default-be0bbff04951.png" width="88" height="88" alt=""><span class="medal-name">YOLO</span></a></li>
+<li><a class="medal" href="achievements/public-sponsor/"><img class="medal-img" src="https://github.githubassets.com/assets/public-sponsor-default-9fa68986b057.png" width="88" height="88" alt=""><span class="medal-name">Public Sponsor</span></a></li>
+<li><a class="medal" href="achievements/finishing-touch/"><img class="medal-img" src="https://github.githubassets.com/assets/finishing-touch-gold-e19e1fcbfee2.png" width="88" height="88" alt=""><span class="medal-name">Finishing Touch</span></a></li>
+</ul>
+<p class="meta"><a href="achievements/">See all 15 GitHub achievements</a>, including the retired ones and those GitHub switched off.</p>
 
 <h2>What it shows</h2>
 <ul class="points">
-  <li><strong>Every achievement.</strong> All 15 known badges (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights, not just the ones you have.</li>
-  <li><strong>Your tier and the next one.</strong> A progress bar to the next threshold, e.g. 72 of 128 merged pull requests for Pull Shark x3.</li>
-  <li><strong>Checked against GitHub.</strong> Tiers, unlock dates and milestones come from GitHub's own badge history. Pull Shark's count is calibrated against the pull requests GitHub names. <a href="methodology/">How accurate is it?</a></li>
-  <li><strong>No stored token.</strong> The CLI reuses your <code>gh auth login</code> and talks only to GitHub. The web checker signs in with GitHub, uses the token for one check and revokes it.</li>
+  <li><h3>Every badge, not just yours</h3><p>All 15 known achievements (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights.</p></li>
+  <li><h3>How far to the next tier</h3><p>Your count against the next threshold, such as 72 / 128 merged pull requests for Pull Shark x3.</p></li>
+  <li><h3>Checked against GitHub</h3><p>Tiers, unlock dates and milestones come from GitHub's own badge history. <a href="methodology/">How it works</a></p></li>
 </ul>
 
-<h2>Every GitHub achievement</h2>
-<table class="badges">
-  <thead><tr><th scope="col">Achievement</th><th scope="col">How to earn it</th><th scope="col">Tiers</th><th scope="col">Status</th></tr></thead>
-  <tbody>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/pull-shark-gold-90985540b385.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/pull-shark/">Pull Shark</a></th><td>Open pull requests that get merged</td><td>2 · 16 · 128 · 1024</td><td>Earnable</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/starstruck-gold-a35e077693cc.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/starstruck/">Starstruck</a></th><td>Create a repository that gets stars</td><td>16 · 128 · 512 · 4096</td><td>Earnable</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/pair-extraordinaire-gold-5335a3b8ae7d.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/pair-extraordinaire/">Pair Extraordinaire</a></th><td>Coauthor commits on merged pull requests</td><td>1 · 10 · 24 · 48</td><td>Earnable</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/galaxy-brain-gold-9c2c03fd1acf.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/galaxy-brain/">Galaxy Brain</a></th><td>Have discussion answers accepted</td><td>2 · 8 · 16 · 32</td><td>Earnable</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/quickdraw-default-39c6aec8ff89.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/quickdraw/">Quickdraw</a></th><td>Close an issue or pull request within 5 minutes of opening it</td><td>one tier</td><td>Earnable</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/yolo-default-be0bbff04951.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/yolo/">YOLO</a></th><td>Merge a pull request without a review</td><td>one tier</td><td>Earnable</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/public-sponsor-default-9fa68986b057.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/public-sponsor/">Public Sponsor</a></th><td>Sponsor someone publicly through GitHub Sponsors</td><td>one tier</td><td>Earnable</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/finishing-touch-gold-e19e1fcbfee2.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/finishing-touch/">Finishing Touch</a></th><td>Get pull requests that improve GitHub&#39;s UI quality merged</td><td>1 · 4 · 16 · 32</td><td>Earnable</td></tr>
-  <tr><th scope="row"><span class="badge-icon placeholder" aria-hidden="true"></span><a href="achievements/heart-on-your-sleeve/">Heart On Your Sleeve</a></th><td>React to something on GitHub with a ❤️ emoji</td><td>? · 16 · 128 · ?</td><td>Disabled (tested, not earnable now)</td></tr>
-  <tr><th scope="row"><span class="badge-icon placeholder" aria-hidden="true"></span><a href="achievements/open-sourcerer/">Open Sourcerer</a></th><td>Have pull requests merged in several public repositories</td><td>? · 8 · 16 · 64</td><td>Disabled (tested, not earnable now)</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/arctic-code-vault-contributor-default-df8d74122a06.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/arctic-code-vault-contributor/">Arctic Code Vault Contributor</a></th><td>Code in a repository of the 2020 GitHub Archive Program</td><td>one tier</td><td>Retired (no longer earnable)</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/mars-2020-contributor-default-c9cad8495acf.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/mars-2020-contributor/">Mars 2020 Contributor</a></th><td>Code in a repository used by the Mars 2020 Helicopter Mission</td><td>one tier</td><td>Retired (no longer earnable)</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/proxima-pioneer-default-51cd4e4969d5.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/proxima-pioneer/">Proxima Pioneer</a></th><td>GitHub staff: contributed to the Proxima proof of concept</td><td>one tier</td><td>Internal (GitHub staff only)</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/proxima-staffshipper-default-84f658288021.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/proxima-staffshipper/">Proxima Staffshipper</a></th><td>GitHub staff: shipped the Proxima staffship instance</td><td>one tier</td><td>Internal (GitHub staff only)</td></tr>
-  <tr><th scope="row"><img class="badge-icon" src="https://github.githubassets.com/assets/proxima-staffuser-default-02bf6163ea31.png" width="32" height="32" alt="" loading="lazy"><a href="achievements/proxima-staffuser/">Proxima Staffuser</a></th><td>GitHub staff: your team was onboarded to Proxima</td><td>one tier</td><td>Internal (GitHub staff only)</td></tr>
-  </tbody>
-</table>
-<p class="meta">Catalog verified against live profiles on <time datetime="2026-10-17">2026-10-17</time>.</p>
+<h2>Prefer the terminal?</h2>
+<div class="install">
+  <pre><code>gh extension install nmloc/gh-achievements
+gh achievements</code></pre>
+  <button type="button" class="btn small" data-copy="gh extension install nmloc/gh-achievements">Copy</button>
+</div>
+<p class="meta">Needs the <a href="https://cli.github.com/">GitHub CLI</a> and reuses your <code>gh auth login</code>, so it counts everything your login can see. Add a username to check anyone: <code>gh achievements torvalds</code>. The web checker uses your GitHub sign-in for one check, then revokes the token.</p>
 
 <h2>FAQ</h2>
 <dl class="faq">
@@ -91,6 +96,13 @@ gh achievements</code></pre>
 <dt>Why don&#39;t my achievements show on my profile?</dt><dd>Achievements can be turned off under Settings → Public profile → &#34;Show Achievements on my profile&#34;. gh-achievements says when a profile hides them and shows live counts only.</dd>
 <dt>Is gh-achievements made by GitHub?</dt><dd>No. It is an independent open source project and is not affiliated with or endorsed by GitHub.</dd>
 </dl>
+
+
+<a class="star-banner" href="https://github.com/nmloc/gh-achievements" rel="noopener" data-star="home">
+  <strong>Found this useful? Star gh-achievements on GitHub</strong>
+  <span class="star-cta"><span aria-hidden="true">★</span> Star <span class="star-count" data-stars hidden></span></span>
+</a>
+
 
 </main>
 <footer>

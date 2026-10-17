@@ -1,0 +1,14 @@
+{{define "star-banner"}}
+<a class="star-banner" href="{{repoURL}}" rel="noopener" data-star="{{.}}">
+  <strong>Found this useful? Star gh-achievements on GitHub</strong>
+  <span class="star-cta"><span aria-hidden="true">★</span> Star <span class="star-count" data-stars hidden></span></span>
+</a>
+{{end}}
+{{define "checkform"}}
+<form action="/result" method="get" id="check-form">
+  <label for="u" class="visually-hidden">GitHub username</label>
+  <input id="u" name="u" required autocomplete="username" autocapitalize="off" spellcheck="false"
+    pattern="[A-Za-z0-9][A-Za-z0-9\-]{0,38}" placeholder="GitHub username" value="{{.}}">
+  <button type="submit" class="btn primary">Check</button>
+</form>
+{{end}}

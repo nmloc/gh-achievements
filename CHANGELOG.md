@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- New look for the site: your badges stand on a lit shelf, with a light and a dark theme (follows your system, switch in the header).
+- Progress reads as count against the next threshold, e.g. `72 / 128 to x3`.
+- A star button for the repository in the header and after your results.
+
 ## v0.2.0
 
 - Web checker at [gh-achievements.vercel.app/check/](https://gh-achievements.vercel.app/check/): public data for any username, or sign in with GitHub to include private repositories. The sign-in token is used for one check and revoked at once; nothing is stored.

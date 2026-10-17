@@ -12,8 +12,8 @@ func SecurityHeaders() []Header {
 	return []Header{
 		{"Content-Security-Policy", "default-src 'self'; " +
 			"script-src 'self' https://www.googletagmanager.com; " +
-			"connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; " +
-			"img-src 'self' data: https://github.githubassets.com https://avatars.githubusercontent.com https://github.com https://*.google-analytics.com https://www.googletagmanager.com; " +
+			"connect-src 'self' https://api.github.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; " +
+			"img-src 'self' data: https://github.githubassets.com https://raw.githubusercontent.com https://avatars.githubusercontent.com https://github.com https://*.google-analytics.com https://www.googletagmanager.com; " +
 			"style-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://github.com; frame-ancestors 'none'"},
 		{"X-Content-Type-Options", "nosniff"},
 		{"Referrer-Policy", "strict-origin-when-cross-origin"},

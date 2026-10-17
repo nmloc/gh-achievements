@@ -3,7 +3,24 @@ package catalog
 // Images are GitHub's own badge artwork, in the order default, bronze, silver, gold.
 // They are loaded from GitHub's CDN (cross-origin-resource-policy: cross-origin), never
 // copied. Collected from the fixtures; the weekly canary checks each still loads.
+// communityArt hosts the art GitHub deleted for the badges it tested and switched off
+// (its CDN answers 404 for them). Schweinepriester/github-profile-achievements (MIT)
+// kept copies; the URL is pinned to one commit so it can neither change nor vanish.
+const communityArt = "https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/"
+
 var Images = map[string][]string{
+	"heart-on-your-sleeve": {
+		communityArt + "heart-on-your-sleeve-default.png",
+		communityArt + "tiers/heart-on-your-sleeve-bronze.png",
+		communityArt + "tiers/heart-on-your-sleeve-silver.png",
+		communityArt + "tiers/heart-on-your-sleeve-gold.png",
+	},
+	"open-sourcerer": {
+		communityArt + "open-sourcerer-default.png",
+		communityArt + "tiers/open-sourcerer-bronze.png",
+		communityArt + "tiers/open-sourcerer-silver.png",
+		communityArt + "tiers/open-sourcerer-gold.png",
+	},
 	"pull-shark": {
 		"https://github.githubassets.com/assets/pull-shark-default-498c279a747d.png",
 		"https://github.githubassets.com/assets/pull-shark-bronze-a37accb528d1.png",

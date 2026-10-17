@@ -54,14 +54,15 @@ func parse(files ...string) (*template.Template, error) {
 	for i, f := range files {
 		paths[i] = "templates/" + f
 	}
-	return template.New(files[0]).Funcs(template.FuncMap{"rel": Rel}).ParseFS(fs, paths...)
+	return template.New(files[0]).Funcs(template.FuncMap{"rel": Rel, "repoURL": func() string { return RepoURL }}).ParseFS(fs, paths...)
 }
 
 // Render renders a full page: layout plus p.Content.
 func Render(p Page) ([]byte, error) {
 	// result.html defines only "result" and "card", never "content", so every page can
-	// embed a result without one page's content overriding another's.
-	files := []string{"layout.html", p.Content, "result.html"}
+	// embed a result without one page's content overriding another's. parts.html holds
+	// snippets several pages share.
+	files := []string{"layout.html", p.Content, "parts.html", "result.html"}
 	t, err := parse(files...)
 	if err != nil {
 		return nil, err
@@ -73,9 +74,9 @@ func Render(p Page) ([]byte, error) {
 	return buf.Bytes(), err
 }
 
-// RenderFragment executes one named template from result.html without the layout.
+// RenderFragment executes one named template from result.html or parts.html without the layout.
 func RenderFragment(name string, data any) ([]byte, error) {
-	t, err := parse("result.html")
+	t, err := parse("result.html", "parts.html")
 	if err != nil {
 		return nil, err
 	}

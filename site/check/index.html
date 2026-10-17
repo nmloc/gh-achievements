@@ -19,19 +19,26 @@
 <meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<script src="/theme.js"></script>
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
 <link rel="alternate" type="application/json" href="/achievements.json" title="Achievement catalog (JSON)">
 <script src="/app.js" defer data-ga="G-3EEKKGL110"></script>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/">🏆 gh-achievements</a>
-  <nav aria-label="Site">
-    <a href="/check/">Check yours</a>
-    <a href="/achievements/">All achievements</a>
-    <a href="/methodology/">How accurate is it</a>
-    <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="/">🏆 gh-achievements</a>
+    <nav id="site-nav" aria-label="Site">
+      <a href="/check/">Check yours</a>
+      <a href="/achievements/">All achievements</a>
+      <a href="/methodology/">How it works</a>
+      <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+    </nav>
+    <a class="star" href="https://github.com/nmloc/gh-achievements" rel="noopener" data-star="header"><span aria-hidden="true">★</span> Star<span class="star-long"> on GitHub</span> <span class="star-count" data-stars hidden></span></a>
+    <button type="button" class="theme-btn" data-theme-toggle hidden>Dark</button>
+    <button type="button" class="menu-btn" data-menu aria-expanded="false" aria-controls="site-nav">Menu</button>
+  </div>
 </header>
 <main>
 <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="/">gh-achievements</a></li><li><span aria-hidden="true">›</span> <a href="/check/">Check yours</a></li></ol></nav>
@@ -43,12 +50,14 @@
   <a href="/auth/login" data-signin class="btn primary big">Sign in with GitHub</a>
   <p class="meta">Includes private repositories. GitHub asks for repository access; the token is used for one check, then revoked. Nothing is stored.</p>
   <p class="or">or check any public profile</p>
-  <form action="/result" method="get" id="check-form">
-    <label for="u" class="visually-hidden">GitHub username</label>
-    <input id="u" name="u" required autocomplete="username" autocapitalize="off" spellcheck="false"
-      pattern="[A-Za-z0-9][A-Za-z0-9\-]{0,38}" placeholder="username" value="">
-    <button type="submit" class="btn">Check</button>
-  </form>
+  
+<form action="/result" method="get" id="check-form">
+  <label for="u" class="visually-hidden">GitHub username</label>
+  <input id="u" name="u" required autocomplete="username" autocapitalize="off" spellcheck="false"
+    pattern="[A-Za-z0-9][A-Za-z0-9\-]{0,38}" placeholder="GitHub username" value="">
+  <button type="submit" class="btn primary">Check</button>
+</form>
+
 </div>
 <p class="meta">Prefer the terminal? <code>gh extension install nmloc/gh-achievements</code> <button type="button" class="btn small" data-copy="gh extension install nmloc/gh-achievements">Copy</button> counts everything your gh login can see.</p>
 

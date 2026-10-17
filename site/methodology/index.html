@@ -19,24 +19,32 @@
 <meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<script src="/theme.js"></script>
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
 <link rel="alternate" type="application/json" href="/achievements.json" title="Achievement catalog (JSON)">
 <script src="/app.js" defer data-ga="G-3EEKKGL110"></script>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/">🏆 gh-achievements</a>
-  <nav aria-label="Site">
-    <a href="/check/">Check yours</a>
-    <a href="/achievements/">All achievements</a>
-    <a href="/methodology/">How accurate is it</a>
-    <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="/">🏆 gh-achievements</a>
+    <nav id="site-nav" aria-label="Site">
+      <a href="/check/">Check yours</a>
+      <a href="/achievements/">All achievements</a>
+      <a href="/methodology/">How it works</a>
+      <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+    </nav>
+    <a class="star" href="https://github.com/nmloc/gh-achievements" rel="noopener" data-star="header"><span aria-hidden="true">★</span> Star<span class="star-long"> on GitHub</span> <span class="star-count" data-stars hidden></span></a>
+    <button type="button" class="theme-btn" data-theme-toggle hidden>Dark</button>
+    <button type="button" class="menu-btn" data-menu aria-expanded="false" aria-controls="site-nav">Menu</button>
+  </div>
 </header>
 <main>
 <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="/">gh-achievements</a></li><li><span aria-hidden="true">›</span> <a href="/methodology/">How accurate is it</a></li></ol></nav>
 <h1>How accurate is gh-achievements?</h1>
 
+<div class="prose">
 
 <h2>Three labels</h2>
 <p>gh-achievements labels every number. official: read from GitHub&#39;s own profile pages. calibrated: counted through the GitHub API, then checked against a milestone GitHub itself names. counted: counted through the API with nothing public to check it against.</p>
@@ -60,6 +68,7 @@
 <p>The CLI uses the credentials gh already stores (or GH_TOKEN). Without them it falls back to public data. It talks only to github.com and api.github.com. The web checker runs on a gh-achievements server on Vercel: public checks use a read-only bot token, and signing in with GitHub gives a token that is used for one check and revoked at once. Nothing is stored.</p>
 
 <p class="meta">Last verified <time datetime="2026-10-17">2026-10-17</time>. Found something off? <a href="https://github.com/nmloc/gh-achievements/issues/new?template=count-looks-wrong.yml">Report it</a>.</p>
+</div>
 
 </main>
 <footer>

@@ -19,6 +19,8 @@
 <meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<script src="/theme.js"></script>
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
 <link rel="alternate" type="application/json" href="/achievements.json" title="Achievement catalog (JSON)">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://gh-achievements.vercel.app/","name":"gh-achievements","position":1},{"@type":"ListItem","item":"https://gh-achievements.vercel.app/achievements/","name":"All GitHub achievements","position":2},{"@type":"ListItem","item":"https://gh-achievements.vercel.app/achievements/heart-on-your-sleeve/","name":"Heart On Your Sleeve","position":3}]}</script>
@@ -26,20 +28,28 @@
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/">🏆 gh-achievements</a>
-  <nav aria-label="Site">
-    <a href="/check/">Check yours</a>
-    <a href="/achievements/">All achievements</a>
-    <a href="/methodology/">How accurate is it</a>
-    <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="/">🏆 gh-achievements</a>
+    <nav id="site-nav" aria-label="Site">
+      <a href="/check/">Check yours</a>
+      <a href="/achievements/">All achievements</a>
+      <a href="/methodology/">How it works</a>
+      <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+    </nav>
+    <a class="star" href="https://github.com/nmloc/gh-achievements" rel="noopener" data-star="header"><span aria-hidden="true">★</span> Star<span class="star-long"> on GitHub</span> <span class="star-count" data-stars hidden></span></a>
+    <button type="button" class="theme-btn" data-theme-toggle hidden>Dark</button>
+    <button type="button" class="menu-btn" data-menu aria-expanded="false" aria-controls="site-nav">Menu</button>
+  </div>
 </header>
 <main>
 <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="/">gh-achievements</a></li><li><span aria-hidden="true">›</span> <a href="/achievements/">All GitHub achievements</a></li><li><span aria-hidden="true">›</span> <a href="/achievements/heart-on-your-sleeve/">Heart On Your Sleeve</a></li></ol></nav>
 <h1>Heart On Your Sleeve</h1>
 
-<span class="badge-hero placeholder" aria-hidden="true">HO</span>
-<p class="lede">Heart On Your Sleeve was tested by GitHub and is switched off: nobody can earn it now. The known thresholds are 16 ❤️ reactions for x2 and 128 for x3.</p>
+<div class="vitrine badge-top">
+  <img class="badge-hero" src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-gold.png" width="160" height="160" alt="Heart On Your Sleeve GitHub achievement badge">
+  <ul class="tier-strip" aria-label="Tiers"><li><img class="medal-img" src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/heart-on-your-sleeve-default.png" width="64" height="64" alt="">x1 base</li><li><img class="medal-img" src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-bronze.png" width="64" height="64" alt="">x2 bronze</li><li><img class="medal-img" src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-silver.png" width="64" height="64" alt="">x3 silver</li><li><img class="medal-img" src="https://raw.githubusercontent.com/Schweinepriester/github-profile-achievements/549ba7291ccb68efcff5daf8af8c2c0ac6817b6f/images/tiers/heart-on-your-sleeve-gold.png" width="64" height="64" alt="">x4 gold</li></ul>
+</div>
+<p class="lede prose">Heart On Your Sleeve was tested by GitHub and is switched off: nobody can earn it now. The known thresholds are 16 ❤️ reactions for x2 and 128 for x3.</p>
 <dl class="facts">
   <dt>How to earn it</dt><dd>React to something on GitHub with a ❤️ emoji</dd>
   <dt>Status</dt><dd>Disabled (tested, not earnable now)</dd>

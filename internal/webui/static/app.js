@@ -8,6 +8,57 @@
   var GA = me && me.dataset.ga;
   var CONSENT = "gha:consent", USER = "gha:lastUser";
   var LOGIN = /^[A-Za-z0-9][A-Za-z0-9\-]{0,38}$/;
+  var THEME = "gha:theme";
+  // The theme in effect: an explicit choice (set by theme.js or the button), else the system's.
+  function currentTheme() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t === "light" || t === "dark") return t;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  // The button names the theme it switches to.
+  function labelTheme(btn) {
+    var next = currentTheme() === "dark" ? "light" : "dark";
+    btn.textContent = next === "dark" ? "Dark" : "Light";
+    btn.setAttribute("aria-label", "Switch to " + next + " theme");
+  }
+  // Star count for the repository, fetched once per visit. Anonymous and without a referrer:
+  // /result URLs name a user. On any failure the buttons keep their plain label.
+  var STARS = "gha:stars", REPO_API = "https://api.github.com/repos/nmloc/gh-achievements";
+  var stars = null;
+  function fillStars() {
+    if (stars === null || stars < 1) return;
+    var text = stars.toLocaleString("en-US");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-stars]"), function (el) {
+      el.textContent = text;
+      el.hidden = false;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".star-long"), function (el) { el.hidden = true; });
+  }
+  function remember(n) {
+    try { sessionStorage.setItem(STARS, String(n)); } catch (e) { /* not cached: fetched again on the next page */ }
+  }
+  function loadStars() {
+    var cached = null;
+    try { cached = sessionStorage.getItem(STARS); } catch (e) { /* storage blocked: fetch instead */ }
+    if (cached !== null && /^\d+$/.test(cached)) {
+      stars = Number(cached);
+      fillStars();
+      return;
+    }
+    if (!window.fetch || !document.querySelector("[data-stars]")) return;
+    fetch(REPO_API, { credentials: "omit", referrerPolicy: "no-referrer" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      // Offline, rate-limited or not JSON: treat as "no count" and remember it for the visit,
+      // so later pages do not retry. The label stays "Star on GitHub".
+      .catch(function () { return null; })
+      .then(function (d) {
+        stars = d && typeof d.stargazers_count === "number" ? d.stargazers_count : 0;
+        remember(stars);
+        fillStars();
+      })
+      // fillStars threw: the count is already stored, so leave it alone.
+      .catch(function () { /* nothing more to do */ });
+  }
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: nothing to remember */ } }
   function drop(k) { try { localStorage.removeItem(k); } catch (e) { /* nothing stored to drop */ } }
@@ -50,7 +101,7 @@
     track("report_view", { scope: el.dataset.scope, badges_earned: Number(el.dataset.earned) });
     if (el.dataset.scope === "private" && LOGIN.test(el.dataset.user || "")) set(USER, el.dataset.user);
   }
-  window.gha = { track: track, reportView: reportView };
+  window.gha = { track: track, reportView: reportView, fillStars: fillStars };
 
   // copy writes to the clipboard and calls done only after the write succeeded.
   // No clipboard (insecure context, old browser) or a refusal leaves the page as it was.
@@ -63,10 +114,17 @@
 
   function ready() {
     var banner = document.getElementById("consent");
+    var themeBtn = document.querySelector("[data-theme-toggle]");
+    if (themeBtn) {
+      labelTheme(themeBtn);
+      themeBtn.hidden = false;
+      var mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+      if (mq && mq.addEventListener) mq.addEventListener("change", function () { labelTheme(themeBtn); });
+    }
     if (consent === "granted") loadGA();
     else if (consent === null && banner) banner.hidden = false;
     document.addEventListener("click", function (e) {
-      var t = e.target.closest("[data-consent],[data-consent-reset],[data-signin],[data-share],[data-copy]");
+      var t = e.target.closest("[data-consent],[data-consent-reset],[data-signin],[data-share],[data-copy],[data-theme-toggle],[data-menu],[data-star]");
       if (!t) return;
       if (t.dataset.consent) {
         consent = t.dataset.consent;
@@ -85,15 +143,43 @@
         var r = document.querySelector("[data-report]");
         var url = location.origin + "/result?u=" + encodeURIComponent(r ? r.dataset.user : "");
         copy(url, function () { t.textContent = "Link copied"; track("share_click"); });
+      } else if (t.hasAttribute("data-theme-toggle")) {
+        var next = currentTheme() === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        set(THEME, next);
+        labelTheme(t);
+      } else if (t.hasAttribute("data-menu")) {
+        var nav = document.getElementById("site-nav");
+        var open = t.getAttribute("aria-expanded") !== "true";
+        t.setAttribute("aria-expanded", String(open));
+        if (nav && open) {
+          nav.setAttribute("data-open", "");
+          // Under 640px the nav precedes the buttons in the DOM but shows below them:
+          // move focus into it so Tab does not leave the header.
+          var first = nav.querySelector("a");
+          if (first) first.focus();
+        } else if (nav) nav.removeAttribute("data-open");
+      } else if (t.dataset.star) {
+        track("star_click", { place: t.dataset.star });
       } else if (t.dataset.copy) {
         copy(t.dataset.copy, function () { t.textContent = "Copied"; track("cli_copy"); });
       }
+    });
+    // Escape closes the open mobile menu and hands focus back to its button.
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      var nav = document.getElementById("site-nav");
+      var btn = document.querySelector("[data-menu]");
+      if (!nav || !btn || !nav.hasAttribute("data-open")) return;
+      nav.removeAttribute("data-open");
+      btn.setAttribute("aria-expanded", "false");
+      btn.focus();
     });
     document.addEventListener("toggle", function (e) {
       var d = e.target;
       if (d.matches && d.matches("details[data-badge]") && d.open) track("badge_open", { badge: d.dataset.badge });
     }, true);
-    var SIZES = ["badge-img", "badge-icon", "badge-hero"];
+    var SIZES = ["badge-img", "medal-img", "badge-hero"];
     // Swap a broken badge image for a placeholder tile that keeps its size class.
     function fallback(img) {
       var size = SIZES.filter(function (c) { return img.classList.contains(c); })[0];
@@ -128,6 +214,7 @@
       });
     }
     reportView(document.querySelector("[data-report]"));
+    loadStars();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready);
   else ready();

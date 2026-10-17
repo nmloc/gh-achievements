@@ -7,6 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/nmloc/gh-achievements/internal/counters"
+	"github.com/nmloc/gh-achievements/internal/fixtures"
+	"github.com/nmloc/gh-achievements/internal/report"
 )
 
 var update = flag.Bool("update", false, "rewrite golden files")
@@ -48,15 +52,109 @@ func TestRenderResult_contract(t *testing.T) {
 	p, s := string(pub), string(priv)
 	for _, want := range []string{`data-report data-scope="public" data-earned="3"`, `data-share`, `href="/auth/login"`,
 		`<details class="badge-card" data-badge="pull-shark">`, `<progress value="56" max="112"`, `Closest next unlock`,
-		`https://github.githubassets.com/assets/pull-shark-bronze-`} {
+		`https://github.githubassets.com/assets/pull-shark-bronze-`, `<h1 class="result-user">@torvalds</h1>`,
+		`3 of 8 badges you can still earn, 12 tiers`, `Showing public data.`, `<h2 class="shelf-head">On display</h2>`,
+		`<h2 class="shelf-head">Still to collect</h2>`, `The archive: 5 badges you can no longer earn`,
+		`data-star="result"`, `>Copy share link</button>`, `First unlocked 2020-02-02.`} {
 		if !strings.Contains(p, want) {
 			t.Errorf("public page lacks %s", want)
 		}
 	}
+	if n := strings.Count(p, "<h1"); n != 1 {
+		t.Errorf("result page has %d <h1>, want 1", n)
+	}
+	if strings.Index(p, `data-star="result"`) > strings.Index(p, `data-share`) {
+		t.Error("the star banner must come before the share and check-another actions")
+	}
 	if !strings.Contains(s, `data-scope="private"`) || strings.Contains(s, "data-share") || !strings.Contains(s, "not shareable") {
 		t.Error("private fragment must say it is not shareable and offer no share button")
 	}
-	if strings.Contains(s, "<html") {
-		t.Error("the private result is a fragment, not a page")
+	if strings.Contains(s, "<html") || strings.Contains(s, "<h1") || !strings.Contains(s, `<h2 class="result-user">@torvalds</h2>`) {
+		t.Error("the private result is a fragment under the callback page's h1")
+	}
+}
+
+func TestRenderResult_archiveSummaryAgreesInNumber(t *testing.T) {
+	v := demoView(t, false)
+	v.Archive = v.Archive[:1]
+	out, err := RenderResultPage(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(out), "The archive: 1 badge you can no longer earn") {
+		t.Error("one archived badge must read \"1 badge\"")
+	}
+}
+
+func TestRenderErrorPage_prefillsAndEscapes(t *testing.T) {
+	out, err := RenderErrorPage(404, "not_found", `No user <b>"x"</b> & more`, "torvalds")
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := string(out)
+	for _, want := range []string{`value="torvalds"`, `<p class="notice error" role="alert">No user &lt;b&gt;&#34;x&#34;&lt;/b&gt; &amp; more</p>`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("error page lacks %s", want)
+		}
+	}
+	if n := strings.Count(page, "<h1"); n != 1 {
+		t.Errorf("error page has %d <h1>, want 1", n)
+	}
+
+	hostile, err := RenderErrorPage(400, "bad_user", "Bad username", `"><x`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(hostile), `"><x`) {
+		t.Error("a hostile username reached the page unescaped")
+	}
+	if !strings.Contains(string(hostile), `value="&#34;&gt;&lt;x"`) {
+		t.Error("the hostile username is not escaped inside the value attribute")
+	}
+}
+
+// A hidden profile has no tiers, so its Collect shelf shows live counts and must not be
+// called "Still to collect" (the cards show counts and "Top tier"), nor claim anything is on display.
+func TestRenderResult_hiddenProfileShelfSaysLiveCounts(t *testing.T) {
+	r, err := report.Build("sindresorhus", fixtures.Official{}, &fixtures.Counts{Authed: true,
+		PRs: counters.MergedPRs{Total: 2241}, FactsValue: &counters.Facts{}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := RenderResultPage(NewResultView(r, false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := string(out)
+	for _, want := range []string{`<h2 class="shelf-head">Live counts</h2>`,
+		`This profile hides its badges, so these are counts, not the tiers GitHub shows.`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("hidden profile page lacks %s", want)
+		}
+	}
+	for _, bad := range []string{"Still to collect", "On display"} {
+		if strings.Contains(page, bad) {
+			t.Errorf("hidden profile page contains %q", bad)
+		}
+	}
+}
+
+// A visible profile with nothing earned still gets an "On display" shelf, with a nudge.
+func TestRenderResult_nothingEarnedShowsTheEmptyShelf(t *testing.T) {
+	v := demoView(t, false)
+	v.Display = nil
+	if v.Hidden || len(v.Collect) == 0 {
+		t.Fatalf("setup: hidden %v, collect %d", v.Hidden, len(v.Collect))
+	}
+	out, err := RenderResultPage(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := string(out)
+	for _, want := range []string{`<h2 class="shelf-head">On display</h2>`,
+		`Nothing here yet. Start with a badge from the shelf below.`, `<h2 class="shelf-head">Still to collect</h2>`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("empty-display page lacks %s", want)
+		}
 	}
 }

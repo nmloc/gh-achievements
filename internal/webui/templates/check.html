@@ -1,16 +1,11 @@
 {{define "content"}}
-{{with .}}{{with .Message}}<p class="notice error" role="alert">{{.}}</p>{{end}}{{end}}
+{{$user := ""}}{{with .}}{{with .Message}}<p class="notice error" role="alert">{{.}}</p>{{end}}{{$user = .User}}{{end}}
 <div class="choice">
   <p class="lede">Every GitHub achievement, your tier, and how far you are from the next one.</p>
   <a href="/auth/login" data-signin class="btn primary big">Sign in with GitHub</a>
   <p class="meta">Includes private repositories. GitHub asks for repository access; the token is used for one check, then revoked. Nothing is stored.</p>
   <p class="or">or check any public profile</p>
-  <form action="/result" method="get" id="check-form">
-    <label for="u" class="visually-hidden">GitHub username</label>
-    <input id="u" name="u" required autocomplete="username" autocapitalize="off" spellcheck="false"
-      pattern="[A-Za-z0-9][A-Za-z0-9\-]{0,38}" placeholder="username" value="{{with .}}{{.User}}{{end}}">
-    <button type="submit" class="btn">Check</button>
-  </form>
+  {{template "checkform" $user}}
 </div>
 <p class="meta">Prefer the terminal? <code>{{"gh extension install nmloc/gh-achievements"}}</code> <button type="button" class="btn small" data-copy="gh extension install nmloc/gh-achievements">Copy</button> counts everything your gh login can see.</p>
 {{end}}
