@@ -34,6 +34,9 @@
     });
     Array.prototype.forEach.call(document.querySelectorAll(".star-long"), function (el) { el.hidden = true; });
   }
+  function remember(n) {
+    try { sessionStorage.setItem(STARS, String(n)); } catch (e) { /* not cached: fetched again on the next page */ }
+  }
   function loadStars() {
     var cached = null;
     try { cached = sessionStorage.getItem(STARS); } catch (e) { /* storage blocked: fetch instead */ }
@@ -46,12 +49,15 @@
     fetch(REPO_API, { credentials: "omit", referrerPolicy: "no-referrer" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
-        if (!d || typeof d.stargazers_count !== "number") return;
-        stars = d.stargazers_count;
-        try { sessionStorage.setItem(STARS, String(stars)); } catch (e) { /* not cached: fetched again on the next page */ }
+        stars = d && typeof d.stargazers_count === "number" ? d.stargazers_count : 0;
+        remember(stars);
         fillStars();
       })
-      .catch(function () { /* offline or rate-limited: the label stays "Star on GitHub" */ });
+      .catch(function () {
+        // Offline or rate-limited: remember "0" for the visit so later pages do not retry.
+        // The label stays "Star on GitHub".
+        remember(0);
+      });
   }
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: nothing to remember */ } }
