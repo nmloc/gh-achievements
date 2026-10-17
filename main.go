@@ -110,15 +110,16 @@ func starOnce(w io.Writer, color bool, marker string) {
 	if marker == "" {
 		return
 	}
-	if _, err := os.Stat(marker); err == nil {
-		return // already asked
-	}
 	if err := os.MkdirAll(filepath.Dir(marker), 0o755); err != nil {
 		return
 	}
-	if err := os.WriteFile(marker, nil, 0o644); err != nil {
-		return
+	// O_EXCL makes creating the marker the claim: a second run, or a second process, finds
+	// it taken and stays quiet.
+	f, err := os.OpenFile(marker, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	if err != nil {
+		return // already asked (os.IsExist), or it cannot be remembered
 	}
+	_ = f.Close()
 	fmt.Fprintln(w, render.StarLine(color))
 	fmt.Fprintln(w)
 }

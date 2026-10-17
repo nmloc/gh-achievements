@@ -38,3 +38,15 @@ func TestStarOnce_staysQuietWhenItCannotRemember(t *testing.T) {
 		t.Fatalf("printed %q although it could not remember", out.String())
 	}
 }
+
+func TestStarOnce_aMarkerThatExistsPrintsNothing(t *testing.T) {
+	marker := filepath.Join(t.TempDir(), "star-shown")
+	if err := os.WriteFile(marker, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	starOnce(&out, false, marker)
+	if out.Len() != 0 {
+		t.Fatalf("printed %q although it had asked before", out.String())
+	}
+}
