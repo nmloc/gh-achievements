@@ -1,4 +1,4 @@
-// internal/web/render_test.go
+// web/render_test.go
 package web
 
 import (

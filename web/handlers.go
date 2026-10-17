@@ -1,4 +1,4 @@
-// internal/web/handlers.go
+// web/handlers.go
 package web
 
 import (

@@ -48,7 +48,7 @@ The release workflow builds every platform.
 
 ## Web (Vercel)
 
-`api/*/index.go` are Vercel functions; `internal/web` holds the handlers; `cmd/gendocs`
+`api/*/index.go` are Vercel functions; `web` holds the handlers; `cmd/gendocs`
 writes `vercel.json` and the static pages. Run it all locally:
 
 1. Create `.env.local` (gitignored) with `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` (a dev

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nmloc/gh-achievements/internal/web"
 	"github.com/nmloc/gh-achievements/internal/webui"
+	"github.com/nmloc/gh-achievements/web"
 )
 
 func vercelJSON() ([]byte, error) {

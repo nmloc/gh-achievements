@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nmloc/gh-achievements/internal/web"
+	"github.com/nmloc/gh-achievements/web"
 )
 
 const addr = "127.0.0.1:8787"

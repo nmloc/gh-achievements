@@ -1,4 +1,4 @@
-// internal/web/headers.go
+// web/headers.go
 package web
 
 import "net/http"

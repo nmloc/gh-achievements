@@ -1,5 +1,5 @@
 // Package webui holds what every page shares: site constants, the layout template,
-// CSS and scripts. cmd/gendocs renders static pages with it; internal/web renders
+// CSS and scripts. cmd/gendocs renders static pages with it; web renders
 // results with it, so the two never drift.
 package webui
 

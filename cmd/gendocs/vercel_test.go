@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nmloc/gh-achievements/internal/web"
+	"github.com/nmloc/gh-achievements/web"
 )
 
 func TestVercelJSON_matchesTheFunctionsHeadersAndRoutes(t *testing.T) {
