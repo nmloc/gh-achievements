@@ -119,6 +119,9 @@ func generate() (map[string][]byte, error) {
 	files["site/achievements.json"] = data
 	files["site/llms.txt"] = []byte(llmsTxt())
 	files["site/llms-full.txt"] = []byte(llmsFull())
+	for path, body := range verificationFiles() {
+		files[path] = body
+	}
 	files["site/robots.txt"] = []byte("User-agent: *\nAllow: /\n\nSitemap: " + webui.SiteURL + "sitemap.xml\n")
 	files["site/sitemap.xml"] = []byte(sitemap())
 	files["site/.nojekyll"] = []byte{}
@@ -132,6 +135,17 @@ func generate() (map[string][]byte, error) {
 		files[path] = body
 	}
 	return files, nil
+}
+
+// googleSiteVerification is the file Google Search Console asks for to prove the site is ours.
+// It is public by design: Google fetches it from the site root.
+const googleSiteVerification = "google398fb29c0f7ca94a.html"
+
+// verificationFiles are the ownership proofs search engines fetch from the site root.
+func verificationFiles() map[string][]byte {
+	return map[string][]byte{
+		"site/" + googleSiteVerification: []byte("google-site-verification: " + googleSiteVerification),
+	}
 }
 
 func replaceBetween(s, start, end, body string) (string, error) {

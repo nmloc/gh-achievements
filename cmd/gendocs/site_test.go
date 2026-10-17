@@ -258,3 +258,11 @@ func TestSitePages_listLabelsTheTierColumns(t *testing.T) {
 		t.Error("an unlabelled tier line is back")
 	}
 }
+
+// Google Search Console checks this file byte for byte, so it must not gain a newline.
+func TestVerificationFiles_matchWhatGoogleIssued(t *testing.T) {
+	got := string(verificationFiles()["site/google398fb29c0f7ca94a.html"])
+	if got != "google-site-verification: google398fb29c0f7ca94a.html" {
+		t.Fatalf("verification file = %q", got)
+	}
+}
