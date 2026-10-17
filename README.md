@@ -2,6 +2,8 @@
 
 **Check your GitHub achievements progress: every badge, your tier and how far to the next one, verified against GitHub's own data, no token needed.**
 
+**[🏆 Check your GitHub achievements →](https://gh-achievements.vercel.app/check/)** (no install; sign in to include private work)
+
 [![Release](https://img.shields.io/github/v/release/nmloc/gh-achievements)](https://github.com/nmloc/gh-achievements/releases)
 [![Tests](https://github.com/nmloc/gh-achievements/actions/workflows/test.yml/badge.svg)](https://github.com/nmloc/gh-achievements/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -40,6 +42,10 @@ gh achievements --no-color   # plain text (NO_COLOR is honoured too)
 ```
 
 Not signed in to gh? It still works with public data and tells you what a login would add.
+
+## Web
+
+[gh-achievements.vercel.app](https://gh-achievements.vercel.app/check/): type a username for public data, or sign in with GitHub to include private repositories. The sign-in token is used for one check and revoked at once; nothing is stored. Organizations that restrict third-party apps hide their private repositories until an admin approves gh-achievements (the CLI sees them because it uses gh's own login).
 
 ## All GitHub achievements
 

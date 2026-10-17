@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.0
+
+- Web checker at [gh-achievements.vercel.app/check/](https://gh-achievements.vercel.app/check/): public data for any username, or sign in with GitHub to include private repositories. The sign-in token is used for one check and revoked at once; nothing is stored.
+- The site shows GitHub's own badge artwork.
+- Site moved to Vercel. The old GitHub Pages URLs redirect.
+
 ## v0.1.0
 
 First release.

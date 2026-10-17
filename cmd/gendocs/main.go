@@ -235,6 +235,7 @@ func llmsTxt() string {
 	b.WriteString("> " + tagline + "\n\n")
 	b.WriteString("gh-achievements is an open source GitHub CLI extension (MIT). Install with `" + webui.Install + "`, run `gh achievements [username]`. ")
 	b.WriteString("It reads tiers, unlock dates and milestone history from GitHub's own profile pages and counts progress with the user's existing gh login, so no personal access token is created. ")
+	b.WriteString("A web checker at " + webui.SiteURL + "check/ shows the same report without installing anything. ")
 	fmt.Fprintf(&b, "It knows %d achievements (%s) and %d profile highlights. Catalog last verified %s. It is not affiliated with GitHub.\n\n",
 		len(catalog.Achievements), kindSummary(), len(catalog.Highlights), catalog.LastVerified)
 	b.WriteString("## Achievements\n\n")
