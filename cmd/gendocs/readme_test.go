@@ -71,6 +71,9 @@ func TestReadmeTable_groupsBadgesAndShowsEveryTierMedal(t *testing.T) {
 	if !strings.Contains(ps, "<th>Default</th><th>Bronze</th><th>Silver</th><th>Gold</th>") {
 		t.Errorf("pull shark tier headings: %s", ps)
 	}
+	if !strings.Contains(ps, "<sub>gh achievements: count, checked against GitHub's milestones</sub>") {
+		t.Errorf("pull shark lacks what gh achievements shows: %s", ps)
+	}
 	if heart := row("heart-on-your-sleeve"); strings.Count(heart, `<td align="center">?</td>`) != 2 {
 		t.Errorf("heart on your sleeve shows unknown amounts as ?: %s", heart)
 	}

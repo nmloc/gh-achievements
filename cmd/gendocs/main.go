@@ -191,6 +191,13 @@ func progressText(a catalog.Achievement) string {
 	return "Earned or not (official)"
 }
 
+func lowerFirst(s string) string {
+	if s == "" {
+		return s
+	}
+	return strings.ToLower(s[:1]) + s[1:]
+}
+
 var tierNames = []string{"x1 · base", "x2 · bronze", "x3 · silver", "x4 · gold"}
 
 // ---------- README ----------
@@ -226,8 +233,8 @@ func readmeTable() string {
 			if img := catalog.Image(a.Slug, len(a.Tiers)); img != "" {
 				art = fmt.Sprintf(`<img src="%s" width="40" height="40" alt="%s badge">`, img, a.Name)
 			}
-			fmt.Fprintf(&b, "| %s | [%s](%sachievements/%s/) | %s | %s |\n",
-				art, a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierTable(a))
+			fmt.Fprintf(&b, "| %s | [%s](%sachievements/%s/) | %s<br><sub>gh achievements: %s</sub> | %s |\n",
+				art, a.Name, webui.SiteURL, a.Slug, a.HowToEarn, lowerFirst(progressText(a)), tierTable(a))
 		}
 		b.WriteString("\n")
 	}
