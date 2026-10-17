@@ -21,17 +21,22 @@
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ code: code, state: state })
     }).then(function (r) {
-      if (!r.ok) return show(r.headers.get("X-Error-Reason") || "internal");
-      return r.text().then(function (html) {
-        document.getElementById("status").hidden = true;
-        var out = document.getElementById("result");
-        out.innerHTML = html; // server-rendered by html/template on our own origin
-        if (window.gha) {
-          window.gha.track("signin_complete");
-          window.gha.reportView(out.querySelector("[data-report]"));
-        }
-      });
-    }).catch(function () { show("network"); });
+      if (!r.ok) return show(r.headers.get("X-Error-Reason") || (r.status === 504 ? "timeout" : "internal"));
+      return r.text().then(render, function () { show("network"); });
+    }, function () {
+      show("network"); // the request itself failed: offline, blocked or reset
+    }).catch(function () {
+      show("internal"); // the server answered but this page could not show it
+    });
+  }
+  function render(html) {
+    document.getElementById("status").hidden = true;
+    var out = document.getElementById("result");
+    out.innerHTML = html; // server-rendered by html/template on our own origin
+    if (window.gha) {
+      window.gha.track("signin_complete");
+      window.gha.reportView(out.querySelector("[data-report]"));
+    }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
   else run();

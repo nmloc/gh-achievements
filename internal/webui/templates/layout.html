@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+{{if .P.NoReferrer}}<meta name="referrer" content="no-referrer">
+{{end}}<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{.P.Title}}</title>
 <meta name="description" content="{{.P.Description}}">
 {{if .P.NoIndex}}<meta name="robots" content="noindex">
@@ -23,7 +24,6 @@
 <link rel="stylesheet" href="{{.Base}}style.css">
 <link rel="alternate" type="application/json" href="{{.Base}}achievements.json" title="Achievement catalog (JSON)">
 {{range .P.JSONLD}}<script type="application/ld+json">{{.}}</script>
-{{end}}{{if .P.NoReferrer}}<meta name="referrer" content="no-referrer">
 {{end}}<script src="{{.Base}}app.js" defer data-ga="{{.GAID}}"></script>
 {{range .P.Scripts}}<script src="{{.}}" defer></script>
 {{end}}</head>
@@ -44,7 +44,7 @@
 </main>
 <footer>
   <p>gh-achievements is an independent open source project (MIT) and is not affiliated with or endorsed by GitHub.
-  <a href="{{.RepoURL}}">Source</a> · <a href="{{.Base}}achievements.json">achievements.json</a> · <a href="{{.Base}}llms.txt">llms.txt</a> · Badge artwork © GitHub, loaded from GitHub's CDN.</p>
+  <a href="{{.RepoURL}}">Source</a> · <a href="{{.Base}}achievements.json">achievements.json</a> · <a href="{{.Base}}llms.txt">llms.txt</a> · Badge artwork © GitHub, loaded from GitHub's CDN. · <button type="button" class="linklike" data-consent-reset>Analytics settings</button></p>
 </footer>
 <div id="consent" hidden role="dialog" aria-label="Analytics consent">
   <p>May we count visits with Google Analytics? No usernames are sent. You can say no; the site works the same.</p>

@@ -1,31 +1,49 @@
 // internal/webui/static/app.js
 // Consent-gated GA4, username memory, share and copy buttons, card events.
-// No usernames or repository names ever reach GA: page_location drops the query.
+// No usernames or repository names ever reach GA: page_location drops the query and
+// page_title is replaced on the result pages.
 (function () {
   "use strict";
   var me = document.currentScript;
   var GA = me && me.dataset.ga;
   var CONSENT = "gha:consent", USER = "gha:lastUser";
-  var LOGIN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
+  var LOGIN = /^[A-Za-z0-9][A-Za-z0-9\-]{0,38}$/;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: nothing to remember */ } }
+  function drop(k) { try { localStorage.removeItem(k); } catch (e) { /* nothing stored to drop */ } }
+
+  // The consent choice lives in this variable; storage only remembers it across visits,
+  // so a click is honoured for the rest of the page view even when storage is blocked.
+  var consent = get(CONSENT);
 
   var loaded = false;
   function loadGA() {
-    if (!GA || loaded) return;
+    if (!GA) return;
+    window["ga-disable-" + GA] = false;
+    if (loaded) return;
     loaded = true;
+    // GA reads location, referrer and document.title for every hit. /result's title names the
+    // user, so it is replaced there; static pages carry no usernames.
+    var path = location.pathname;
+    var sensitive = path.indexOf("/result") === 0 || path.indexOf("/auth/callback") === 0;
+    var sanitized = {
+      page_location: location.origin + location.pathname,
+      page_referrer: document.referrer ? new URL(document.referrer).origin + "/" : undefined,
+      page_title: sensitive ? "GitHub achievements result" : document.title
+    };
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () { window.dataLayer.push(arguments); };
-    var ref = document.referrer ? new URL(document.referrer).origin + "/" : undefined;
     window.gtag("js", new Date());
-    window.gtag("config", GA, { page_location: location.origin + location.pathname, page_referrer: ref });
+    window.gtag("set", sanitized);
+    window.gtag("config", GA, sanitized);
     var s = document.createElement("script");
     s.async = true;
     s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GA);
     document.head.appendChild(s);
   }
+  function stopGA() { if (GA) window["ga-disable-" + GA] = true; }
   function track(name, params) {
-    if (get(CONSENT) === "granted" && window.gtag) window.gtag("event", name, params || {});
+    if (consent === "granted" && window.gtag) window.gtag("event", name, params || {});
   }
   function reportView(el) {
     if (!el) return;
@@ -34,29 +52,41 @@
   }
   window.gha = { track: track, reportView: reportView };
 
+  // copy writes to the clipboard and calls done only after the write succeeded.
+  // No clipboard (insecure context, old browser) or a refusal leaves the page as it was.
+  function copy(text, done) {
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) return;
+      navigator.clipboard.writeText(text).then(done, function () { /* refused: label unchanged */ });
+    } catch (e) { /* blocked by policy: nothing visible happens */ }
+  }
+
   function ready() {
     var banner = document.getElementById("consent");
-    var choice = get(CONSENT);
-    if (choice === "granted") loadGA();
-    else if (choice === null && banner) banner.hidden = false;
+    if (consent === "granted") loadGA();
+    else if (consent === null && banner) banner.hidden = false;
     document.addEventListener("click", function (e) {
-      var t = e.target.closest("[data-consent],[data-signin],[data-share],[data-copy]");
+      var t = e.target.closest("[data-consent],[data-consent-reset],[data-signin],[data-share],[data-copy]");
       if (!t) return;
       if (t.dataset.consent) {
-        set(CONSENT, t.dataset.consent);
+        consent = t.dataset.consent;
+        set(CONSENT, consent);
         if (banner) banner.hidden = true;
-        if (t.dataset.consent === "granted") loadGA();
+        if (consent === "granted") loadGA(); else stopGA();
+      } else if (t.hasAttribute("data-consent-reset")) {
+        consent = null;
+        drop(CONSENT);
+        stopGA();
+        if (banner) banner.hidden = false;
       } else if (t.hasAttribute("data-signin")) {
         track("signin_click");
         track("check_start", { method: "signin" });
       } else if (t.hasAttribute("data-share")) {
         var r = document.querySelector("[data-report]");
         var url = location.origin + "/result?u=" + encodeURIComponent(r ? r.dataset.user : "");
-        navigator.clipboard.writeText(url).then(function () { t.textContent = "Link copied"; });
-        track("share_click");
+        copy(url, function () { t.textContent = "Link copied"; track("share_click"); });
       } else if (t.dataset.copy) {
-        navigator.clipboard.writeText(t.dataset.copy).then(function () { t.textContent = "Copied"; });
-        track("cli_copy");
+        copy(t.dataset.copy, function () { t.textContent = "Copied"; track("cli_copy"); });
       }
     });
     document.addEventListener("toggle", function (e) {
@@ -75,11 +105,17 @@
     var form = document.getElementById("check-form");
     if (form) {
       var input = form.querySelector('input[name="u"]');
-      if (input && !input.value) input.value = get(USER) || "";
-      form.addEventListener("submit", function () {
+      // Trim as the user types: the browser validates the pattern before submit fires, so a
+      // pasted " octocat " would be refused if it were only trimmed on submit.
+      var trim = function () {
         var v = input.value.trim();
-        input.value = v;
-        if (LOGIN.test(v)) set(USER, v);
+        if (v !== input.value) input.value = v;
+      };
+      if (input && !input.value) input.value = get(USER) || "";
+      if (input) input.addEventListener("input", trim);
+      form.addEventListener("submit", function () {
+        trim();
+        if (LOGIN.test(input.value)) set(USER, input.value);
         track("check_start", { method: "public" });
       });
     }

@@ -108,6 +108,13 @@ waits until it happens.
 - Never send a username or repository name. `/check?u=<login>` carries one in the URL, so
   page views are sent with the query string removed (`page_location` override), and the
   GA4 stream redacts the query keys `u`, `code` and `state` as a second layer.
+- GA reads `document.title` for every hit and `/result`'s title names the user, so `page_title`
+  is overridden (config call and global `set`) to a fixed string on `/result` and `/auth/callback`,
+  next to the `page_location` and `page_referrer` overrides.
+- The GA4 stream's Enhanced measurement **Outbound clicks** must be switched off in the GA
+  console: code cannot disable it, and otherwise milestone links
+  (`github.com/<owner>/<repo>/pull/<n>`) leave as `link_url`, which names repositories.
+- A footer control ("Analytics settings") withdraws consent and shows the banner again.
 - Property: `G-3EEKKGL110` (`GA_MEASUREMENT_ID`), Google signals off, retention 14 months.
 - Custom dimensions in GA4: `method`, `scope`, `badge`, `reason`.
 

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Checking… · gh-achievements</title>
 <meta name="description" content="Checking your GitHub achievements.">
@@ -21,7 +22,6 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="/style.css">
 <link rel="alternate" type="application/json" href="/achievements.json" title="Achievement catalog (JSON)">
-<meta name="referrer" content="no-referrer">
 <script src="/app.js" defer data-ga="G-3EEKKGL110"></script>
 <script src="/callback.js" defer></script>
 </head>
@@ -39,6 +39,7 @@
 
 <h1>Your GitHub achievements</h1>
 
+<noscript><p class="notice error">Checking your achievements needs JavaScript. <a href="/check/">Check a public profile</a> instead, which works without it.</p></noscript>
 <div id="status" class="notice" role="status" aria-live="polite">
   <p><strong>Checking your achievements…</strong> about 10 seconds.</p>
   <ul class="steps"><li>Reading GitHub's badge history</li><li>Counting your merged pull requests</li><li>Checking them against GitHub's milestones</li></ul>
@@ -56,7 +57,7 @@
 </main>
 <footer>
   <p>gh-achievements is an independent open source project (MIT) and is not affiliated with or endorsed by GitHub.
-  <a href="https://github.com/nmloc/gh-achievements">Source</a> · <a href="/achievements.json">achievements.json</a> · <a href="/llms.txt">llms.txt</a> · Badge artwork © GitHub, loaded from GitHub's CDN.</p>
+  <a href="https://github.com/nmloc/gh-achievements">Source</a> · <a href="/achievements.json">achievements.json</a> · <a href="/llms.txt">llms.txt</a> · Badge artwork © GitHub, loaded from GitHub's CDN. · <button type="button" class="linklike" data-consent-reset>Analytics settings</button></p>
 </footer>
 <div id="consent" hidden role="dialog" aria-label="Analytics consent">
   <p>May we count visits with Google Analytics? No usernames are sent. You can say no; the site works the same.</p>
