@@ -6,8 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"mime"
 	"net/http"
+	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -20,7 +23,21 @@ import (
 // StateCookie carries the signed sign-in state between /auth/login and /api/private.
 const StateCookie = "gha_oauth"
 
-var errTimeout = errors.New("report took too long")
+var (
+	errTimeout  = errors.New("report took too long")
+	errInternal = errors.New("report could not run") // building the source failed, or the report panicked
+
+	// maxPrivateBody caps POST /api/private: the form holds a code and a state, nothing else.
+	maxPrivateBody int64 = 4 << 10
+	// revokeTimeout is the revoke's own budget. Timeout (50s) + revokeTimeout stays under Vercel's 60s maxDuration.
+	revokeTimeout = 8 * time.Second
+)
+
+// minStateSecret is the shortest STATE_SECRET FromEnv accepts (openssl rand -base64 32 gives 44).
+const minStateSecret = 32
+
+// statusClientClosed is nginx's 499: the client left before we answered. No body is written.
+const statusClientClosed = 499
 
 // Config is everything the handlers need. Tests replace GitHub, Official, NewCounts and Now.
 type Config struct {
@@ -55,7 +72,11 @@ func FromEnv() (*Config, error) {
 		}
 	}
 	if len(missing) > 0 {
+		sort.Strings(missing)
 		return nil, fmt.Errorf("missing environment: %s", strings.Join(missing, ", "))
+	}
+	if len(c.StateSecret) < minStateSecret {
+		return nil, fmt.Errorf("STATE_SECRET must be at least %d bytes (openssl rand -base64 32)", minStateSecret)
 	}
 	return c, nil
 }
@@ -78,12 +99,13 @@ func Serve(w http.ResponseWriter, r *http.Request, h func(*Config, http.Response
 	h(envCfg, w, r)
 }
 
-// build runs report.Build with a deadline. On timeout the goroutine finishes on its own;
-// the function instance ends soon after.
+// build runs report.Build under ctx's deadline. On timeout the goroutine finishes on its own;
+// the function instance ends soon after. A panic in the report is contained here: it would
+// otherwise end the process and skip every in-flight request's deferred revoke.
 func (c *Config) build(ctx context.Context, user, token string) (*report.Report, error) {
 	counts, err := c.NewCounts(token)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %T", errInternal, err)
 	}
 	type result struct {
 		r   *report.Report
@@ -91,15 +113,21 @@ func (c *Config) build(ctx context.Context, user, token string) (*report.Report,
 	}
 	done := make(chan result, 1)
 	go func() {
+		defer func() {
+			if p := recover(); p != nil { // the type only, never the value
+				done <- result{nil, fmt.Errorf("%w: report panic: %T", errInternal, p)}
+			}
+		}()
 		r, err := report.Build(user, c.Official, counts)
 		done <- result{r, err}
 	}()
 	select {
 	case res := <-done:
 		return res.r, res.err
-	case <-time.After(c.Timeout):
-		return nil, errTimeout
 	case <-ctx.Done():
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, errTimeout
+		}
 		return nil, ctx.Err()
 	}
 }
@@ -126,8 +154,19 @@ func (c *Config) Result(w http.ResponseWriter, r *http.Request) {
 		fail(http.StatusBadRequest, "invalid", "That is not a GitHub username.")
 		return
 	}
-	rep, err := c.build(r.Context(), user, c.BotToken)
+	ctx, cancel := context.WithTimeout(r.Context(), c.Timeout)
+	defer cancel()
+	rep, err := c.build(ctx, user, c.BotToken)
 	switch {
+	case errors.Is(err, context.Canceled):
+		c.Log.Printf("result: cancelled")
+		w.Header().Set("Cache-Control", "no-store")
+		w.WriteHeader(statusClientClosed)
+		return
+	case errors.Is(err, errInternal):
+		c.Log.Printf("result: %v", err) // build wraps types only, never values
+		fail(http.StatusInternalServerError, "internal", "Something broke on our side. Please try again.")
+		return
 	case errors.Is(err, official.ErrUserNotFound):
 		fail(http.StatusNotFound, "not_found", fmt.Sprintf("GitHub has no user called %s.", user))
 		return
@@ -161,9 +200,19 @@ func (c *Config) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, &http.Cookie{
 		Name: StateCookie, Value: SignState(c.StateSecret, claims), Path: "/", MaxAge: int(StateMaxAge.Seconds()),
-		HttpOnly: true, Secure: strings.HasPrefix(c.BaseURL, "https://"), SameSite: http.SameSiteLaxMode,
+		HttpOnly: true, Secure: !isLocalhost(c.BaseURL), SameSite: http.SameSiteLaxMode,
 	})
 	http.Redirect(w, r, c.GitHub.Authorize(c.ClientID, c.BaseURL+"/auth/callback", claims.Nonce, Challenge(claims.Verifier)), http.StatusFound)
+}
+
+// isLocalhost is true only for a local dev server, the one place a Secure cookie cannot be set.
+func isLocalhost(baseURL string) bool {
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return false
+	}
+	h := u.Hostname()
+	return h == "localhost" || h == "127.0.0.1"
 }
 
 // Private serves POST /api/private from callback.js: code → token → report → revoke.
@@ -181,6 +230,20 @@ func (c *Config) Private(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
 	}
 	http.SetCookie(w, &http.Cookie{Name: StateCookie, Value: "", Path: "/", MaxAge: -1})
+	if mt, _, err := mime.ParseMediaType(r.Header.Get("Content-Type")); err != nil || mt != "application/x-www-form-urlencoded" {
+		fail(http.StatusUnsupportedMediaType, "internal")
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxPrivateBody)
+	if err := r.ParseForm(); err != nil {
+		var tooBig *http.MaxBytesError
+		if errors.As(err, &tooBig) {
+			fail(http.StatusRequestEntityTooLarge, "internal")
+			return
+		}
+		fail(http.StatusBadRequest, "state")
+		return
+	}
 	cookie, err := r.Cookie(StateCookie)
 	if err != nil {
 		fail(http.StatusBadRequest, "state")
@@ -191,17 +254,34 @@ func (c *Config) Private(w http.ResponseWriter, r *http.Request) {
 		fail(http.StatusBadRequest, "state")
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), c.Timeout+5*time.Second)
+	// One deadline for the exchange, the user lookup and the report: whichever step is
+	// slow, the user sees one timeout message and the revoke below still has its own time.
+	ctx, cancel := context.WithTimeout(r.Context(), c.Timeout)
 	defer cancel()
+	// failCtx answers a dead ctx (timeout or client gone) and reports whether it did.
+	failCtx := func(err error) bool {
+		switch {
+		case errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled):
+			c.Log.Printf("private: cancelled")
+			w.WriteHeader(statusClientClosed)
+		case errors.Is(err, errTimeout) || errors.Is(ctx.Err(), context.DeadlineExceeded):
+			fail(http.StatusGatewayTimeout, "timeout")
+		default:
+			return false
+		}
+		return true
+	}
 	token, err := c.GitHub.Exchange(ctx, c.ClientID, c.ClientSecret, r.PostFormValue("code"), c.BaseURL+"/auth/callback", claims.Verifier)
 	if err != nil {
-		c.Log.Printf("private: %v", err) // ErrExchange text and a code such as bad_verification_code only
-		fail(http.StatusBadGateway, "exchange")
+		if !failCtx(err) {
+			c.Log.Printf("private: %v", err) // ErrExchange text and a code such as bad_verification_code only
+			fail(http.StatusBadGateway, "exchange")
+		}
 		return
 	}
 	defer func() {
 		// A fresh context: revoke even when the request context is already done.
-		rctx, rcancel := context.WithTimeout(context.Background(), 10*time.Second)
+		rctx, rcancel := context.WithTimeout(context.Background(), revokeTimeout)
 		defer rcancel()
 		if err := c.GitHub.Revoke(rctx, c.ClientID, c.ClientSecret, token); err != nil {
 			c.Log.Printf("private: %v", err)
@@ -210,18 +290,24 @@ func (c *Config) Private(w http.ResponseWriter, r *http.Request) {
 	}()
 	user, err := c.GitHub.Login(ctx, token)
 	if err != nil {
-		c.Log.Printf("private: %v", err)
-		fail(http.StatusBadGateway, "github")
+		if !failCtx(err) {
+			c.Log.Printf("private: %v", err)
+			fail(http.StatusBadGateway, "github")
+		}
 		return
 	}
 	rep, err := c.build(ctx, user, token)
 	switch {
-	case errors.Is(err, errTimeout):
-		fail(http.StatusGatewayTimeout, "timeout")
+	case err == nil:
+	case failCtx(err):
 		return
-	case err != nil:
-		c.Log.Printf("private: %T", err)
+	case errors.Is(err, errInternal):
+		c.Log.Printf("private: %v", err)
 		fail(http.StatusInternalServerError, "internal")
+		return
+	default:
+		c.Log.Printf("private: %T", err)
+		fail(http.StatusBadGateway, "github")
 		return
 	}
 	body, err := RenderResultFragment(NewResultView(rep, true))

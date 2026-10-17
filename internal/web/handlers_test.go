@@ -3,17 +3,20 @@ package web
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/nmloc/gh-achievements/internal/counters"
 	"github.com/nmloc/gh-achievements/internal/fixtures"
+	"github.com/nmloc/gh-achievements/internal/official"
 )
 
 func testConfig(t *testing.T, gh *fakeGitHub) (*Config, *bytes.Buffer) {
@@ -218,5 +221,213 @@ func TestSecurityHeaders_cspAllowsWhatThePagesLoad(t *testing.T) {
 	}
 	if strings.Contains(csp, "unsafe-inline") {
 		t.Error("CSP allows inline code")
+	}
+}
+
+// leakCheck fails the test when a secret appears in the logs, the body or a header.
+func leakCheck(t *testing.T, w *httptest.ResponseRecorder, logs *bytes.Buffer, extra ...string) {
+	t.Helper()
+	for _, leak := range append([]string{"gho_TEST_TOKEN", "ghr_REFRESH", "csecret"}, extra...) {
+		if strings.Contains(logs.String(), leak) || strings.Contains(w.Body.String(), leak) {
+			t.Errorf("%s leaked into the logs or body", leak)
+		}
+		for k, vs := range w.Header() {
+			for _, v := range vs {
+				if strings.Contains(v, leak) {
+					t.Errorf("%s leaked into header %s", leak, k)
+				}
+			}
+		}
+	}
+}
+
+// blockingCounts blocks MergedPRs until the test ends, so a report can outlive its deadline.
+type blockingCounts struct {
+	*fixtures.Counts
+	release chan struct{}
+}
+
+func newBlockingCounts(t *testing.T) blockingCounts {
+	b := blockingCounts{fixtures.TorvaldsDemo(), make(chan struct{})}
+	var once sync.Once
+	t.Cleanup(func() { once.Do(func() { close(b.release) }) })
+	return b
+}
+
+func (b blockingCounts) MergedPRs(u string) (counters.MergedPRs, error) {
+	<-b.release
+	return b.Counts.MergedPRs(u)
+}
+
+type panicCounts struct{ *fixtures.Counts }
+
+func (panicCounts) MergedPRs(string) (counters.MergedPRs, error) {
+	panic("kaboom gho_TEST_TOKEN")
+}
+
+// failingOfficial makes report.Build itself fail (it only fails when the profile cannot be read).
+type failingOfficial struct{ fixtures.Official }
+
+func (failingOfficial) Profile(string) (official.Profile, error) {
+	return official.Profile{}, errors.New("upstream said gho_TEST_TOKEN")
+}
+
+func TestPrivate_revokesWhenUserLookupFails(t *testing.T) {
+	gh := newFakeGitHub(t)
+	gh.userFails = true
+	c, logs := testConfig(t, gh)
+	w := privateRequest(t, c, "good-code", nil)
+	if w.Code != 502 || w.Header().Get("X-Error-Reason") != "github" || len(gh.revoked) != 1 || gh.revoked[0] != "gho_TEST_TOKEN" {
+		t.Fatalf("status %d reason %q revoked %v", w.Code, w.Header().Get("X-Error-Reason"), gh.revoked)
+	}
+	leakCheck(t, w, logs)
+}
+
+func TestPrivate_timeoutSaysTimeoutAndRevokes(t *testing.T) {
+	gh := newFakeGitHub(t)
+	c, logs := testConfig(t, gh)
+	c.Timeout = 300 * time.Millisecond
+	c.NewCounts = func(string) (counters.Source, error) { return newBlockingCounts(t), nil }
+	w := privateRequest(t, c, "good-code", nil)
+	if w.Code != 504 || w.Header().Get("X-Error-Reason") != "timeout" || len(gh.revoked) != 1 {
+		t.Fatalf("status %d reason %q revoked %v", w.Code, w.Header().Get("X-Error-Reason"), gh.revoked)
+	}
+	leakCheck(t, w, logs)
+}
+
+func TestPrivate_aPanickingReportIsContainedAndRevoked(t *testing.T) {
+	gh := newFakeGitHub(t)
+	c, logs := testConfig(t, gh)
+	c.NewCounts = func(string) (counters.Source, error) { return panicCounts{fixtures.TorvaldsDemo()}, nil }
+	w := privateRequest(t, c, "good-code", nil)
+	if w.Code != 500 || w.Header().Get("X-Error-Reason") != "internal" || len(gh.revoked) != 1 {
+		t.Fatalf("status %d reason %q revoked %v", w.Code, w.Header().Get("X-Error-Reason"), gh.revoked)
+	}
+	if !strings.Contains(logs.String(), "report panic: string") {
+		t.Errorf("panic type not logged: %q", logs.String())
+	}
+	leakCheck(t, w, logs, "kaboom")
+}
+
+func TestPrivate_aReportErrorIsAGitHubFailure(t *testing.T) {
+	gh := newFakeGitHub(t)
+	c, logs := testConfig(t, gh)
+	c.Official = failingOfficial{}
+	w := privateRequest(t, c, "good-code", nil)
+	if w.Code != 502 || w.Header().Get("X-Error-Reason") != "github" || len(gh.revoked) != 1 {
+		t.Fatalf("status %d reason %q revoked %v", w.Code, w.Header().Get("X-Error-Reason"), gh.revoked)
+	}
+	leakCheck(t, w, logs, "upstream said")
+}
+
+func TestPrivate_clientGoneMidReportStillRevokes(t *testing.T) {
+	gh := newFakeGitHub(t)
+	c, logs := testConfig(t, gh)
+	c.NewCounts = func(string) (counters.Source, error) { return newBlockingCounts(t), nil }
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	time.AfterFunc(150*time.Millisecond, cancel)
+	lw := httptest.NewRecorder()
+	c.Login(lw, httptest.NewRequest("GET", "/auth/login", nil))
+	loc, _ := url.Parse(lw.Header().Get("Location"))
+	form := url.Values{"code": {"good-code"}, "state": {loc.Query().Get("state")}}
+	req := httptest.NewRequest("POST", "/api/private", strings.NewReader(form.Encode())).WithContext(ctx)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.AddCookie(&http.Cookie{Name: StateCookie, Value: lw.Result().Cookies()[0].Value})
+	w := httptest.NewRecorder()
+	c.Private(w, req)
+	if w.Code != 499 || w.Body.Len() != 0 || len(gh.revoked) != 1 || !strings.Contains(logs.String(), "cancelled") {
+		t.Fatalf("status %d body %q revoked %v logs %q", w.Code, w.Body.String(), gh.revoked, logs.String())
+	}
+	leakCheck(t, w, logs)
+}
+
+func TestPrivate_rejectsOtherContentTypesAndBigBodies(t *testing.T) {
+	gh := newFakeGitHub(t)
+	c, _ := testConfig(t, gh)
+	for name, tc := range map[string]struct {
+		ctype, body string
+		want        int
+	}{
+		"json":    {"application/json", `{"code":"good-code"}`, 415},
+		"no type": {"", "code=x", 415},
+		"too big": {"application/x-www-form-urlencoded", "code=" + strings.Repeat("a", 5<<10), 413},
+	} {
+		req := httptest.NewRequest("POST", "/api/private", strings.NewReader(tc.body))
+		if tc.ctype != "" {
+			req.Header.Set("Content-Type", tc.ctype)
+		}
+		w := httptest.NewRecorder()
+		c.Private(w, req)
+		if w.Code != tc.want || w.Header().Get("X-Error-Reason") != "internal" {
+			t.Errorf("%s: status %d reason %q, want %d internal", name, w.Code, w.Header().Get("X-Error-Reason"), tc.want)
+		}
+		if !strings.Contains(w.Header().Get("Set-Cookie"), StateCookie+"=; Path=/; Max-Age=0") {
+			t.Errorf("%s: state cookie not cleared", name)
+		}
+	}
+	if len(gh.revoked) != 0 {
+		t.Fatal("nothing was exchanged")
+	}
+}
+
+func TestResult_clientGoneWritesNoBody(t *testing.T) {
+	c, logs := testConfig(t, nil)
+	c.NewCounts = func(string) (counters.Source, error) { return newBlockingCounts(t), nil }
+	ctx, cancel := context.WithCancel(context.Background())
+	time.AfterFunc(100*time.Millisecond, cancel)
+	w := httptest.NewRecorder()
+	c.Result(w, httptest.NewRequest("GET", "/result?u=torvalds", nil).WithContext(ctx))
+	if w.Code != 499 || w.Body.Len() != 0 || !strings.Contains(logs.String(), "cancelled") {
+		t.Fatalf("status %d body %q logs %q", w.Code, w.Body.String(), logs.String())
+	}
+}
+
+func TestResult_aPanickingReportIs500Not502(t *testing.T) {
+	c, logs := testConfig(t, nil)
+	c.NewCounts = func(string) (counters.Source, error) { return panicCounts{fixtures.TorvaldsDemo()}, nil }
+	w := httptest.NewRecorder()
+	c.Result(w, httptest.NewRequest("GET", "/result?u=torvalds", nil))
+	if w.Code != 500 || strings.Contains(logs.String(), "kaboom") {
+		t.Fatalf("status %d logs %q", w.Code, logs.String())
+	}
+}
+
+func TestLogin_secureUnlessLocalhostAndNeverCached(t *testing.T) {
+	for base, wantSecure := range map[string]bool{
+		"https://x.test": true, "http://example.test": true,
+		"http://localhost:8787": false, "http://127.0.0.1:8787": false,
+	} {
+		c, _ := testConfig(t, nil)
+		c.BaseURL = base
+		w := httptest.NewRecorder()
+		c.Login(w, httptest.NewRequest("GET", "/auth/login", nil))
+		if got := w.Result().Cookies()[0].Secure; got != wantSecure {
+			t.Errorf("%s: Secure = %v, want %v", base, got, wantSecure)
+		}
+		if w.Header().Get("Cache-Control") != "no-store" {
+			t.Errorf("%s: Cache-Control = %q", base, w.Header().Get("Cache-Control"))
+		}
+	}
+}
+
+func TestFromEnv_requiresAStrongStateSecret(t *testing.T) {
+	set := func(stateSecret string) {
+		for k, v := range map[string]string{"GITHUB_CLIENT_ID": "cid", "GITHUB_CLIENT_SECRET": "csecret",
+			"GH_BOT_TOKEN": "bot", "BASE_URL": "https://x.test", "STATE_SECRET": stateSecret} {
+			t.Setenv(k, v)
+		}
+	}
+	set("short-secret")
+	if _, err := FromEnv(); err == nil || !strings.Contains(err.Error(), "STATE_SECRET") || strings.Contains(err.Error(), "short-secret") {
+		t.Fatalf("short secret: err = %v", err)
+	}
+	set("0123456789012345678901234567890123456789abcd") // 44 chars, like openssl rand -base64 32
+	if c, err := FromEnv(); err != nil || c == nil {
+		t.Fatalf("44-char secret: err = %v", err)
+	}
+	set("")
+	if _, err := FromEnv(); err == nil || !strings.Contains(err.Error(), "STATE_SECRET") {
+		t.Fatalf("missing secret: err = %v", err)
 	}
 }

@@ -67,9 +67,10 @@ func TestAuthorize(t *testing.T) {
 
 // fakeGitHub is GitHub's token, /user and revoke endpoints.
 type fakeGitHub struct {
-	srv      *httptest.Server
-	revoked  []string
-	verifier string
+	srv       *httptest.Server
+	revoked   []string
+	verifier  string
+	userFails bool // GET /user answers 500
 }
 
 func newFakeGitHub(t *testing.T) *fakeGitHub {
@@ -86,6 +87,10 @@ func newFakeGitHub(t *testing.T) *fakeGitHub {
 		_, _ = io.WriteString(w, `{"access_token":"gho_TEST_TOKEN","refresh_token":"ghr_REFRESH","token_type":"bearer"}`)
 	})
 	mux.HandleFunc("GET /user", func(w http.ResponseWriter, r *http.Request) {
+		if f.userFails {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		if r.Header.Get("Authorization") != "Bearer gho_TEST_TOKEN" {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
