@@ -82,6 +82,29 @@ func TestStyle_openCardAndLongLinkRules(t *testing.T) {
 	}
 }
 
+// At 375px the brand, star pill, theme and menu buttons share one row; the open nav drops
+// to its own full-width row. Pinned because the layout is only checked in a browser.
+func TestStyle_headerFitsOneRowOnAPhone(t *testing.T) {
+	css, err := Static("style.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(css)
+	i := strings.Index(s, "@media (max-width: 640px) {")
+	if i < 0 {
+		t.Fatal("style.css has no 640px block")
+	}
+	block := s[i:]
+	block = block[:strings.Index(block, "\n}")]
+	for _, want := range []string{".top-in { flex-wrap: wrap; gap: 6px; }", ".brand { font-size: .875rem; }",
+		".star, .theme-btn, .menu-btn { padding: 5px 8px; font-size: .8125rem; }",
+		".top .star-count { display: none; }", "order: 5; flex-basis: 100%;"} {
+		if !strings.Contains(block, want) {
+			t.Errorf("640px block lacks %s", want)
+		}
+	}
+}
+
 // The dark tokens are written twice: for an explicit choice and for the system setting.
 // They must never drift apart.
 func TestStyle_darkTokensMatchInBothBlocks(t *testing.T) {

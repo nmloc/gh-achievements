@@ -240,7 +240,10 @@ thead th { color: var(--muted); font-weight: 600; }
 #consent p { margin: 0 0 10px; }
 
 @media (max-width: 640px) {
-  .top-in { flex-wrap: wrap; }
+  .top-in { flex-wrap: wrap; gap: 6px; }
+  .brand { font-size: .875rem; }
+  .star, .theme-btn, .menu-btn { padding: 5px 8px; font-size: .8125rem; }
+  .top .star-count { display: none; }
   .js .menu-btn { display: inline-block; }
   .js .top nav:not([data-open]) { display: none; }
   .top nav { order: 5; flex-basis: 100%; flex-direction: column; gap: 0; padding: 4px 0; }
