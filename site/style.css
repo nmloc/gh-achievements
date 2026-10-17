@@ -73,13 +73,15 @@ footer { margin-top: 56px; padding-bottom: 32px; border-top: 1px solid var(--lin
 .badge-card summary::-webkit-details-marker { display: none; }
 .badge-card[open] { grid-column: 1 / -1; }
 .badge-card[open] summary { justify-items: start; text-align: left; grid-template-columns: 96px 1fr; align-items: center; }
+.badge-card[open] summary .badge-img { grid-row: 1 / span 3; }
+.badge-card[open] summary > :not(.badge-img) { grid-column: 2; }
 .badge-img { width: 96px; height: 96px; }
 .badge-img.placeholder { display: grid; place-items: center; border-radius: 50%; background: var(--line); font-weight: 700; font-size: 1.6rem; }
 .locked .badge-img { filter: grayscale(1); opacity: .45; }
 .badge-name { font-weight: 600; }
 .badge-line { color: var(--muted); font-size: .9rem; }
 .badge-card progress { width: 100%; height: 8px; accent-color: #1f883d; }
-.badge-detail { padding: 0 16px 16px; }
+.badge-detail { padding: 0 16px 16px; overflow-wrap: anywhere; }
 .tier { font: 700 .75rem/1 ui-monospace, monospace; padding: 2px 6px; border-radius: 10px; color: #1f2328; background: #3fb950; }
 .tier.t2 { background: #f9bfa7; } .tier.t3 { background: #e1e4e4; } .tier.t4 { background: #fae57e; }
 .highlights { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
@@ -89,9 +91,11 @@ footer { margin-top: 56px; padding-bottom: 32px; border-top: 1px solid var(--lin
 #consent { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 560px; margin: 0 auto; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
 #consent p { margin: 0 0 10px; }
 @media (max-width: 600px) {
-  .badge-grid { grid-template-columns: repeat(2, 1fr); }
+  .badge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .next { margin-left: 0; text-align: left; }
   .badge-card[open] summary { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .badge-card[open] summary .badge-img { grid-row: auto; }
+  .badge-card[open] summary > :not(.badge-img) { grid-column: auto; }
 }
 .btn.big { padding: 12px 22px; font-size: 1.1rem; }
 .choice { background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 20px; max-width: 520px; }

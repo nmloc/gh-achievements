@@ -53,3 +53,24 @@ func TestInitials(t *testing.T) {
 		}
 	}
 }
+
+func TestStyle_openCardAndLongLinkRules(t *testing.T) {
+	// Layout rules checked in a real browser (open card on desktop, 375px mobile overflow).
+	// Pinned here so a stylesheet edit cannot drop them silently.
+	css, err := Static("style.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		".badge-card[open] summary .badge-img { grid-row: 1 / span 3; }",
+		".badge-card[open] summary > :not(.badge-img) { grid-column: 2; }",
+		".badge-card[open] summary .badge-img { grid-row: auto; }",
+		".badge-card[open] summary > :not(.badge-img) { grid-column: auto; }",
+		".badge-detail { padding: 0 16px 16px; overflow-wrap: anywhere; }",
+		"grid-template-columns: repeat(2, minmax(0, 1fr));",
+	} {
+		if !strings.Contains(string(css), want) {
+			t.Errorf("style.css lacks %q", want)
+		}
+	}
+}
