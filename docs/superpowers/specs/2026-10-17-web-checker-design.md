@@ -105,7 +105,10 @@ waits until it happens.
 - Events: `check_start {method: public|signin}`, `signin_click`, `signin_complete`,
   `report_view {scope, badges_earned}`, `badge_open {badge}`, `share_click`, `cli_copy`,
   `check_error {reason}`.
-- Never send a username or repository name.
+- Never send a username or repository name. `/check?u=<login>` carries one in the URL, so
+  page views are sent with the query string removed (`page_location` override), and the
+  GA4 stream redacts the query keys `u`, `code` and `state` as a second layer.
+- Property: `G-3EEKKGL110` (`GA_MEASUREMENT_ID`), Google signals off, retention 14 months.
 - Custom dimensions in GA4: `method`, `scope`, `badge`, `reason`.
 
 ## Errors (one failure, one message)
