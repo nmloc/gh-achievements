@@ -176,6 +176,22 @@ func TestStarBanner_namesItsPlaceAndTheRepo(t *testing.T) {
 	}
 }
 
+// Under 640px the nav precedes the buttons in the DOM but shows below them: opening the menu
+// moves focus into it, and Escape closes it and returns focus to the button.
+func TestAppJS_mobileMenuManagesFocus(t *testing.T) {
+	js, err := Static("app.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`var first = nav.querySelector("a");`, `if (first) first.focus();`,
+		`e.key !== "Escape"`, `nav.hasAttribute("data-open")`, `nav.removeAttribute("data-open");`,
+		`btn.setAttribute("aria-expanded", "false");`, `btn.focus();`} {
+		if !strings.Contains(string(js), want) {
+			t.Errorf("app.js lacks %s", want)
+		}
+	}
+}
+
 // The star count is fetched anonymously, without a referrer (the result URL names a user),
 // cached for the visit, and only the place of a click reaches GA.
 func TestAppJS_starCountAndClick(t *testing.T) {

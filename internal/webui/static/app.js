@@ -146,13 +146,28 @@
         var nav = document.getElementById("site-nav");
         var open = t.getAttribute("aria-expanded") !== "true";
         t.setAttribute("aria-expanded", String(open));
-        if (nav && open) nav.setAttribute("data-open", "");
-        else if (nav) nav.removeAttribute("data-open");
+        if (nav && open) {
+          nav.setAttribute("data-open", "");
+          // Under 640px the nav precedes the buttons in the DOM but shows below them:
+          // move focus into it so Tab does not leave the header.
+          var first = nav.querySelector("a");
+          if (first) first.focus();
+        } else if (nav) nav.removeAttribute("data-open");
       } else if (t.dataset.star) {
         track("star_click", { place: t.dataset.star });
       } else if (t.dataset.copy) {
         copy(t.dataset.copy, function () { t.textContent = "Copied"; track("cli_copy"); });
       }
+    });
+    // Escape closes the open mobile menu and hands focus back to its button.
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      var nav = document.getElementById("site-nav");
+      var btn = document.querySelector("[data-menu]");
+      if (!nav || !btn || !nav.hasAttribute("data-open")) return;
+      nav.removeAttribute("data-open");
+      btn.setAttribute("aria-expanded", "false");
+      btn.focus();
     });
     document.addEventListener("toggle", function (e) {
       var d = e.target;
