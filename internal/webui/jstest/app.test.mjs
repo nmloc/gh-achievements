@@ -1,6 +1,6 @@
 // Behaviour tests for internal/webui/static/theme.js and app.js.
 // The real scripts run in a node:vm context against a tiny fake DOM written here, so only
-// what these scripts touch exists. Run: node --test internal/webui/jstest/
+// what these scripts touch exists. Run: node --test "internal/webui/jstest/*.test.mjs"
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import vm from "node:vm";
@@ -39,6 +39,8 @@ class FakeEl {
     this.attrs = new Map();
     this.dataset = {};
     this.children = children;
+    this.parent = null;
+    children.forEach((c) => { c.parent = this; });
     this.hidden = false;
     this.textContent = "";
     const classes = new Set();
@@ -50,8 +52,7 @@ class FakeEl {
       if (k === "class") v.split(" ").forEach((c) => classes.add(c));
       else this.setAttribute(k, v);
     }
-    doc.all.push(this);
-    children.forEach((c) => doc.all.push(c));
+    doc.all.push(this); // children registered themselves when they were built
   }
   setAttribute(k, v) {
     this.attrs.set(k, String(v));
@@ -64,7 +65,11 @@ class FakeEl {
     if (k.startsWith("data-")) delete this.dataset[camel(k)];
   }
   matches(sel) { return matches(this, sel); }
-  closest(sel) { return matches(this, sel) ? this : null; }
+  // closest walks up through the parents, as real event delegation relies on.
+  closest(sel) {
+    for (let el = this; el; el = el.parent) if (matches(el, sel)) return el;
+    return null;
+  }
   querySelector(sel) {
     for (const c of this.children) {
       if (matches(c, sel)) return c;
@@ -121,8 +126,15 @@ function buildPage() {
   const starCount = new FakeEl(doc, "span", { "data-stars": "" });
   starCount.hidden = true;
   const starLong = new FakeEl(doc, "span", { class: "star-long" });
-  const starBtn = new FakeEl(doc, "a", { "data-star": "header" }, [starCount, starLong]);
-  return { doc, themeBtn, menuBtn, nav, link1, starBtn, starCount, starLong };
+  const glyph = new FakeEl(doc, "span", { "aria-hidden": "true" });
+  const starBtn = new FakeEl(doc, "a", { "data-star": "header" }, [glyph, starCount, starLong]);
+  // The result page's banner: the target of a click is the inner star span.
+  const ctaStar = new FakeEl(doc, "span", { "aria-hidden": "true" });
+  const bannerCount = new FakeEl(doc, "span", { "data-stars": "" });
+  bannerCount.hidden = true;
+  const cta = new FakeEl(doc, "span", { class: "star-cta" }, [ctaStar, bannerCount]);
+  new FakeEl(doc, "a", { class: "star-banner", "data-star": "result" }, [cta]);
+  return { doc, themeBtn, menuBtn, nav, link1, starBtn, starCount, starLong, glyph, ctaStar, bannerCount };
 }
 
 function sandbox(doc, { local, session, fetchImpl, gtag, search = "" }) {
@@ -289,6 +301,7 @@ const failures = {
   "a network error": () => Promise.reject(new Error("offline")),
   "a rate limit (403)": json({ message: "API rate limit exceeded" }, false),
   "a body without stargazers_count": json({ message: "ok but no count" }),
+  "a 200 whose body is not JSON": () => Promise.resolve({ ok: true, json: () => Promise.reject(new SyntaxError("bad json")) }),
 };
 for (const [name, respond] of Object.entries(failures)) {
   test(`app.js: ${name} is remembered for the visit, so the next page does not fetch`, async () => {
@@ -310,6 +323,16 @@ for (const [name, respond] of Object.entries(failures)) {
   });
 }
 
+test("app.js: an error while filling does not overwrite the stored count with 0", async () => {
+  const session = fakeStorage();
+  const page = buildPage();
+  Object.defineProperty(page.starCount, "hidden", { get: () => true, set() { throw new Error("DOM refused"); } });
+  const ctx = sandbox(page.doc, { local: fakeStorage(), session, fetchImpl: fakeFetch(json({ stargazers_count: 128 })) });
+  vm.runInContext(APP_JS, ctx, { filename: "app.js" });
+  await settle();
+  assert.equal(session.getItem("gha:stars"), "128");
+});
+
 // ---- app.js: star_click ---------------------------------------------------------------
 
 test("app.js: star_click sends only the place, with consent granted", () => {
@@ -323,6 +346,30 @@ test("app.js: star_click sends only the place, with consent granted", () => {
   doc.click(starBtn);
   assert.equal(JSON.stringify(calls), JSON.stringify([["event", "star_click", { place: "header" }]]));
   assert.ok(!JSON.stringify(calls).includes("octocat"));
+});
+
+// Users click the children of the link, not the link itself: delegation must climb to it.
+const starTargets = {
+  "the star glyph in the header link": ["glyph", "header"],
+  "the count inside the header link": ["starCount", "header"],
+  "the long label inside the header link": ["starLong", "header"],
+  "the star inside the banner's call to action": ["ctaStar", "result"],
+  "the count inside the banner": ["bannerCount", "result"],
+};
+for (const [name, [key, place]] of Object.entries(starTargets)) {
+  test(`app.js: clicking ${name} sends star_click {place: ${place}}`, () => {
+    const calls = [];
+    const page = loadApp({ local: fakeStorage({ "gha:consent": "granted" }), gtag: (...a) => calls.push(a) });
+    page.doc.click(page[key]);
+    assert.equal(JSON.stringify(calls), JSON.stringify([["event", "star_click", { place }]]));
+  });
+}
+
+test("app.js: a click outside every tracked element sends nothing", () => {
+  const calls = [];
+  const page = loadApp({ local: fakeStorage({ "gha:consent": "granted" }), gtag: (...a) => calls.push(a) });
+  page.doc.click(page.link1);
+  assert.equal(calls.length, 0);
 });
 
 test("app.js: star_click sends nothing without consent", () => {

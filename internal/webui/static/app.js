@@ -48,16 +48,16 @@
     if (!window.fetch || !document.querySelector("[data-stars]")) return;
     fetch(REPO_API, { credentials: "omit", referrerPolicy: "no-referrer" })
       .then(function (r) { return r.ok ? r.json() : null; })
+      // Offline, rate-limited or not JSON: treat as "no count" and remember it for the visit,
+      // so later pages do not retry. The label stays "Star on GitHub".
+      .catch(function () { return null; })
       .then(function (d) {
         stars = d && typeof d.stargazers_count === "number" ? d.stargazers_count : 0;
         remember(stars);
         fillStars();
       })
-      .catch(function () {
-        // Offline or rate-limited: remember "0" for the visit so later pages do not retry.
-        // The label stays "Star on GitHub".
-        remember(0);
-      });
+      // fillStars threw: the count is already stored, so leave it alone.
+      .catch(function () { /* nothing more to do */ });
   }
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: nothing to remember */ } }
