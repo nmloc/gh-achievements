@@ -2,8 +2,12 @@ package counters
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/cli/go-gh/v2/pkg/config"
@@ -89,5 +93,59 @@ func TestNewWithToken_ignoresTheGhConfig(t *testing.T) {
 	}
 	if _, err := NewWithToken("gho_test"); err != nil {
 		t.Fatalf("NewWithToken read the gh config: %v", err)
+	}
+}
+
+// roundTripFunc answers every request without a network call.
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
+
+// GH_DEBUG=api makes go-gh write a request log, with headers, to stderr. go-gh's httpretty
+// sanitizer redacts Authorization today, so the token is not printed; the guarantee tested
+// here is that a signed-in user's requests write no log at all, so no later change to the
+// sanitizer can leak the token through this path.
+func TestNewWithToken_writesNoRequestLogEvenWithGHDebug(t *testing.T) {
+	const token = "gho_SECRET_FOR_TEST"
+	t.Setenv("GH_DEBUG", "api")
+
+	logPath := filepath.Join(t.TempDir(), "stderr")
+	logFile, err := os.Create(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	originalStderr := os.Stderr
+	os.Stderr = logFile
+	t.Cleanup(func() {
+		os.Stderr = originalStderr
+		_ = logFile.Close()
+	})
+
+	// NewWithToken hands http.DefaultTransport to go-gh, so faking it keeps the call offline.
+	originalTransport := http.DefaultTransport
+	http.DefaultTransport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     http.Header{"Content-Type": {"application/json"}},
+			Body:       io.NopCloser(strings.NewReader(`{"stargazers_count": 1}`)),
+			Request:    req,
+		}, nil
+	})
+	t.Cleanup(func() { http.DefaultTransport = originalTransport })
+
+	s, err := NewWithToken(token)
+	if err != nil {
+		t.Fatalf("NewWithToken: %v", err)
+	}
+	if _, err := s.RepoStars("octo/repo"); err != nil {
+		t.Fatalf("RepoStars: %v", err)
+	}
+
+	logged, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(logged) != 0 {
+		t.Fatalf("GH_DEBUG wrote a request log for a user token (token %q must never reach it):\n%s", token, logged)
 	}
 }
