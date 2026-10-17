@@ -197,3 +197,20 @@ func TestParseDetail_ordinalIsTheLastOneInTheRow(t *testing.T) {
 		t.Fatalf("got %+v", d.Milestones)
 	}
 }
+
+func TestIsLogin(t *testing.T) {
+	// Regression: "torvalds?x" became /torvalds?x?tab=achievements and printed a wrong
+	// report for torvalds under another name.
+	valid := []string{"torvalds", "nmloc", "a", "Schweinepriester", "dependabot-preview", "a-b-c", "x1234567890123456789012345678901234567"}
+	invalid := []string{"", "torvalds?x", "../etc", "a b", "-lead", "trail-", "dou--ble", "a/b", "x12345678901234567890123456789012345678901"}
+	for _, s := range valid {
+		if !IsLogin(s) {
+			t.Errorf("IsLogin(%q) = false", s)
+		}
+	}
+	for _, s := range invalid {
+		if IsLogin(s) {
+			t.Errorf("IsLogin(%q) = true", s)
+		}
+	}
+}

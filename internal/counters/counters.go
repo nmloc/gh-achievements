@@ -55,6 +55,24 @@ func New() Source {
 	return &authed{rest: rest, gql: gql}
 }
 
+// NewWithToken counts with an explicit token: the site's bot token, or a signed-in
+// user's token for one request. A Transport is set so go-gh never reads a gh config.
+func NewWithToken(token string) (Source, error) {
+	if token == "" {
+		return nil, errors.New("counters: empty token")
+	}
+	opts := api.ClientOptions{Host: "github.com", AuthToken: token, Transport: http.DefaultTransport}
+	rest, err := api.NewRESTClient(opts)
+	if err != nil {
+		return nil, err
+	}
+	gql, err := api.NewGraphQLClient(opts)
+	if err != nil {
+		return nil, err
+	}
+	return &authed{rest: rest, gql: gql}, nil
+}
+
 // ---------- authenticated (gh login) ----------
 
 type authed struct {

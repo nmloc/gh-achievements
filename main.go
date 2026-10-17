@@ -9,9 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"regexp"
 	"runtime/debug"
-	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/cli/go-gh/v2/pkg/term"
@@ -70,7 +68,7 @@ func run(args []string) error {
 
 	counts := counters.New()
 	user := fs.Arg(0)
-	if user != "" && !isLogin(user) {
+	if user != "" && !official.IsLogin(user) {
 		return fmt.Errorf("%q is not a GitHub username", user)
 	}
 	if user == "" {
@@ -119,13 +117,6 @@ func currentLogin() (string, error) {
 		return "", err
 	}
 	return me.Login, nil
-}
-
-// reLogin is GitHub's username shape: letters, digits and hyphens, at most 39.
-var reLogin = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9-]{0,38}$`)
-
-func isLogin(s string) bool {
-	return reLogin.MatchString(s) && !strings.HasSuffix(s, "-") && !strings.Contains(s, "--")
 }
 
 // reorder puts flags before the username, so `gh achievements torvalds --json` works:

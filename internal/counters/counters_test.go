@@ -64,3 +64,13 @@ func TestPublic_hasNoGraphQLFacts(t *testing.T) {
 		t.Fatalf("Facts = %+v, %v", f, err)
 	}
 }
+
+func TestNewWithToken_isAuthenticatedAndNeedsAToken(t *testing.T) {
+	if _, err := NewWithToken(""); err == nil {
+		t.Fatal("empty token accepted")
+	}
+	s, err := NewWithToken("gho_test")
+	if err != nil || !s.IsAuthenticated() {
+		t.Fatalf("NewWithToken = %v, %v", s, err)
+	}
+}

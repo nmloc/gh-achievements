@@ -216,3 +216,12 @@ func (c *Client) Detail(user, slug string) (*Detail, error) {
 	d := ParseDetail(slug, frag)
 	return &d, nil
 }
+
+// reLogin is GitHub's username shape: letters, digits and hyphens, at most 39.
+var reLogin = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9-]{0,38}$`)
+
+// IsLogin reports whether s can be a GitHub username. Every entry point checks it
+// before a username reaches a URL or a search query.
+func IsLogin(s string) bool {
+	return reLogin.MatchString(s) && !strings.HasSuffix(s, "-") && !strings.Contains(s, "--")
+}
