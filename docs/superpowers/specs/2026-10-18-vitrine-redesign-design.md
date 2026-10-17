@@ -88,6 +88,23 @@ gold) above the existing facts, tier table, FAQ and "Check your progress".
 
 **Sign-in callback.** The "Checking…" card in the same style; the result replaces it.
 
+## Star the repo (call to action)
+
+Asked for by Loc: an eye-catching button that asks visitors to star `nmloc/gh-achievements`.
+
+- **Header, every page:** a gold pill "★ Star on GitHub" with the live star count
+  ("★ Star 128"), linking to https://github.com/nmloc/gh-achievements. It is the only gold
+  element in the header, so it stands out without competing with the shelf.
+- **Result page, right after the shelves** (the moment people are pleased with what they see):
+  a wide gold banner "Found this useful? Star gh-achievements on GitHub" with the same count,
+  above the share/check-another actions. On the home page the same banner sits under the FAQ.
+- The count comes from `https://api.github.com/repos/nmloc/gh-achievements` in the visitor's
+  browser (CORS allowed, anonymous), cached in `sessionStorage` for the visit. If the request
+  fails or is rate-limited, the button simply shows "★ Star on GitHub" without a number. The
+  CSP's `connect-src` gains `https://api.github.com`.
+- GA event `star_click {place: header|result|home}` (no usernames).
+- The link opens the repository in the same tab with `rel="noopener"`; there is no pop-up.
+
 ## Motion
 
 One moment only: on the home page the shelf's spotlight fades in once on load. Disabled under
