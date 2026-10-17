@@ -163,6 +163,18 @@ func sitePages() (map[string][]byte, error) {
 			Crumbs:      []webui.Crumb{home, {Name: "How accurate is it", URL: webui.SiteURL + "methodology/"}},
 			Data:        map[string]interface{}{"Paras": methodology, "Verified": catalog.LastVerified},
 		},
+		{
+			Path: "check/index.html", URL: webui.SiteURL + "check/",
+			Title:       "Check your GitHub achievements · gh-achievements",
+			Description: "Sign in with GitHub or type a username to see every achievement, the tier and how far to the next one.",
+			Heading:     "Check your GitHub achievements", Content: "check.html",
+			Crumbs: []webui.Crumb{home, {Name: "Check yours", URL: webui.SiteURL + "check/"}},
+		},
+		{
+			Path: "auth/callback/index.html", URL: webui.SiteURL + "auth/callback/", Title: "Checking… · gh-achievements",
+			Description: "Checking your GitHub achievements.", Heading: "Your GitHub achievements",
+			Content: "callback.html", NoIndex: true, NoReferrer: true, Scripts: []string{"/callback.js"},
+		},
 	}
 	for i, v := range views {
 		v := v

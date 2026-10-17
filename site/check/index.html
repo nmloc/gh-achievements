@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check your GitHub achievements · gh-achievements</title>
+<meta name="description" content="Sign in with GitHub or type a username to see every achievement, the tier and how far to the next one.">
+<link rel="canonical" href="https://gh-achievements.vercel.app/check/">
+
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gh-achievements">
+<meta property="og:title" content="Check your GitHub achievements · gh-achievements">
+<meta property="og:description" content="Sign in with GitHub or type a username to see every achievement, the tier and how far to the next one.">
+<meta property="og:url" content="https://gh-achievements.vercel.app/check/">
+<meta property="og:image" content="https://gh-achievements.vercel.app/social.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css">
+<link rel="alternate" type="application/json" href="/achievements.json" title="Achievement catalog (JSON)">
+<script src="/app.js" defer data-ga="G-3EEKKGL110"></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">🏆 gh-achievements</a>
+  <nav aria-label="Site">
+    <a href="/check/">Check yours</a>
+    <a href="/achievements/">All achievements</a>
+    <a href="/methodology/">How accurate is it</a>
+    <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+  </nav>
+</header>
+<main>
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="/">gh-achievements</a></li><li><span aria-hidden="true">›</span> <a href="/check/">Check yours</a></li></ol></nav>
+<h1>Check your GitHub achievements</h1>
+
+
+<div class="choice">
+  <p class="lede">Every GitHub achievement, your tier, and how far you are from the next one.</p>
+  <a href="/auth/login" data-signin class="btn primary big">Sign in with GitHub</a>
+  <p class="meta">Includes private repositories. GitHub asks for repository access; the token is used for one check, then revoked. Nothing is stored.</p>
+  <p class="or">or check any public profile</p>
+  <form action="/result" method="get" id="check-form">
+    <label for="u" class="visually-hidden">GitHub username</label>
+    <input id="u" name="u" required autocomplete="username" autocapitalize="off" spellcheck="false"
+      pattern="[A-Za-z0-9][A-Za-z0-9-]{0,38}" placeholder="username" value="">
+    <button type="submit" class="btn">Check</button>
+  </form>
+</div>
+<p class="meta">Prefer the terminal? <code>gh extension install nmloc/gh-achievements</code> counts everything your gh login can see.</p>
+
+</main>
+<footer>
+  <p>gh-achievements is an independent open source project (MIT) and is not affiliated with or endorsed by GitHub.
+  <a href="https://github.com/nmloc/gh-achievements">Source</a> · <a href="/achievements.json">achievements.json</a> · <a href="/llms.txt">llms.txt</a> · Badge artwork © GitHub, loaded from GitHub's CDN.</p>
+</footer>
+<div id="consent" hidden role="dialog" aria-label="Analytics consent">
+  <p>May we count visits with Google Analytics? No usernames are sent. You can say no; the site works the same.</p>
+  <button type="button" data-consent="granted" class="btn primary">Allow</button>
+  <button type="button" data-consent="denied" class="btn">No thanks</button>
+</div>
+</body>
+</html>

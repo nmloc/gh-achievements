@@ -93,3 +93,10 @@ footer { margin-top: 56px; padding-bottom: 32px; border-top: 1px solid var(--lin
   .next { margin-left: 0; text-align: left; }
   .badge-card[open] summary { grid-template-columns: 1fr; justify-items: center; text-align: center; }
 }
+.btn.big { padding: 12px 22px; font-size: 1.1rem; }
+.choice { background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 20px; max-width: 520px; }
+.choice .or { color: var(--muted); margin: 18px 0 6px; }
+#check-form { display: flex; gap: 8px; }
+#check-form input { flex: 1; min-width: 0; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: inherit; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.steps { margin: 6px 0; }

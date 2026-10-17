@@ -29,3 +29,28 @@ func TestSitePlaceholders_badgesWithoutArtGetAPlaceholder(t *testing.T) {
 		}
 	}
 }
+
+func TestSitePages_checkAndCallback(t *testing.T) {
+	pages, err := sitePages()
+	if err != nil {
+		t.Fatal(err)
+	}
+	check := string(pages["site/check/index.html"])
+	for _, want := range []string{`href="/auth/login" data-signin`, `<form action="/result" method="get" id="check-form">`,
+		`name="u"`, `pattern="[A-Za-z0-9][A-Za-z0-9-]{0,38}"`} {
+		if !strings.Contains(check, want) {
+			t.Errorf("check page lacks %s", want)
+		}
+	}
+	cb := string(pages["site/auth/callback/index.html"])
+	for _, want := range []string{`<meta name="robots" content="noindex">`, `<meta name="referrer" content="no-referrer">`,
+		`<script src="/callback.js" defer>`, `id="status"`, `id="result"`,
+		`id="error-denied"`, `id="error-state"`, `id="error-exchange"`, `id="error-timeout"`, `id="error-github"`, `id="error-internal"`, `id="error-network"`} {
+		if !strings.Contains(cb, want) {
+			t.Errorf("callback page lacks %s", want)
+		}
+	}
+	if len(pages["site/app.js"]) < 500 || len(pages["site/callback.js"]) < 300 {
+		t.Error("scripts not copied or still stubs")
+	}
+}

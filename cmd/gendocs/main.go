@@ -273,7 +273,7 @@ func llmsFull() string {
 }
 
 func sitemap() string {
-	urls := []string{webui.SiteURL, webui.SiteURL + "achievements/", webui.SiteURL + "methodology/"}
+	urls := []string{webui.SiteURL, webui.SiteURL + "achievements/", webui.SiteURL + "methodology/", webui.SiteURL + "check/"}
 	for _, a := range catalog.Achievements {
 		urls = append(urls, webui.SiteURL+"achievements/"+a.Slug+"/")
 	}
