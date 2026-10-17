@@ -41,15 +41,18 @@
 | On the web | In your terminal |
 |---|---|
 | **[gh-achievements.vercel.app/check](https://gh-achievements.vercel.app/check/)** | `gh extension install nmloc/gh-achievements` then `gh achievements` |
-| Type any username, or sign in with GitHub to include private repositories. The token is used for one check and revoked at once; nothing is stored. | Reuses your `gh auth login`, so it counts everything that login can see, including organizations that restrict third-party apps. |
+| Type any username, or sign in with GitHub to include private repositories. The token is used for one check and revoked at once; nothing is stored. Organizations that restrict third-party apps hide their private repositories until an admin approves gh-achievements. | Reuses your `gh auth login`, so it counts everything that login can see, including organizations that restrict third-party apps. |
 
 ![Terminal output of gh achievements torvalds: on display Pull Shark x2 at 72 / 128 to x3 (calibrated), Starstruck at the top tier with 252,192 stars, Pair Extraordinaire at the top tier, the retired Arctic Code Vault and Mars 2020 badges; still to collect Galaxy Brain at 0 / 2 answers, Quickdraw, YOLO, Public Sponsor and Finishing Touch](docs/demo.svg)
 
 ## What it shows
 
+`gh-achievements` is a [GitHub CLI](https://cli.github.com/) extension and a website that list all GitHub profile achievements (Pull Shark, Starstruck, Pair Extraordinaire, Galaxy Brain, Quickdraw, YOLO, Public Sponsor, Finishing Touch and the retired ones) and show your tier and progress to the next one.
+
 - **Every badge, not just yours.** All 15 known achievements (8 earnable, 2 switched off by GitHub, 2 retired, 3 for GitHub staff) and 6 profile highlights such as Pro.
 - **How far to the next tier.** Your count against the next threshold, such as `72 / 128 to x3` for Pull Shark.
 - **Checked against GitHub.** Tiers, unlock dates and milestones come from GitHub's own badge history, and every number is labelled `official`, `calibrated` or `counted`.
+- **No stored token.** The CLI reuses your `gh auth login` and talks only to GitHub. The web checker signs in with GitHub, uses the token for one check and revokes it.
 
 ## Install
 

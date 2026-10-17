@@ -160,6 +160,8 @@ func TestReadme_showsTheSiteAndBothWaysToCheck(t *testing.T) {
 		"## Two ways to check", "## What it shows", "gh achievements --all",
 		"(docs/demo.svg)", "docs/check-button.svg",
 		"https://github.com/nmloc/gh-achievements/stargazers",
+		"is a [GitHub CLI](https://cli.github.com/) extension", "**No stored token.**",
+		"until an admin approves gh-achievements",
 	} {
 		if !strings.Contains(readme, want) {
 			t.Errorf("README lacks %q", want)
