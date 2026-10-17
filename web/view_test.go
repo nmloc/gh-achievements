@@ -47,7 +47,7 @@ func TestResultView_summary(t *testing.T) {
 func TestResultView_closestNextUnlockIsTheSmallestRemaining(t *testing.T) {
 	v := demoView(t, false)
 	// Galaxy Brain needs 2, Pull Shark 56: Galaxy Brain is closest.
-	if v.Closest == nil || v.Closest.Slug != "galaxy-brain" || !strings.Contains(v.Closest.Line, "2 to x1") {
+	if v.Closest == nil || v.Closest.Slug != "galaxy-brain" || v.Closest.Line != "0 / 2 answers to x1" {
 		t.Fatalf("closest = %+v", v.Closest)
 	}
 }
@@ -67,7 +67,7 @@ func TestResultView_cards(t *testing.T) {
 	v := demoView(t, false)
 	ps := card(t, v.Earnable, "pull-shark")
 	if !ps.Earned || ps.TierLabel != "x2" || !strings.Contains(ps.Image, "-bronze-") || ps.Source != "calibrated" ||
-		ps.Progress == nil || ps.Progress.Value != 56 || ps.Progress.Max != 112 || ps.Line != "56 to x3" {
+		ps.Progress == nil || ps.Progress.Value != 56 || ps.Progress.Max != 112 || ps.Line != "72 / 128 to x3" {
 		t.Fatalf("pull shark = %+v %+v", ps, ps.Progress)
 	}
 	if ps.ImageAlt != "Pull Shark, bronze tier (x2)" {
@@ -104,13 +104,13 @@ func TestResultView_hiddenProfileHasNoQuickWins(t *testing.T) {
 func TestCard_nonEarnableKindsNeverShowProgress(t *testing.T) {
 	v := demoView(t, false)
 	heart := card(t, v.Other, "heart-on-your-sleeve")
-	if heart.Line != "switched off by GitHub" || heart.Progress != nil || strings.Contains(heart.Line, "0") {
+	if heart.Line != "Switched off by GitHub" || heart.Progress != nil || strings.Contains(heart.Line, "0") {
 		t.Fatalf("heart = %q %+v", heart.Line, heart.Progress)
 	}
 	// Every fixture profile has the Arctic badge, so build the unearned rows directly.
 	for kind, want := range map[catalog.Kind]string{
-		catalog.Disabled: "switched off by GitHub",
-		catalog.Retired:  "no longer earnable",
+		catalog.Disabled: "Switched off by GitHub",
+		catalog.Retired:  "No longer earnable",
 		catalog.Internal: "GitHub staff only",
 	} {
 		row := report.Row{Slug: "x", Name: "X Badge", Kind: kind, Tiers: []int{0, 16, 128, 0}, Status: report.NotEarned}
@@ -119,11 +119,11 @@ func TestCard_nonEarnableKindsNeverShowProgress(t *testing.T) {
 		}
 	}
 	earned := report.Row{Kind: catalog.Retired, Name: "X", Tiers: []int{1}, Status: report.Earned, Unlocked: "Jan 2021"}
-	if c := newCard(earned); c.Line != "since Jan 2021" {
+	if c := newCard(earned); c.Line != "Since 2021" {
 		t.Errorf("earned retired line = %q", c.Line)
 	}
 	earned.Unlocked = ""
-	if c := newCard(earned); c.Line != "earned" {
+	if c := newCard(earned); c.Line != "Earned" {
 		t.Errorf("earned retired line = %q", c.Line)
 	}
 }
@@ -135,7 +135,7 @@ func TestResultView_hiddenProfileKeepsCountedClosest(t *testing.T) {
 		t.Fatal(err)
 	}
 	v := NewResultView(r, false)
-	if v.Closest == nil || v.Closest.Line == "hidden on this profile" || !strings.Contains(v.Closest.Line, " to x") {
+	if v.Closest == nil || v.Closest.Line == "Hidden on this profile" || !strings.Contains(v.Closest.Line, " to x") {
 		t.Fatalf("closest = %+v", v.Closest)
 	}
 	if v.Closest.Progress == nil || !strings.Contains(v.Closest.ImageAlt, "status hidden") {
@@ -143,7 +143,7 @@ func TestResultView_hiddenProfileKeepsCountedClosest(t *testing.T) {
 	}
 	// A hidden row with no count still says so.
 	c := newCard(report.Row{Name: "Quickdraw", Kind: catalog.Earnable, Tiers: []int{1}, Status: report.Unknown})
-	if c.Line != "hidden on this profile" || c.ImageAlt != "Quickdraw badge, status hidden" {
+	if c.Line != "Hidden on this profile" || c.ImageAlt != "Quickdraw badge, status hidden" {
 		t.Fatalf("unknown without count = %q %q", c.Line, c.ImageAlt)
 	}
 }
@@ -198,5 +198,49 @@ func TestCard_notesSpeakForTheWeb(t *testing.T) {
 	}
 	if len(row.Notes) != 3 || !strings.Contains(row.Notes[0], "gh login") {
 		t.Fatalf("the report row was modified: %q", row.Notes)
+	}
+}
+
+func TestCard_lineShowsTheCountAgainstTheNextThreshold(t *testing.T) {
+	pullShark := []int{2, 16, 128, 1024}
+	stars := []int{16, 128, 512, 4096}
+	cases := []struct {
+		name string
+		row  report.Row
+		want string
+	}{
+		{"count / target", report.Row{Slug: "pull-shark", Kind: catalog.Earnable, Tiers: pullShark, Status: report.Earned, Tier: 2,
+			Standing: &progress.Standing{Tier: 2, Count: 72, Floor: 16, Target: 128, Remaining: 56}}, "72 / 128 to x3"},
+		{"with a unit", report.Row{Slug: "galaxy-brain", Kind: catalog.Earnable, Tiers: []int{2, 8, 16, 32}, Status: report.NotEarned,
+			Standing: &progress.Standing{Tier: 0, Count: 0, Floor: 0, Target: 2, Remaining: 2}}, "0 / 2 answers to x1"},
+		{"thousands", report.Row{Slug: "starstruck", Kind: catalog.Earnable, Tiers: stars, Status: report.Earned, Tier: 3,
+			Standing: &progress.Standing{Tier: 3, Count: 1200, Floor: 512, Target: 4096, Remaining: 2896}}, "1,200 / 4,096 stars to x4"},
+		{"top tier with a unit", report.Row{Slug: "starstruck", Kind: catalog.Earnable, Tiers: stars, Status: report.Earned, Tier: 4,
+			Standing: &progress.Standing{Tier: 4, Count: 252192, Floor: 4096, IsMax: true}}, "Top tier, 252,192 stars"},
+		{"top tier without a unit", report.Row{Slug: "pull-shark", Kind: catalog.Earnable, Tiers: pullShark, Status: report.Earned, Tier: 4,
+			Standing: &progress.Standing{Tier: 4, Count: 1500, Floor: 1024, IsMax: true}}, "Top tier"},
+		{"tiered, no counter", report.Row{Slug: "pair-extraordinaire", Kind: catalog.Earnable, Tiers: []int{1, 10, 24, 48},
+			Status: report.Earned, Tier: 2}, "x2, next tier at 24"},
+		{"tiered, no counter, top", report.Row{Slug: "pair-extraordinaire", Kind: catalog.Earnable, Tiers: []int{1, 10, 24, 48},
+			Status: report.Earned, Tier: 4}, "Top tier"},
+		{"tiered, not started", report.Row{Slug: "finishing-touch", Kind: catalog.Earnable, Tiers: []int{1, 4, 16, 32},
+			Status: report.NotEarned}, "First tier at 1"},
+		{"tiered, first threshold unknown", report.Row{Slug: "x", Kind: catalog.Earnable, Tiers: []int{0, 16, 128, 0},
+			Status: report.NotEarned}, "First tier: threshold unknown"},
+		{"next threshold unknown", report.Row{Slug: "x", Kind: catalog.Earnable, Tiers: []int{0, 16, 128, 0},
+			Status: report.Earned, Tier: 3}, "x3, next tier unknown"},
+		{"single tier, earned", report.Row{Slug: "quickdraw", Kind: catalog.Earnable, Tiers: []int{1}, Status: report.Earned,
+			Tier: 1, Unlocked: "2020-02-02"}, "Since 2020"},
+		{"single tier, earned, no date", report.Row{Slug: "quickdraw", Kind: catalog.Earnable, Tiers: []int{1},
+			Status: report.Earned, Tier: 1}, "Earned"},
+		{"single tier, not earned", report.Row{Slug: "quickdraw", Kind: catalog.Earnable, Tiers: []int{1}, Status: report.NotEarned,
+			HowToEarn: "Close an issue or pull request within 5 minutes of opening it"},
+			"Close an issue or pull request within 5 minutes of opening it"},
+	}
+	for _, tc := range cases {
+		tc.row.Name = "Badge"
+		if got := newCard(tc.row).Line; got != tc.want {
+			t.Errorf("%s: line = %q, want %q", tc.name, got, tc.want)
+		}
 	}
 }
