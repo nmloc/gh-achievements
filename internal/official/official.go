@@ -49,7 +49,8 @@ type Profile struct {
 var ErrUserNotFound = errors.New("user not found")
 
 var (
-	reDetailLink = regexp.MustCompile(`/users/[^/"]+/achievements/([a-z0-9-]+)/detail`)
+	reBadgeImage = regexp.MustCompile(`<img\b[^>]*\sdata-hovercard-type="achievement"[^>]*>`)
+	reDetailLink = regexp.MustCompile(`\sdata-hovercard-url="/users/[^/"]+/achievements/([a-z0-9-]+)/detail(?:\?[^"]*)?"`)
 	reHighlights = regexp.MustCompile(`(?s)>Highlights</h2>(.*?)</ul>`)
 	reListItem   = regexp.MustCompile(`(?s)<li[^>]*>(.*?)</li>`)
 	reName       = regexp.MustCompile(`<h3>([^<]+)</h3>`)
@@ -69,12 +70,12 @@ func Text(fragment string) string {
 	return strings.TrimSpace(reSpace.ReplaceAllString(html.UnescapeString(s), " "))
 }
 
-// ParseEarned returns the earned badge slugs on an achievements tab, without duplicates.
+// ParseEarned reads native achievement badge images and deduplicates their slugs.
 func ParseEarned(page string) []string {
 	seen := map[string]bool{}
 	var slugs []string
-	for _, m := range reDetailLink.FindAllStringSubmatch(page, -1) {
-		if !seen[m[1]] {
+	for _, badge := range reBadgeImage.FindAllString(page, -1) {
+		if m := reDetailLink.FindStringSubmatch(badge); m != nil && !seen[m[1]] {
 			seen[m[1]] = true
 			slugs = append(slugs, m[1])
 		}

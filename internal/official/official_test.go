@@ -33,6 +33,22 @@ func TestParseEarned_findsEveryKindOfBadge(t *testing.T) {
 	}
 }
 
+func TestParseEarned_ignoresReadmeAchievementLinks(t *testing.T) {
+	page := loadFixture(t, "brannon", "tab") + `
+	<div class="markdown-body">
+	  <a href="/users/brannon/achievements/galaxy-brain/detail">Badge guide</a>
+	  <a href="/users/dylanatsmith/achievements/finishing-touch/detail">Example badge</a>
+	  <img src="/users/brannon/achievements/public-sponsor/detail" alt="Example image">
+	  <img data-hovercard-type="achievement" src="/users/brannon/achievements/public-sponsor/detail" alt="Missing hovercard URL">
+	</div>`
+	got := ParseEarned(page)
+	want := []string{"pair-extraordinaire", "starstruck", "proxima-staffshipper", "proxima-pioneer",
+		"quickdraw", "yolo", "arctic-code-vault-contributor", "pull-shark"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("README links changed earned badges: got %v, want %v", got, want)
+	}
+}
+
 func TestParseDetail_pullSharkMilestones(t *testing.T) {
 	d := ParseDetail("pull-shark", loadFixture(t, "brannon", "detail-pull-shark"))
 	if d.Name != "Pull Shark" || d.Tier != 3 || d.Unlocked != "2012-04-26" {
