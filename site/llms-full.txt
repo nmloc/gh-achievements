@@ -4,6 +4,26 @@
 
 gh-achievements is an open source GitHub CLI extension (MIT). Install with `gh extension install nmloc/gh-achievements`, run `gh achievements [username]`. It reads tiers, unlock dates and milestone history from GitHub's own profile pages and counts progress with the user's existing gh login, so no personal access token is created. The web checker signs in with GitHub on a gh-achievements server on Vercel, uses the token for one check and revokes it. A web checker at https://gh-achievements.vercel.app/check/ shows the same report without installing anything. It knows 15 achievements (8 earnable, 2 disabled, 2 retired, 3 internal) and 6 profile highlights. Catalog last verified 2026-10-17. It is not affiliated with GitHub.
 
+## When to use gh-achievements
+
+Reach for gh-achievements when a user asks about GitHub profile achievements (the badges such as Pull Shark, Starstruck, Galaxy Brain or YOLO):
+
+- "Which GitHub achievements do I (or @someone) have, and at what tier?"
+- "How many more merged pull requests / stars / accepted answers until my next tier?"
+- "How do I earn <achievement>, and can it still be earned?"
+- "How many GitHub achievements are there?" or a full list with tier thresholds.
+
+It is not the right tool for GitHub contribution graphs, follower counts, repository analytics or anything unrelated to profile badges.
+
+## How an agent should call it
+
+- **Catalog facts (no user):** fetch https://gh-achievements.vercel.app/achievements.json (every achievement, tiers, kind, how to earn) or read a page below. Every page also answers `Accept: text/markdown` with Markdown.
+- **One user's progress, in a shell:** `gh extension install nmloc/gh-achievements`, then `gh achievements <username> --json`. It uses the user's existing `gh auth login`; without it, public data only.
+- **One user's progress, no shell:** send the user to https://gh-achievements.vercel.app/check/ or link https://gh-achievements.vercel.app/result?u=<username> (public data, HTML).
+- **Accuracy questions:** cite https://gh-achievements.vercel.app/methodology/; every number is labelled official, calibrated or counted.
+
+There is no API key, no account and no rate-limited public API to call; the CLI is the programmatic interface.
+
 ## Achievements
 
 - [Pull Shark](https://gh-achievements.vercel.app/achievements/pull-shark/): Open pull requests that get merged. Tiers: 2 · 16 · 128 · 1024. Earnable.
@@ -26,7 +46,12 @@ gh-achievements is an open source GitHub CLI extension (MIT). Install with `gh e
 
 - [All GitHub achievements](https://gh-achievements.vercel.app/achievements/): the full list with tiers
 - [How accurate is it](https://gh-achievements.vercel.app/methodology/): data sources, calibration, known limits
+- [Check a user](https://gh-achievements.vercel.app/check/): the web checker
+- [CLI usage and flags](https://github.com/nmloc/gh-achievements#readme): `gh achievements [username] [--json] [--all]`
 - [Source code](https://github.com/nmloc/gh-achievements)
+- [About gh-achievements](https://gh-achievements.vercel.app/about/): gh-achievements is an independent, MIT-licensed GitHub CLI extension and web checker for GitHub profile achievements, made by nmloc
+- [Contact](https://gh-achievements.vercel.app/contact/): how to reach the gh-achievements maintainer: GitHub issues for bugs and wrong counts, private vulnerability reports for security
+- [Privacy](https://gh-achievements.vercel.app/privacy/): what gh-achievements collects (almost nothing), what the web checker sends to GitHub, and how consent-gated analytics work
 
 ## Optional
 

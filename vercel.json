@@ -30,6 +30,15 @@
     {
       "headers": [
         {
+          "key": "Vary",
+          "value": "Accept"
+        }
+      ],
+      "source": "/(.*)"
+    },
+    {
+      "headers": [
+        {
           "key": "Referrer-Policy",
           "value": "no-referrer"
         },
@@ -71,6 +80,19 @@
     {
       "destination": "/api/login",
       "source": "/auth/login"
+    }
+  ],
+  "routes": [
+    {
+      "dest": "/api/markdown?path=$1",
+      "has": [
+        {
+          "key": "accept",
+          "type": "header",
+          "value": ".*text/markdown.*"
+        }
+      ],
+      "src": "^/(?!api/|auth/|result(?:/|$))([^.]*)$"
     }
   ]
 }

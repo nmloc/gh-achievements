@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About gh-achievements: who makes it and why</title>
+<meta name="description" content="gh-achievements is an independent, MIT-licensed GitHub CLI extension and web checker for GitHub profile achievements, made by nmloc.">
+<link rel="canonical" href="https://gh-achievements.vercel.app/about/">
+
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gh-achievements">
+<meta property="og:title" content="About gh-achievements: who makes it and why">
+<meta property="og:description" content="gh-achievements is an independent, MIT-licensed GitHub CLI extension and web checker for GitHub profile achievements, made by nmloc.">
+<meta property="og:url" content="https://gh-achievements.vercel.app/about/">
+<meta property="og:image" content="https://gh-achievements.vercel.app/social.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="gh-achievements: check your GitHub achievements progress in the terminal">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<script src="/theme.js"></script>
+<link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css">
+<link rel="alternate" type="application/json" href="/achievements.json" title="Achievement catalog (JSON)">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://gh-achievements.vercel.app/","name":"gh-achievements","position":1},{"@type":"ListItem","item":"https://gh-achievements.vercel.app/about/","name":"About gh-achievements","position":2}]}</script>
+<script src="/app.js" defer data-ga="G-3EEKKGL110"></script>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="/">🏆 gh-achievements</a>
+    <nav id="site-nav" aria-label="Site">
+      <a href="/check/">Check yours</a>
+      <a href="/achievements/">All achievements</a>
+      <a href="/methodology/">How it works</a>
+      <a href="https://github.com/nmloc/gh-achievements">GitHub</a>
+    </nav>
+    <a class="star" href="https://github.com/nmloc/gh-achievements" rel="noopener" data-star="header"><span aria-hidden="true">★</span> Star<span class="star-long"> on GitHub</span> <span class="star-count" data-stars hidden></span></a>
+    <button type="button" class="theme-btn" data-theme-toggle hidden>Dark</button>
+    <button type="button" class="menu-btn" data-menu aria-expanded="false" aria-controls="site-nav">Menu</button>
+  </div>
+</header>
+<main>
+<nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="/">gh-achievements</a></li><li><span aria-hidden="true">›</span> <a href="/about/">About gh-achievements</a></li></ol></nav>
+<h1>About gh-achievements</h1>
+
+<div class="prose">
+
+<h2>What it is</h2>
+<p>gh-achievements is a free, open source tool that shows every GitHub profile achievement, the tier you hold and how far you are from the next one. It comes as a GitHub CLI extension (`gh extension install nmloc/gh-achievements`, then `gh achievements`) and as a web checker on this site. Both build the same report from the same code.</p>
+
+<h2>Why it exists</h2>
+<p>GitHub shows the badges you have but not how close you are to the next tier, and its API does not expose achievements at all. gh-achievements reads GitHub&#39;s own badge pages for tiers and unlock dates, counts progress through the GitHub API, and labels every number official, calibrated or counted so you can tell how sure it is. The methodology page explains each source and its limits.</p>
+
+<h2>Who makes it</h2>
+<p>It is written and maintained by nmloc (https://github.com/nmloc) as an independent project. The source code, issue tracker and release history are public at https://github.com/nmloc/gh-achievements. Releases are built by GitHub Actions from tagged commits, and the achievement catalog is checked against live profiles every week.</p>
+
+<h2>Not affiliated with GitHub</h2>
+<p>gh-achievements is not made, affiliated with or endorsed by GitHub. Badge artwork belongs to GitHub and is loaded from GitHub&#39;s own CDN. The project is released under the MIT license and costs nothing to use.</p>
+
+</div>
+
+</main>
+<footer>
+  <p>gh-achievements is an independent open source project (MIT) and is not affiliated with or endorsed by GitHub.
+  <a href="/about/">About</a> · <a href="/contact/">Contact</a> · <a href="/privacy/">Privacy</a> · <a href="https://github.com/nmloc/gh-achievements">Source</a> · <a href="/achievements.json">achievements.json</a> · <a href="/llms.txt">llms.txt</a> · Badge artwork © GitHub, loaded from GitHub's CDN. · <button type="button" class="linklike" data-consent-reset>Analytics settings</button></p>
+</footer>
+<div id="consent" hidden role="dialog" aria-label="Analytics consent">
+  <p>May we count visits with Google Analytics? No usernames are sent. You can say no; the site works the same.</p>
+  <button type="button" data-consent="granted" class="btn primary">Allow</button>
+  <button type="button" data-consent="denied" class="btn">No thanks</button>
+</div>
+</body>
+</html>

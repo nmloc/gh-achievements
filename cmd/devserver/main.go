@@ -59,6 +59,15 @@ func main() {
 	mux.HandleFunc("/auth/login", cfg.Login)
 	mux.HandleFunc("/api/private", cfg.Private)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// The vercel.json Markdown route, which `vercel dev` would not apply (no `has` locally).
+		if web.WantsMarkdown(r) {
+			q := r.URL.Query()
+			q.Set("path", r.URL.Path)
+			r.URL.RawQuery = q.Encode()
+			web.Markdown(w, r)
+			return
+		}
+		w.Header().Set("Vary", "Accept")
 		for _, h := range web.SecurityHeaders() {
 			w.Header().Set(h.Key, h.Value)
 		}

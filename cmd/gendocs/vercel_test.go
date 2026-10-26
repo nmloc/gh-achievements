@@ -105,3 +105,44 @@ func TestRedirectPages_pointEveryOldURLAtVercel(t *testing.T) {
 		t.Fatal("no root redirect")
 	}
 }
+
+// Routes run before the filesystem, so a Markdown request for / reaches the function even
+// though index.html exists there. A rewrite would never fire for it.
+func TestVercelJSON_routesMarkdownRequestsBeforeTheFilesystemAndVariesOnAccept(t *testing.T) {
+	b, err := vercelJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cfg struct {
+		Routes []struct {
+			Src, Dest string
+			Has       []struct{ Type, Key, Value string }
+		}
+		Headers []struct {
+			Source  string
+			Headers []struct{ Key, Value string }
+		}
+	}
+	if err := json.Unmarshal(b, &cfg); err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.Routes) != 1 {
+		t.Fatalf("routes = %+v", cfg.Routes)
+	}
+	r := cfg.Routes[0]
+	if r.Src != web.MarkdownRoute || r.Dest != "/api/markdown?path=$1" || len(r.Has) != 1 ||
+		r.Has[0].Type != "header" || r.Has[0].Key != "accept" || r.Has[0].Value != web.MarkdownAccept {
+		t.Fatalf("markdown route = %+v", r)
+	}
+	vary := false
+	for _, h := range cfg.Headers {
+		for _, kv := range h.Headers {
+			if h.Source == "/(.*)" && kv.Key == "Vary" && kv.Value == "Accept" {
+				vary = true
+			}
+		}
+	}
+	if !vary {
+		t.Fatal("no Vary: Accept on every path")
+	}
+}

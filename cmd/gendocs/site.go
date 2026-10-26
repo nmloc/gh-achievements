@@ -225,6 +225,16 @@ func sitePages() (map[string][]byte, error) {
 			Content: "callback.html", NoIndex: true, NoReferrer: true, Scripts: []string{"/callback.js"},
 		},
 	}
+	for _, tp := range trustPages {
+		url := webui.SiteURL + tp.Slug + "/"
+		crumbs := []webui.Crumb{home, {Name: tp.Heading, URL: url}}
+		pages = append(pages, webui.Page{
+			Path: tp.Slug + "/index.html", URL: url, Title: tp.Title, Description: tp.Description,
+			Heading: tp.Heading, Content: "prose.html", Crumbs: crumbs,
+			JSONLD: []template.JS{breadcrumbLD(crumbs)},
+			Data:   map[string]interface{}{"Paras": tp.Paras},
+		})
+	}
 	for i, v := range views {
 		v := v
 		if i > 0 {

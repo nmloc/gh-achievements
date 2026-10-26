@@ -119,6 +119,10 @@ func generate() (map[string][]byte, error) {
 	files["site/achievements.json"] = data
 	files["site/llms.txt"] = []byte(llmsTxt())
 	files["site/llms-full.txt"] = []byte(llmsFull())
+	for path, body := range markdownPages() {
+		files["web/markdown/"+path+"index.md"] = []byte(body)
+	}
+	files["web/markdown/404.md"] = []byte(markdownNotFound())
 	for path, body := range verificationFiles() {
 		files[path] = body
 	}
@@ -315,6 +319,7 @@ func llmsTxt() string {
 	b.WriteString("A web checker at " + webui.SiteURL + "check/ shows the same report without installing anything. ")
 	fmt.Fprintf(&b, "It knows %d achievements (%s) and %d profile highlights. Catalog last verified %s. It is not affiliated with GitHub.\n\n",
 		len(catalog.Achievements), kindSummary(), len(catalog.Highlights), catalog.LastVerified)
+	b.WriteString(whenToUse() + "\n")
 	b.WriteString("## Achievements\n\n")
 	for _, a := range catalog.Achievements {
 		fmt.Fprintf(&b, "- [%s](%sachievements/%s/): %s. Tiers: %s. %s.\n", a.Name, webui.SiteURL, a.Slug, a.HowToEarn, tierText(a), statusText(a.Kind))
@@ -322,7 +327,12 @@ func llmsTxt() string {
 	b.WriteString("\n## Docs\n\n")
 	b.WriteString("- [All GitHub achievements](" + webui.SiteURL + "achievements/): the full list with tiers\n")
 	b.WriteString("- [How accurate is it](" + webui.SiteURL + "methodology/): data sources, calibration, known limits\n")
+	b.WriteString("- [Check a user](" + webui.SiteURL + "check/): the web checker\n")
+	b.WriteString("- [CLI usage and flags](" + webui.RepoURL + "#readme): `gh achievements [username] [--json] [--all]`\n")
 	b.WriteString("- [Source code](" + webui.RepoURL + ")\n")
+	for _, tp := range trustPages {
+		fmt.Fprintf(&b, "- [%s](%s%s/): %s\n", tp.Heading, webui.SiteURL, tp.Slug, lowerFirst(strings.TrimSuffix(tp.Description, ".")))
+	}
 	b.WriteString("\n## Optional\n\n")
 	b.WriteString("- [achievements.json](" + webui.SiteURL + "achievements.json): the catalog as JSON\n")
 	b.WriteString("- [llms-full.txt](" + webui.SiteURL + "llms-full.txt): every page as plain text\n")
@@ -361,6 +371,9 @@ func llmsFull() string {
 
 func sitemapURLs() []string {
 	urls := []string{webui.SiteURL, webui.SiteURL + "achievements/", webui.SiteURL + "methodology/", webui.SiteURL + "check/"}
+	for _, tp := range trustPages {
+		urls = append(urls, webui.SiteURL+tp.Slug+"/")
+	}
 	for _, a := range catalog.Achievements {
 		urls = append(urls, webui.SiteURL+"achievements/"+a.Slug+"/")
 	}
