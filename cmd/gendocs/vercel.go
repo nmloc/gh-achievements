@@ -30,8 +30,17 @@ func vercelJSON() ([]byte, error) {
 			{"source": "/result", "destination": "/api/result"},
 			{"source": "/auth/login", "destination": "/api/login"},
 		},
+		// Routes run before the filesystem, unlike rewrites, so a page request asking for
+		// Markdown reaches the function even though an index.html sits at that path.
+		"routes": []map[string]any{{
+			"src":  web.MarkdownRoute,
+			"has":  []map[string]string{{"type": "header", "key": "accept", "value": web.MarkdownAccept}},
+			"dest": "/api/markdown?path=$1",
+		}},
 		"headers": []map[string]any{
 			{"source": "/(.*)", "headers": headers},
+			// Pages answer HTML or Markdown by Accept, so caches must key on it.
+			{"source": "/(.*)", "headers": []map[string]string{{"key": "Vary", "value": "Accept"}}},
 			{"source": "/auth/callback", "headers": callback},
 			{"source": "/auth/callback/(.*)", "headers": callback},
 		},
